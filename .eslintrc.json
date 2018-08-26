@@ -1,0 +1,12 @@
+{
+    "extends": ["airbnb-base", "plugin:prettier/recommended"],
+    "globals": {
+      "window": {}
+    },
+    "plugins": [
+      "babel"
+    ],
+    "rules": {
+      "babel/object-curly-spacing": 1
+    }
+}
