@@ -3,10 +3,11 @@
     "globals": {
       "window": {}
     },
+    "parser": "babel-eslint",
     "plugins": [
       "babel"
     ],
     "rules": {
-      "babel/object-curly-spacing": 1
+      "babel/object-curly-spacing": 0
     }
 }
