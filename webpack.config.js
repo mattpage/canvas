@@ -6,6 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
   mode: 'development',
   entry: {
+    'asteroids': './src/demo/asteroids/index.js',
     'basic': './src/demo/basic/index.js',
   },
   output: {
@@ -40,6 +41,13 @@ module.exports = {
       filename: './demo/basic/index.html',
       templateContent: '<canvas></canvas>',
       title: 'Basic',
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      chunks: ['asteroids'],
+      filename: './demo/asteroids/index.html',
+      templateContent: '<canvas></canvas>',
+      title: 'Asteroids',
     })
   ],
   watch: true,
