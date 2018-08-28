@@ -1,11 +1,11 @@
 import Canvas from "./Canvas";
 import Mouse from "./Mouse";
-/* eslint no-underscore-dangle: ["error", { "allow": ["_canvases", "_mouse"] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_canvas", "_mouse", "_rafId"] }] */
 
 class Game {
   static defaultOptions = {
     contextType: "2d",
-    doubleBuffer: false,
+    contextAttributes: undefined,
     mouse: true
   };
 
@@ -14,9 +14,8 @@ class Game {
   }
 
   constructor(selector, options = Game.defaultOptions) {
-    this._canvases = [];
-
-    this.addCanvas(selector, options);
+    this._rafId = null;
+    this._canvas = new Canvas(selector, options);
 
     if (options.mouse) {
       this._mouse = new Mouse();
@@ -24,20 +23,19 @@ class Game {
     this.options = options;
   }
 
-  addCanvas(selector, options = {}) {
-    this._canvases.push(new Canvas(selector, options));
-  }
-
   get canvas() {
-    return this._canvases[0];
+    return this._canvas;
   }
 
   get mouse() {
     return this._mouse;
   }
 
-  animate(callback) {
-    const context = this.canvas.context(this.options.contextType);
+  start(callback) {
+    const context = this.canvas.context(
+      this.options.contextType,
+      this.options.contextAttributes
+    );
 
     const renderer = callback || this.render;
     if (!renderer) {
@@ -45,18 +43,16 @@ class Game {
     }
     const animationLoop = () => {
       if (renderer(context, this.canvas, this._mouse)) {
-        window.requestAnimationFrame(animationLoop);
+        this.rafId = window.requestAnimationFrame(animationLoop);
       }
     };
     animationLoop();
   }
 
-  flip(context) {
-    // rotate canvases
-    this._canvases.push(this._canvases.shift());
-
-    if (context) {
-      context.drawImage(this.canvas, 0, 0);
+  stop() {
+    if (this.rafId) {
+      window.cancelAnimationFrame(this.rafId);
+      this.rafId = null;
     }
   }
 }

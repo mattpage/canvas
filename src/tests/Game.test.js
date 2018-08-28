@@ -31,7 +31,7 @@ describe("Game", () => {
     });
   });
 
-  describe("animate callback", () => {
+  describe("start", () => {
     beforeEach(() => {
       const qs = (window.document.querySelector = jest.fn());
       qs.mockReturnValue({ getContext: () => ({}) });
@@ -40,15 +40,15 @@ describe("Game", () => {
 
     it("should throw an exception if no callback is supplied", () => {
       const game = new Game("test");
-      expect(() => game.animate()).toThrowError(
+      expect(() => game.start()).toThrowError(
         /^Missing render callback or method/
       );
     });
 
-    it("should call the animate callback", () => {
+    it("should call the callback", () => {
       const game = new Game("test");
       const callback = jest.fn();
-      game.animate(callback);
+      game.start(callback);
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls).toHaveLength(1);
       const args = callback.mock.calls[0];
@@ -65,8 +65,28 @@ describe("Game", () => {
       const game = new Game("test");
       const callback = jest.fn();
       callback.mockReturnValue(true);
-      game.animate(callback);
+      game.start(callback);
       expect(window.requestAnimationFrame).toHaveBeenCalled();
+    });
+  });
+
+  describe("stop", () => {
+    beforeEach(() => {
+      const qs = (window.document.querySelector = jest.fn());
+      qs.mockReturnValue({ getContext: () => ({}) });
+      window.requestAnimationFrame = jest.fn();
+      window.requestAnimationFrame.mockReturnValue(1);
+      window.cancelAnimationFrame = jest.fn();
+    });
+
+    it("should call cancelAnimationFrame", () => {
+      const game = new Game("test");
+      const callback = jest.fn();
+      callback.mockReturnValue(true);
+      game.start(callback);
+      expect(window.requestAnimationFrame).toHaveBeenCalled();
+      game.stop();
+      expect(window.cancelAnimationFrame).toHaveBeenCalled();
     });
   });
 
@@ -79,18 +99,14 @@ describe("Game", () => {
 
     it("should call the render method", () => {
       class MyGame extends Game {
-        constructor(selector) {
-          super(selector);
-        }
-
-        render(context, canvas, mouse) {
+        render() {
           return true;
         }
       }
       const game = new MyGame("test");
       const callback = jest.fn();
       callback.mockReturnValue(true);
-      game.animate(callback);
+      game.start(callback);
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls).toHaveLength(1);
       const args = callback.mock.calls[0];
