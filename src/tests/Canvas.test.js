@@ -77,4 +77,9 @@ describe("Canvas", () => {
       expect(endDimensions).toEqual({ width: 1024, height: 768 });
     });
   });
+  describe("create", () => {
+    it("should return a Canvas instance", () => {
+      expect(Canvas.create("test")).toBeInstanceOf(Canvas);
+    });
+  });
 });

@@ -3,6 +3,10 @@ class Canvas {
     resizable: true
   };
 
+  static create(selector, options) {
+    return new Canvas(selector, options);
+  }
+
   constructor(selector, options = Canvas.defaultOptions) {
     if (selector) {
       this.canvas = window.document.querySelector(selector);

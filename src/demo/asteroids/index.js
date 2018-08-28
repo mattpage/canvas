@@ -1,4 +1,4 @@
-import { Game, Polygon } from "../../index";
+import { Game, Canvas, Polygon } from "../../index";
 
 // asteroids in cartesian points
 /* prettier-ignore */
@@ -78,6 +78,9 @@ const createRandomOffset = (minX, maxX, minY, maxY) => ({
 
 const createRandomRotation = () => numberInRange(0, 360);
 
+const equalDimensions = (dim1, dim2) =>
+  dim1.width === dim2.width && dim1.height === dim2.height;
+
 const state = {
   asteroids: [],
   maxAsteroids: 20
@@ -86,11 +89,20 @@ const state = {
 // create a new game
 const game = Game.create("canvas");
 
+const offscreen = Canvas.create();
+const offscreenContext = offscreen.context("2d");
+
 // start the animation loop
 game.start((context, canvas) => {
   const dim = canvas.dimensions;
   const halfWidth = dim.width / 2;
   const halfHeight = dim.height / 2;
+
+  // if the primary canvas dimensions change, update the offscreen canvas
+  if (!equalDimensions(offscreen.dimensions, dim)) {
+    offscreen.width = dim.width;
+    offscreen.height = dim.height;
+  }
 
   // do we have enough asteroids?
   if (state.asteroids.length < state.maxAsteroids) {
@@ -107,10 +119,13 @@ game.start((context, canvas) => {
     });
   }
 
-  context.save();
+  offscreenContext.fillStyle = "white";
+  offscreenContext.fillRect(0, 0, dim.width, dim.height);
+
+  offscreenContext.save();
 
   // set cartesian coordinates
-  context.translate(halfWidth, halfHeight);
+  offscreenContext.translate(halfWidth, halfHeight);
 
   // render all of the asteroids
   state.asteroids.forEach(asteroid => {
@@ -123,10 +138,16 @@ game.start((context, canvas) => {
     asteroid.rotation = newRotation > 360 ? 0 : newRotation;
 
     // render the asteroid
-    asteroid.polygon.render(context, asteroid.offset, asteroid.rotation);
+    asteroid.polygon.render(
+      offscreenContext,
+      asteroid.offset,
+      asteroid.rotation
+    );
   });
 
-  context.restore();
+  offscreenContext.restore();
+
+  context.drawImage(offscreen.canvas, 0, 0);
 
   // return true to keep animating
   return true;
