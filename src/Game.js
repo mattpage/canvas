@@ -1,18 +1,18 @@
-import Canvas from './Canvas';
-import Mouse from './Mouse';
+import Canvas from "./Canvas";
+import Mouse from "./Mouse";
+/* eslint no-underscore-dangle: ["error", { "allow": ["_canvas", "_mouse"] }] */
 
 class Game {
-
   static defaultOptions = {
-    contextType: '2d',
-    mouse: true,
+    contextType: "2d",
+    mouse: true
   };
 
-  static create(selector, options=Game.defaultOptions) {
+  static create(selector, options = Game.defaultOptions) {
     return new Game(selector, options);
   }
 
-  constructor(selector, options=Game.defaultOptions) {
+  constructor(selector, options = Game.defaultOptions) {
     this._canvas = new Canvas(selector);
     if (options.mouse) {
       this._mouse = new Mouse();
@@ -33,11 +33,11 @@ class Game {
 
     const renderer = callback || this.render;
     if (!renderer) {
-      throw new Error('Missing render callback or method');
+      throw new Error("Missing render callback or method");
     }
     const animationLoop = () => {
-      if (renderer(context, this._canvas, this._mouse)){
-        requestAnimationFrame(animationLoop);
+      if (renderer(context, this._canvas, this._mouse)) {
+        window.requestAnimationFrame(animationLoop);
       }
     };
     animationLoop();

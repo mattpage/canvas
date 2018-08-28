@@ -1,6 +1,11 @@
 {
     "extends": ["airbnb-base", "plugin:prettier/recommended"],
     "globals": {
+      "beforeEach": {},
+      "describe": {}, 
+      "expect": {}, 
+      "it": {}, 
+      "jest": {},
       "window": {}
     },
     "parser": "babel-eslint",
