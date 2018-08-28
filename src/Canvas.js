@@ -1,37 +1,42 @@
 class Canvas {
-
   static defaultOptions = {
-    resizable: true,
+    resizable: true
+  };
+
+  constructor(selector, options = Canvas.defaultOptions) {
+    if (selector) {
+      this.canvas = window.document.querySelector(selector);
+      if (!this.canvas) {
+        throw new Error("Invalid selector", selector);
+      }
+    } else {
+      this.canvas = window.document.createElement("canvas");
+    }
+
+    if (options) {
+      if (options.resizable) {
+        this.handleResize = this.handleResize.bind(this);
+        window.addEventListener("resize", this.handleResize);
+      }
+      this.canvas.width = options.width || window.innerWidth;
+      this.canvas.height = options.height || window.innerHeight;
+    }
   }
 
-  constructor(selector, options=Canvas.defaultOptions) {
-    this.canvas = document.querySelector(selector)
-    if (!this.canvas) {
-      throw new Error('Invalid selector', selector);
-    }
-    this.canvas.width = window.innerWidth
-    this.canvas.height = window.innerHeight
-
-    if (options && options.resizable) {
-      this.handleResize = this.handleResize.bind(this);
-      window.addEventListener('resize', this.handleResize);
-    }
-  }
-
-  context(type='2d', attrs) {
+  context(type = "2d", attrs) {
     return this.canvas.getContext(type, attrs);
   }
 
   get dimensions() {
-    return { 
+    return {
       height: this.canvas.height,
-      width: this.canvas.width,
+      width: this.canvas.width
     };
   }
 
-  handleResize(event) {
-    this.canvas.width = window.innerWidth
-    this.canvas.height = window.innerHeight
+  handleResize() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
   }
 }
 
