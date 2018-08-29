@@ -1,5 +1,7 @@
 class Polygon {
-  static defaultOptions = {};
+  static defaultOptions = {
+    drawRect: false
+  };
 
   static create(points, options) {
     return new Polygon(points, options);
@@ -72,6 +74,17 @@ class Polygon {
     }
     context.closePath();
     context.stroke();
+
+    if (this.options.drawRect) {
+      // draw the bounding rect
+      const rc = this.rect;
+      context.strokeRect(
+        rc.left,
+        rc.top,
+        rc.right - rc.left,
+        rc.bottom - rc.top
+      );
+    }
 
     if (offset || rotation) {
       context.restore();
