@@ -1,9 +1,6 @@
 import { Game, Canvas, numberInRange } from "../../index";
 import Asteroid from "./Asteroid";
 
-const equalDimensions = (dim1, dim2) =>
-  dim1.width === dim2.width && dim1.height === dim2.height;
-
 const state = {
   asteroids: [],
   maxAsteroids: 20,
@@ -19,12 +16,6 @@ game.start((context, canvas) => {
   const dim = canvas.dimensions;
   const halfWidth = dim.width / 2;
   const halfHeight = dim.height / 2;
-
-  // if the primary canvas dimensions change, update the offscreen canvas
-  if (!equalDimensions(offscreen.dimensions, dim)) {
-    offscreen.width = dim.width;
-    offscreen.height = dim.height;
-  }
 
   // do we have enough asteroids?
   if (state.asteroids.length < state.maxAsteroids) {

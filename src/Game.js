@@ -15,7 +15,7 @@ class Game {
 
   constructor(selector, options = Game.defaultOptions) {
     this._rafId = null;
-    this._canvas = new Canvas(selector, options);
+    this._canvas = new Canvas(selector);
 
     if (options.mouse) {
       this._mouse = new Mouse();
