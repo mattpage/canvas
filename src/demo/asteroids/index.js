@@ -1,4 +1,4 @@
-import { Game, Canvas, numberInRange } from "../../index";
+import { Game, Canvas, Physics, numberInRange } from "../../index";
 import Asteroid from "./Asteroid";
 
 const state = {
@@ -8,6 +8,7 @@ const state = {
 };
 
 const game = Game.create("canvas");
+const physics = Physics.create({ bounds: { wrap: true } });
 const offscreen = Canvas.create();
 const offscreenContext = offscreen.context("2d");
 
@@ -34,21 +35,15 @@ game.start((context, canvas) => {
   // set cartesian coordinates
   offscreenContext.translate(halfWidth, halfHeight);
 
-  // render all of the asteroids
+  // update and render all of the asteroids
   state.asteroids.forEach(asteroid => {
-    // move the asteroid
-    asteroid.offset(1, 1);
-
-    // if the asteroid has moved offscreen wrap it around the other side
-    if (asteroid.position.x > halfWidth) {
-      asteroid.move(-halfWidth, asteroid.position.y);
-    }
-    if (asteroid.position.y > halfHeight) {
-      asteroid.move(asteroid.position.x, -halfHeight);
-    }
-
-    // rotate the asteroid
-    asteroid.rotate(asteroid.rotation + 1);
+    // calc position and deal with collisions
+    physics.update(asteroid, {
+      top: -halfHeight,
+      left: -halfWidth,
+      bottom: halfHeight,
+      right: halfWidth
+    });
 
     // render the asteroid
     asteroid.render(offscreenContext);

@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_polygon", "_position", "_rotation"] }] */
-import { Polygon, numberInRange } from "../../index";
+import { Entity, Polygon, numberInRange } from "../../index";
 
-class Asteroid {
+class Asteroid extends Entity {
   // asteroids in cartesian points
   /* prettier-ignore */
   static ASTEROIDS = [
@@ -71,28 +71,11 @@ class Asteroid {
   }
 
   constructor(points, x, y, rotation) {
-    this._polygon = Polygon.create(points);
-    this._position = { x: 0, y: 0 };
-    if (typeof x === "number") {
-      this._position.x = x;
-    }
-    if (typeof y === "number") {
-      this._position.y = y;
-    }
+    const polygon = Polygon.create(points);
+    const rc = polygon.rect;
+    super(x, y, rc.right - rc.left, rc.bottom - rc.top);
+    this._polygon = polygon;
     this._rotation = rotation || 0;
-  }
-
-  get position() {
-    return this._position;
-  }
-
-  move(x, y) {
-    this._position = { x, y };
-  }
-
-  offset(xDelta = 0, yDelta = 0) {
-    this._position.x += xDelta;
-    this._position.y += yDelta;
   }
 
   get rotation() {
