@@ -1,5 +1,5 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_polygon", "_position", "_rotation"] }] */
-import { Entity, Polygon, numberInRange } from "../../index";
+import { Entity, Polygon, numberInRange, integerInRange } from "../../index";
 
 class Asteroid extends Entity {
   // asteroids in cartesian points
@@ -65,30 +65,23 @@ class Asteroid extends Entity {
     ]
   ];
 
-  static createRandom(x, y, rotation) {
-    const index = numberInRange(0, Asteroid.ASTEROIDS.length - 1);
-    return new Asteroid(Asteroid.ASTEROIDS[index], x, y, rotation);
+  static createRandom(x, y) {
+    const index = integerInRange(0, Asteroid.ASTEROIDS.length - 1);
+    const velX = numberInRange(0.001, 0.5);
+    const velY = numberInRange(0.001, 0.5);
+    return new Asteroid(Asteroid.ASTEROIDS[index], x, y, velX, velY);
   }
 
-  constructor(points, x, y, rotation) {
+  constructor(points, x, y, velX, velY) {
     const polygon = Polygon.create(points);
     const rc = polygon.rect;
-    super(x, y, rc.right - rc.left, rc.bottom - rc.top);
+    super(x, y, rc.right - rc.left, rc.bottom - rc.top, velX, velY);
     this._polygon = polygon;
-    this._rotation = rotation || 0;
-  }
-
-  get rotation() {
-    return this._rotation;
-  }
-
-  rotate(degrees) {
-    const newRotation = Math.min(degrees, 360 + 6);
-    this._rotation = newRotation > 360 ? 0 : newRotation;
   }
 
   render(context) {
-    this._polygon.render(context, this._position, this._rotation);
+    const r = 0;
+    this._polygon.render(context, { x: this.x, y: this.y }, r);
   }
 }
 

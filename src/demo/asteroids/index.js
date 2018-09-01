@@ -1,4 +1,4 @@
-import { Game, Canvas, Physics, numberInRange } from "../../index";
+import { Game, Canvas, Physics, integerInRange } from "../../index";
 import Asteroid from "./Asteroid";
 
 const state = {
@@ -20,10 +20,9 @@ game.start((context, canvas) => {
 
   // do we have enough asteroids?
   if (state.asteroids.length < state.maxAsteroids) {
-    const x = numberInRange(-halfWidth, halfWidth);
-    const y = numberInRange(-halfHeight, halfHeight);
-    const rotation = numberInRange(0, 360);
-    state.asteroids.push(Asteroid.createRandom(x, y, rotation));
+    const x = integerInRange(-halfWidth, halfWidth);
+    const y = integerInRange(-halfHeight, halfHeight);
+    state.asteroids.push(Asteroid.createRandom(x, y));
   }
 
   // erase the offscreen canvas

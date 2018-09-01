@@ -3,4 +3,4 @@ export { default as Game } from "./Game";
 export { default as Mouse } from "./Mouse";
 export { default as Polygon } from "./Polygon";
 export { default as Physics, Entity } from "./Physics";
-export { numberInRange } from "./utils";
+export { numberInRange, integerInRange } from "./utils";
