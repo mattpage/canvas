@@ -69,19 +69,37 @@ class Asteroid extends Entity {
     const index = integerInRange(0, Asteroid.ASTEROIDS.length - 1);
     const velX = numberInRange(0.001, 0.5);
     const velY = numberInRange(0.001, 0.5);
-    return new Asteroid(Asteroid.ASTEROIDS[index], x, y, velX, velY);
+    const rotation = numberInRange(1, 360);
+    const torque = numberInRange(0.01, 0.1);
+    return new Asteroid(
+      Asteroid.ASTEROIDS[index],
+      x,
+      y,
+      velX,
+      velY,
+      rotation,
+      torque
+    );
   }
 
-  constructor(points, x, y, velX, velY) {
+  constructor(points, x, y, velX, velY, rotation, torque) {
     const polygon = Polygon.create(points);
     const rc = polygon.rect;
-    super(x, y, rc.right - rc.left, rc.bottom - rc.top, velX, velY);
+    super(
+      x,
+      y,
+      rc.right - rc.left,
+      rc.bottom - rc.top,
+      velX,
+      velY,
+      rotation,
+      torque
+    );
     this._polygon = polygon;
   }
 
   render(context) {
-    const r = 0;
-    this._polygon.render(context, { x: this.x, y: this.y }, r);
+    this._polygon.render(context, { x: this.x, y: this.y }, this.rotation);
   }
 }
 

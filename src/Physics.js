@@ -1,12 +1,14 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width" ] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque" ] }] */
 export class Entity {
-  constructor(x, y, width, height, vx, vy) {
+  constructor(x, y, width, height, vx = 0, vy = 0, rotation = 0, torque = 0) {
     this._x = x;
     this._y = y;
     this._width = width;
     this._height = height;
+    this._rotation = rotation;
+    this._torque = torque;
 
-    this._torque = 0.0;
+    this._elapsed = Date.now();
 
     // velocity
     this._vx = vx;
@@ -17,8 +19,20 @@ export class Entity {
     this._ay = 0.0;
   }
 
+  get elapsed() {
+    return this._elapsed;
+  }
+
+  set elapsed(ms) {
+    this._elapsed = ms;
+  }
+
   get rotation() {
     return this._rotation;
+  }
+
+  get torque() {
+    return this._torque;
   }
 
   rotate(degrees) {
@@ -152,11 +166,18 @@ class Physics {
   }
 
   update(entity, bounds) {
+    const now = Date.now();
+    const diff = now - entity.elapsed;
+
+    // eslint-disable-next-line no-param-reassign
+    entity.elapsed = now;
+
     // calc new position
     entity.updatePosition();
 
     // rotate the entity
-    // entity.rotate(entity.rotation + 1);
+    const r = entity.rotation + diff * entity.torque;
+    entity.rotate(r);
 
     // ensure the entity is within the world bounds
     Physics.constrainEntity(entity, bounds, this.options.bounds);
