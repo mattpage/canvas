@@ -98,8 +98,13 @@ class Asteroid extends Entity {
     this.polygon = polygon;
   }
 
+  rotate(degrees) {
+    this._rotation = degrees > 360 ? 0 : degrees;
+    this.polygon.rotate(degrees);
+  }
+
   render(context) {
-    this.polygon.render(context, { x: this.x, y: this.y }, this.rotation);
+    this.polygon.render(context, { x: this.x, y: this.y });
   }
 }
 

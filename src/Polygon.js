@@ -23,8 +23,10 @@ class Polygon {
     if (points.length > 2) {
       x = points.shift();
       y = points.shift();
-      right = left = x;
-      top = bottom = y;
+      right = x;
+      left = x;
+      top = y;
+      bottom = y;
     }
     while (points.length) {
       x = points.shift();
@@ -50,16 +52,30 @@ class Polygon {
     };
   }
 
-  render(context, offset, rotation) {
+  rotate(degrees) {
+    const angle = (degrees * Math.PI) / 180.0;
+    let x;
+    let y;
+    let x1;
+    let y1;
+    const rotated = [];
     const points = this.points.slice(0);
+    while (points.length) {
+      x = points.shift();
+      y = points.shift();
+      x1 = x * Math.cos(angle) - y * Math.sin(angle);
+      y1 = x * Math.sin(angle) + y * Math.cos(angle);
+      rotated.push(x1, y1);
+    }
+    this.points = rotated;
+  }
 
-    if (offset || rotation) {
+  render(context, offset) {
+    const points = this.points.slice(0);
+    if (offset) {
       context.save();
       if (offset) {
         context.translate(offset.x, offset.y);
-      }
-      if (rotation) {
-        context.rotate((Math.PI / 180) * rotation);
       }
     }
 
@@ -84,7 +100,7 @@ class Polygon {
       );
     }
 
-    if (offset || rotation) {
+    if (offset) {
       context.restore();
 
       if (this.options.showOffset) {

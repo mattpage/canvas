@@ -176,7 +176,7 @@ class Physics {
     entity.updatePosition();
 
     // rotate the entity
-    const r = entity.rotation + diff * entity.torque;
+    const r = diff * entity.torque;
     entity.rotate(r);
 
     // ensure the entity is within the world bounds
