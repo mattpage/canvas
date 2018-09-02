@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_polygon", "_position", "_rotation"] }] */
 import { Entity, Polygon, numberInRange, integerInRange } from "../../index";
 
 class Asteroid extends Entity {
@@ -65,7 +64,7 @@ class Asteroid extends Entity {
     ]
   ];
 
-  static createRandom(x, y) {
+  static createRandom(x, y, options = {}) {
     const index = integerInRange(0, Asteroid.ASTEROIDS.length - 1);
     const velX = numberInRange(0.001, 0.5);
     const velY = numberInRange(0.001, 0.5);
@@ -78,12 +77,13 @@ class Asteroid extends Entity {
       velX,
       velY,
       rotation,
-      torque
+      torque,
+      options
     );
   }
 
-  constructor(points, x, y, velX, velY, rotation, torque) {
-    const polygon = Polygon.create(points);
+  constructor(points, x, y, velX, velY, rotation, torque, options = {}) {
+    const polygon = Polygon.create(points, options);
     const rc = polygon.rect;
     super(
       x,
@@ -95,11 +95,11 @@ class Asteroid extends Entity {
       rotation,
       torque
     );
-    this._polygon = polygon;
+    this.polygon = polygon;
   }
 
   render(context) {
-    this._polygon.render(context, { x: this.x, y: this.y }, this.rotation);
+    this.polygon.render(context, { x: this.x, y: this.y }, this.rotation);
   }
 }
 

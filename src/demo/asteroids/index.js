@@ -3,8 +3,7 @@ import Asteroid from "./Asteroid";
 
 const state = {
   asteroids: [],
-  maxAsteroids: 20,
-  drawCoords: false
+  maxAsteroids: 20
 };
 
 const game = Game.create("canvas");
@@ -22,7 +21,8 @@ game.start((context, canvas) => {
   if (state.asteroids.length < state.maxAsteroids) {
     const x = integerInRange(-halfWidth, halfWidth);
     const y = integerInRange(-halfHeight, halfHeight);
-    state.asteroids.push(Asteroid.createRandom(x, y));
+    const options = { showOffset: false, showRect: false };
+    state.asteroids.push(Asteroid.createRandom(x, y, options));
   }
 
   // erase the offscreen canvas
@@ -46,12 +46,6 @@ game.start((context, canvas) => {
 
     // render the asteroid
     asteroid.render(offscreenContext);
-
-    if (state.drawCoords) {
-      // draw the x,y coordinates
-      const { x, y } = asteroid.offset;
-      offscreenContext.strokeText(`(${x},${y})`, x, y);
-    }
   });
 
   // unset cartesian coords

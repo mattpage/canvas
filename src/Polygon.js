@@ -1,7 +1,5 @@
 class Polygon {
-  static defaultOptions = {
-    drawRect: false
-  };
+  static defaultOptions = { showRect: false, showOffset: false };
 
   static create(points, options) {
     return new Polygon(points, options);
@@ -75,7 +73,7 @@ class Polygon {
     context.closePath();
     context.stroke();
 
-    if (this.options.drawRect) {
+    if (this.options.showRect) {
       // draw the bounding rect
       const rc = this.rect;
       context.strokeRect(
@@ -88,6 +86,12 @@ class Polygon {
 
     if (offset || rotation) {
       context.restore();
+
+      if (this.options.showOffset) {
+        // draw the x,y coordinates
+        const { x, y } = offset;
+        context.strokeText(`(${x},${y})`, x, y);
+      }
     }
   }
 }
