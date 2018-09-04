@@ -56,21 +56,20 @@ export class Entity {
     this._y = y;
   }
 
-  get position() {
-    return { x: this.x, y: this.y };
-  }
-
-  set position(point) {
-    this.x = point.x;
-    this.y = point.y;
-  }
-
   get vx() {
     return this._vx;
   }
 
+  set vx(vx) {
+    this._vx = vx;
+  }
+
   get vy() {
     return this._vy;
+  }
+
+  set vy(vy) {
+    this._vy = vy;
   }
 
   get ax() {
@@ -87,16 +86,6 @@ export class Entity {
 
   get height() {
     return this._height;
-  }
-
-  updatePosition() {
-    // update velocity
-    this._vx += this._ax;
-    this._vy += this._ay;
-
-    // update position
-    this._x += this._vx;
-    this._y += this._vy;
   }
 }
 
@@ -157,8 +146,8 @@ class Physics {
       }
     }
 
-    // eslint-disable-next-line no-param-reassign
-    entity.position = { x, y };
+    entity.x = x;
+    entity.y = y;
   }
 
   constructor(options) {
@@ -172,8 +161,13 @@ class Physics {
     // eslint-disable-next-line no-param-reassign
     entity.elapsed = now;
 
-    // calc new position
-    entity.updatePosition();
+    // update velocity
+    entity.vx += entity.ax;
+    entity.vy += entity.ay;
+
+    // update position
+    entity.x += entity.vx;
+    entity.y += entity.vy;
 
     // rotate the entity
     const r = diff * entity.torque;
