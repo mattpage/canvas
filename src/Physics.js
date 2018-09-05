@@ -31,13 +31,13 @@ export class Entity {
     return this._rotation;
   }
 
-  get torque() {
-    return this._torque;
-  }
-
-  rotate(degrees) {
+  set rotation(degrees) {
     const newRotation = Math.min(degrees, 360 + 6);
     this._rotation = newRotation > 360 ? 0 : newRotation;
+  }
+
+  get torque() {
+    return this._torque;
   }
 
   get x() {
@@ -170,8 +170,7 @@ class Physics {
     entity.y += entity.vy;
 
     // rotate the entity
-    const r = diff * entity.torque;
-    entity.rotate(r);
+    entity.rotation = diff * entity.torque;
 
     // ensure the entity is within the world bounds
     Physics.constrainEntity(entity, bounds, this.options.bounds);
