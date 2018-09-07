@@ -5,7 +5,7 @@ class Asteroid extends Entity {
   /* prettier-ignore */
   static ASTEROIDS = [
     [
-      0, 20,
+      0, 30,
       20, 0,
       20, -10,
       0, -30,
@@ -18,15 +18,15 @@ class Asteroid extends Entity {
       -20, 20
     ],
     [
-      0, 20,
-      20, 0,
+      0, 30,
+      30, 0,
       20, -10,
       0, -30,
       -10, -30,
       -20, -20,
       -30, -10,
       -30, 0,
-      -20, 20
+      -20, 30
     ],
     [
       0, 20,
@@ -56,9 +56,9 @@ class Asteroid extends Entity {
       5, -5,
       5, -10,
       0, -5,
-      -5, -10,
+      -5, -15,
       -10, -5,
-      -10, 0,
+      -15, 0,
       -5, 5,
       -5, 10
     ]
