@@ -70,7 +70,7 @@ class Polygon {
     this.points = rotated;
   }
 
-  render(context, offset) {
+  render(context, offset, color = "black") {
     const points = this.points.slice(0);
     if (offset) {
       context.save();
@@ -87,6 +87,7 @@ class Polygon {
       }
     }
     context.closePath();
+    context.strokeStyle = color;
     context.stroke();
 
     if (this.options.showRect) {

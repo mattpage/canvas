@@ -17,6 +17,16 @@ export class Entity {
     // acceleration
     this._ax = 0.0;
     this._ay = 0.0;
+
+    this._color = "black";
+  }
+
+  get color() {
+    return this._color;
+  }
+
+  set color(color) {
+    this._color = color;
   }
 
   get elapsed() {
@@ -87,6 +97,15 @@ export class Entity {
   get height() {
     return this._height;
   }
+
+  get rect() {
+    return {
+      top: this.y,
+      left: this.x,
+      right: this.x + this.width,
+      bottom: this.y + this.height
+    };
+  }
 }
 
 class Physics {
@@ -150,32 +169,68 @@ class Physics {
     entity.y = y;
   }
 
+  static collision(rect1, rect2) {
+    // Store the collider and collidee edges
+    const l1 = rect1.left;
+    const t1 = rect1.top;
+    const r1 = rect1.right;
+    const b1 = rect1.bottom;
+
+    const l2 = rect2.left;
+    const t2 = rect2.top;
+    const r2 = rect2.right;
+    const b2 = rect2.bottom;
+
+    // If the any of the edges are beyond any of the
+    // others, then we know that the box cannot be
+    // colliding
+    if (b1 < t2 || t1 > b2 || r1 < l2 || l1 > r2) {
+      return false;
+    }
+
+    // If the algorithm made it here, it had to collide
+    return true;
+  }
+
   constructor(options) {
     this.options = options;
   }
 
-  update(entity, bounds) {
+  update(entities, bounds) {
     const now = Date.now();
-    const diff = now - entity.elapsed;
 
-    // eslint-disable-next-line no-param-reassign
-    entity.elapsed = now;
+    entities.forEach(entity => {
+      const diff = now - entity.elapsed;
+      // eslint-disable-next-line no-param-reassign
+      entity.elapsed = now;
 
-    // update velocity
-    entity.vx += entity.ax;
-    entity.vy += entity.ay;
+      // update velocity
+      entity.vx += entity.ax;
+      entity.vy += entity.ay;
 
-    // update position
-    entity.x += entity.vx;
-    entity.y += entity.vy;
+      // update position
+      entity.x += entity.vx;
+      entity.y += entity.vy;
 
-    // rotate the entity
-    entity.rotation = diff * entity.torque;
+      // rotate the entity
+      entity.rotation = diff * entity.torque;
 
-    // ensure the entity is within the world bounds
-    Physics.constrainEntity(entity, bounds, this.options.bounds);
+      // ensure the entity is within the world bounds
+      Physics.constrainEntity(entity, bounds, this.options.bounds);
 
-    // collision detection
+      // collision detection
+      let hasCollision = false;
+      entities.forEach(otherEntity => {
+        if (entity != otherEntity) {
+          if (Physics.collision(entity.rect, otherEntity.rect)) {
+            hasCollision = true;
+          }
+        }
+      });
+
+      // indicate collision by setting color of entities
+      entity.color = hasCollision ? "red" : "black";
+    });
 
     // collision resolution
   }

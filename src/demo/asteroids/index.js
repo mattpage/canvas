@@ -21,7 +21,7 @@ game.start((context, canvas) => {
   if (state.asteroids.length < state.maxAsteroids) {
     const x = integerInRange(-halfWidth, halfWidth);
     const y = integerInRange(-halfHeight, halfHeight);
-    const options = { showOffset: false, showRect: false };
+    const options = { showOffset: false, showRect: true };
     state.asteroids.push(Asteroid.createRandom(x, y, options));
   }
 
@@ -34,17 +34,16 @@ game.start((context, canvas) => {
   // set cartesian coordinates
   offscreenContext.translate(halfWidth, halfHeight);
 
-  // update and render all of the asteroids
-  state.asteroids.forEach(asteroid => {
-    // calc position and deal with collisions
-    physics.update(asteroid, {
-      top: -halfHeight,
-      left: -halfWidth,
-      bottom: halfHeight,
-      right: halfWidth
-    });
+  // update asteroid physics
+  physics.update(state.asteroids, {
+    top: -halfHeight,
+    left: -halfWidth,
+    bottom: halfHeight,
+    right: halfWidth
+  });
 
-    // render the asteroid
+  // render all of the asteroids
+  state.asteroids.forEach(asteroid => {
     asteroid.render(offscreenContext);
   });
 
