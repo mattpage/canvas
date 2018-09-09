@@ -1,5 +1,5 @@
 import { Game, Canvas, Physics, integerInRange } from "../../index";
-import Asteroid from "./Asteroid";
+import Asteroid, { AsteroidSize } from "./Asteroid";
 
 const state = {
   asteroids: [],
@@ -21,7 +21,11 @@ game.start((context, canvas) => {
   if (state.asteroids.length < state.maxAsteroids) {
     const x = integerInRange(-halfWidth, halfWidth);
     const y = integerInRange(-halfHeight, halfHeight);
-    const options = { showOffset: false, showRect: true };
+    const options = {
+      showOffset: false,
+      showRect: false,
+      size: AsteroidSize.Large
+    };
     state.asteroids.push(Asteroid.createRandom(x, y, options));
   }
 
@@ -43,9 +47,65 @@ game.start((context, canvas) => {
   });
 
   // render all of the asteroids
-  state.asteroids.forEach(asteroid => {
-    asteroid.render(offscreenContext);
-  });
+  let i;
+  for (i = 0; i < state.asteroids.length; ++i) {
+    if (state.asteroids[i].collision) {
+      const asteroid = state.asteroids[i];
+      switch (asteroid.size) {
+        case AsteroidSize.Tiny:
+          // when a tiny asteroid collides, it is destroyed
+          // so we remove it from the array
+          state.asteroids.splice(i, 1);
+          continue;
+        case AsteroidSize.Small:
+          // when a small asteroid collides, it is replaced
+          // with two tiny asteroids
+          state.asteroids.splice(
+            i,
+            1,
+            Asteroid.createRandom(asteroid.x, asteroid.y, {
+              size: AsteroidSize.Tiny
+            }),
+            Asteroid.createRandom(asteroid.x + 10, asteroid.y + 10, {
+              size: AsteroidSize.Tiny
+            })
+          );
+          break;
+        case AsteroidSize.Medium:
+          // when a medium asteroid collides, it is replaced
+          // with two small asteroids
+          state.asteroids.splice(
+            i,
+            1,
+            Asteroid.createRandom(asteroid.x, asteroid.y, {
+              size: AsteroidSize.Small
+            }),
+            Asteroid.createRandom(asteroid.x + 20, asteroid.y + 20, {
+              size: AsteroidSize.Small
+            })
+          );
+          break;
+        case AsteroidSize.Large:
+          // when a large asteroid collides, it is replaced
+          // with two medium asteroids
+          state.asteroids.splice(
+            i,
+            1,
+            Asteroid.createRandom(asteroid.x, asteroid.y, {
+              size: AsteroidSize.Medium
+            }),
+            Asteroid.createRandom(asteroid.x + 100, asteroid.y + 100, {
+              size: AsteroidSize.Medium
+            })
+          );
+          break;
+        default:
+          console.warn("unknown asteroid size", asteroid.size);
+          break;
+      }
+    }
+    state.asteroids[i].render(offscreenContext);
+  }
 
   // unset cartesian coords
   offscreenContext.restore();

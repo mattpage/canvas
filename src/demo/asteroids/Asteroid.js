@@ -1,9 +1,10 @@
 import { Entity, Polygon, numberInRange, integerInRange } from "../../index";
 
-const AsteroidSize = Object.freeze({
-  Large: 3,
-  Medium: 2,
-  Small: 1
+export const AsteroidSize = Object.freeze({
+  Large: 4,
+  Medium: 3,
+  Small: 2,
+  Tiny: 1
 });
 
 class Asteroid extends Entity {
@@ -83,6 +84,31 @@ class Asteroid extends Entity {
       ],
     },
     {
+      name: 'wobbly-em',
+      size: AsteroidSize.Small,
+      points: [
+        0, 15,
+        5, 10,
+        10, 10,
+        15, 5,
+        15, 0,
+        10, -5,
+        5, 0,
+        5, -5,
+        0, -5,
+        0, -10,
+        -5, -15,
+        -10, -10,
+        -10, -5,
+        -15, -5,
+        -15, 0,
+        -10, 5,
+        -5, 5,
+        -5, 10
+      ]
+    },
+    {
+      name: 'knights-head',
       size: AsteroidSize.Small,
       points: [
         0, 15,
@@ -102,34 +128,70 @@ class Asteroid extends Entity {
       ]
     },
     {
+      name: 'ugly-muffin',
       size: AsteroidSize.Small,
       points: [
         0, 10,
-        5, 10,
-        10, 10,
-        10, 5,
+        5, 5,
+        8, 5,
         10, 0,
-        10, -5,
+        8, -5,
+        10, 0,
+        8, -5,
         5, -5,
         5, -10,
-        0, -5,
+        0, -8,
         -5, -10,
         -10, -5,
         -10, 0,
         -5, 5,
         -5, 10
       ]
+    },
+    {
+      name: 'idaho',
+      size: AsteroidSize.Tiny,
+      points: [
+        0, 5,
+        3, 5,
+        3, 3,
+        5, 3,
+        5, 0,
+        3, -3,
+        3, -5,
+        0, -5,
+        -3, -3,
+      ]
+    },
+    {
+      name: 'little-boulder',
+      size: AsteroidSize.Tiny,
+      points: [
+        0, 5,
+        5, 3,
+        5, 0,
+        5, -3,
+        0, -5,
+        -3, -5,
+        -5, 0,
+        -3, 5,
+      ]
     }
-  ]; 
+  ];
 
   static createRandom(x, y, options = {}) {
-    const index = integerInRange(0, Asteroid.ASTEROIDS.length);
+    let asteroids = Asteroid.ASTEROIDS;
+    if (options.size) {
+      asteroids = asteroids.filter(a => a.size === options.size);
+    }
+    const index = integerInRange(0, asteroids.length - 1);
     const velX = numberInRange(0.001, 0.5);
     const velY = numberInRange(0.001, 0.5);
     const rotation = numberInRange(1, 360);
     const torque = numberInRange(0.01, 0.1);
     return new Asteroid(
-      Asteroid.ASTEROIDS[index].points,
+      asteroids[index].points,
+      asteroids[index].size,
       x,
       y,
       velX,
@@ -140,7 +202,7 @@ class Asteroid extends Entity {
     );
   }
 
-  constructor(points, x, y, velX, velY, rotation, torque, options = {}) {
+  constructor(points, size, x, y, velX, velY, rotation, torque, options = {}) {
     const polygon = Polygon.create(points, options);
     const rc = polygon.rect;
     super(
@@ -154,6 +216,11 @@ class Asteroid extends Entity {
       torque
     );
     this.polygon = polygon;
+    this._size = size;
+  }
+
+  get size() {
+    return this._size;
   }
 
   set rotation(degrees) {
@@ -163,7 +230,7 @@ class Asteroid extends Entity {
   }
 
   render(context) {
-    this.polygon.render(context, { x: this.x, y: this.y }, this.color);
+    this.polygon.render(context, { x: this.x, y: this.y });
   }
 }
 

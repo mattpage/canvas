@@ -1,4 +1,4 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque" ] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collision" ] }] */
 export class Entity {
   constructor(x, y, width, height, vx = 0, vy = 0, rotation = 0, torque = 0) {
     this._x = x;
@@ -18,15 +18,15 @@ export class Entity {
     this._ax = 0.0;
     this._ay = 0.0;
 
-    this._color = "black";
+    this._collision = false;
   }
 
-  get color() {
-    return this._color;
+  get collision() {
+    return this._collision;
   }
 
-  set color(color) {
-    this._color = color;
+  set collision(hasCollision) {
+    this._collision = hasCollision;
   }
 
   get elapsed() {
@@ -229,7 +229,7 @@ class Physics {
       });
 
       // indicate collision by setting color of entities
-      entity.color = hasCollision ? "red" : "black";
+      entity.collision = hasCollision;
     });
 
     // collision resolution
