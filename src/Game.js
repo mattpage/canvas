@@ -42,7 +42,7 @@ class Game {
       throw new Error("Missing render callback or method");
     }
     const animationLoop = () => {
-      if (renderer(context, this.canvas, this._mouse)) {
+      if (renderer(context, this.canvas, this.mouse)) {
         this.rafId = window.requestAnimationFrame(animationLoop);
       }
     };

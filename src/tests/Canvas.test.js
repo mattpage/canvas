@@ -77,6 +77,31 @@ describe("Canvas", () => {
       expect(endDimensions).toEqual({ width: 1024, height: 768 });
     });
   });
+
+  describe("without a valid selector", () => {
+    let mockCanvas;
+
+    beforeEach(() => {
+      /* eslint-disable-next-line no-multi-assign */
+      const qs = (window.document.createElement = jest.fn());
+      mockCanvas = {
+        getContext: jest.fn()
+      };
+      mockCanvas.getContext.mockReturnValue({});
+      qs.mockReturnValue(mockCanvas);
+      window.innerWidth = 640;
+      window.innerHeight = 480;
+      window.addEventListener = jest.fn();
+    });
+
+    it("should construct, create a new canvas, and set its width and height", () => {
+      const canvas = new Canvas();
+      expect(window.document.createElement).toHaveBeenCalledWith("canvas");
+      expect(canvas.dimensions.width).toEqual(640);
+      expect(canvas.dimensions.height).toEqual(480);
+    });
+  });
+
   describe("create", () => {
     it("should return a Canvas instance", () => {
       expect(Canvas.create("test")).toBeInstanceOf(Canvas);
