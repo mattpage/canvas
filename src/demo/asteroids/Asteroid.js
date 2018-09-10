@@ -179,10 +179,10 @@ class Asteroid extends Entity {
     }
   ];
 
-  static createRandom(x, y, options = {}) {
+  static createRandom(x, y, size, options = {}) {
     let asteroids = Asteroid.ASTEROIDS;
-    if (options.size) {
-      asteroids = asteroids.filter(a => a.size === options.size);
+    if (size) {
+      asteroids = asteroids.filter(a => a.size === size);
     }
     const index = integerInRange(0, asteroids.length - 1);
     const velX = numberInRange(0.001, 0.5);

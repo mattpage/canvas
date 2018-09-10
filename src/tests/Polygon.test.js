@@ -36,4 +36,6 @@ describe("Polygon", () => {
       expect(Polygon.create(testPoints)).toBeInstanceOf(Polygon);
     });
   });
+
+  describe("render", () => {});
 });
