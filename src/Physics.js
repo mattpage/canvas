@@ -141,7 +141,7 @@ class Physics {
 
       // off top edge
       if (y + halfHeight < boundsRect.top) {
-        y = boundsRect.height + halfHeight;
+        y = boundsRect.bottom + halfHeight;
       }
     } else {
       // off right edge
