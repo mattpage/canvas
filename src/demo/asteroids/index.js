@@ -47,24 +47,21 @@ const splitAsteroid = (asteroid, newSize, offset) => {
   return [a1, a2];
 };
 
-const game = Game.create("canvas", {
-  state: {
-    asteroids: [],
-    initialized: false,
-    maxAsteroids: 20
-  }
-});
-
+const game = Game.create("canvas");
 const physics = Physics.create({ bounds: { wrap: true } });
 const offscreen = Canvas.create();
 const offscreenContext = offscreen.context("2d");
+const state = {
+  asteroids: [],
+  initialized: false,
+  maxAsteroids: 20
+};
 
 // start the animation loop
 game.start((context, canvas) => {
   const dim = canvas.dimensions;
   const halfWidth = dim.width / 2;
   const halfHeight = dim.height / 2;
-  const state = game.state;
 
   if (!state.initialized) {
     console.log("initializing game");
