@@ -1,6 +1,19 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collision" ] }] */
 export class Entity {
-  constructor(x, y, width, height, vx = 0, vy = 0, rotation = 0, torque = 0) {
+  static create(...args) {
+    return new Entity(...args);
+  }
+
+  constructor(
+    x = 0,
+    y = 0,
+    width = 0,
+    height = 0,
+    vx = 0,
+    vy = 0,
+    rotation = 0,
+    torque = 0
+  ) {
     this._x = x;
     this._y = y;
     this._width = width;
