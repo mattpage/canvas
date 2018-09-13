@@ -39,7 +39,7 @@ export class Entity {
   }
 
   set collision(hasCollision) {
-    this._collision = hasCollision;
+    this._collision = Boolean(hasCollision);
   }
 
   get elapsed() {
