@@ -55,8 +55,13 @@ export class Entity {
   }
 
   set rotation(degrees) {
-    const newRotation = Math.min(degrees, 360 + 6);
-    this._rotation = newRotation > 360 ? 0 : newRotation;
+    let newRotation = degrees;
+    if (newRotation > 360) {
+      newRotation = 0;
+    } else if (newRotation < 0) {
+      newRotation = 360;
+    }
+    this._rotation = newRotation;
   }
 
   get torque() {
