@@ -3,14 +3,19 @@ import Physics, { Entity } from "../Physics";
 describe("Physics", () => {
   describe("Physics", () => {
     it("should construct", () => {
-      const entity = new Physics();
-      expect(entity).toBeInstanceOf(Physics);
+      const physics = new Physics();
+      expect(physics).toBeInstanceOf(Physics);
+    });
+
+    describe("constrainEntity", () => {
+      it("should constrain an entity to a bounding rectangle", () => {});
+      it("should wrap an entity to a bounding rectangle", () => {});
     });
 
     describe("Physics.create", () => {
       it("should create", () => {
-        const entity = Physics.create();
-        expect(entity).toBeInstanceOf(Physics);
+        const physics = Physics.create();
+        expect(physics).toBeInstanceOf(Physics);
       });
     });
   });
