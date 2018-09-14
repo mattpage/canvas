@@ -104,8 +104,16 @@ export class Entity {
     return this._ax;
   }
 
+  set ax(ax) {
+    this._ax = ax;
+  }
+
   get ay() {
     return this._ay;
+  }
+
+  set ay(ay) {
+    this._ay = ay;
   }
 
   get width() {

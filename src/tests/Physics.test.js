@@ -68,6 +68,31 @@ describe("Physics", () => {
       expect(rc.bottom).toEqual(202);
     });
 
+    it("should have timestamp", () => {
+      const entity = new Entity();
+      expect(entity.elapsed).toBeGreaterThan(0);
+      expect(entity.elapsed).toBeLessThan(Number.MAX_VALUE);
+      const ms = Date.now();
+      entity.elapsed = ms;
+      expect(entity.elapsed).toEqual(ms);
+    });
+
+    it("should be possible to get/set velocity", () => {
+      const entity = new Entity();
+      entity.vx = 42.4;
+      expect(entity.vx).toEqual(42.4);
+      entity.vy = 22.1;
+      expect(entity.vy).toEqual(22.1);
+    });
+
+    it("should be possible to get/set acceleration", () => {
+      const entity = new Entity();
+      entity.ax = 2.4;
+      expect(entity.ax).toEqual(2.4);
+      entity.ay = 4.2;
+      expect(entity.ay).toEqual(4.2);
+    });
+
     describe("Entity.create", () => {
       it("should create", () => {
         const entity = Entity.create();
