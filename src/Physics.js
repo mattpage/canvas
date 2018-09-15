@@ -143,7 +143,7 @@ class Physics {
     return new Physics(options);
   }
 
-  static constrainEntity(entity, boundsRect, options) {
+  static constrainEntity(entity, boundsRect, options = {}) {
     const halfWidth = entity.width / 2;
     const halfHeight = entity.height / 2;
     const { wrap } = options;
