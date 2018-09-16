@@ -153,6 +153,14 @@ describe("Physics", () => {
       });
     });
 
+    describe("collision", () => {
+      it("should detect a collision when entities occupy the exact same space", () => {
+        const a = Entity.create(0, 0, 100, 100);
+        const b = Entity.create(0, 0, 100, 100);
+        expect(Physics.collision(a, b)).toBe(true);
+      });
+    });
+
     describe("Physics.create", () => {
       it("should create", () => {
         const physics = Physics.create();

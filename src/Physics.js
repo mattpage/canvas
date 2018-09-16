@@ -195,27 +195,14 @@ class Physics {
     entity.y = y;
   }
 
-  static collision(rect1, rect2) {
-    // Store the collider and collidee edges
-    const l1 = rect1.left;
-    const t1 = rect1.top;
-    const r1 = rect1.right;
-    const b1 = rect1.bottom;
-
-    const l2 = rect2.left;
-    const t2 = rect2.top;
-    const r2 = rect2.right;
-    const b2 = rect2.bottom;
-
-    // If the any of the edges are beyond any of the
-    // others, then we know that the box cannot be
-    // colliding
-    if (b1 < t2 || t1 > b2 || r1 < l2 || l1 > r2) {
-      return false;
-    }
-
-    // If the algorithm made it here, it had to collide
-    return true;
+  /* prettier-ignore */
+  static collision(a, b) {
+    return !(
+      a.left > b.right || // A is right of B
+      a.right < b.left || // A is left of B
+      a.bottom < b.top || // A is above B
+      a.top > b.bottom    // A is below B
+    );   
   }
 
   constructor(options) {
@@ -225,7 +212,9 @@ class Physics {
   update(entities, bounds) {
     const now = Date.now();
 
+    let comparisons = 0;
     entities.forEach(entity => {
+      comparisons += 1;
       const diff = now - entity.elapsed;
       // eslint-disable-next-line no-param-reassign
       entity.elapsed = now;
@@ -245,9 +234,11 @@ class Physics {
       Physics.constrainEntity(entity, bounds, this.options.bounds);
 
       // collision detection
+      // TODO - address O(n^2) time complexity
       let hasCollision = false;
       entities.forEach(otherEntity => {
         if (entity != otherEntity) {
+          comparisons += 1;
           if (Physics.collision(entity.rect, otherEntity.rect)) {
             hasCollision = true;
           }
@@ -259,6 +250,7 @@ class Physics {
     });
 
     // collision resolution
+    console.log("comparisons:", comparisons);
   }
 }
 
