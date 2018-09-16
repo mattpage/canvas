@@ -213,10 +213,7 @@ class Physics {
   update(entities, bounds) {
     const now = Date.now();
 
-    let comparisons = 0;
-
     entities.forEach(entity => {
-      comparisons += 1;
       const diff = now - entity.elapsed;
       entity.elapsed = now;
 
@@ -234,24 +231,21 @@ class Physics {
       // ensure the entity is within the world bounds
       Physics.constrainEntity(entity, bounds, this.options.bounds);
 
-      // collision detection
-      // TODO - address O(n^2) time complexity
+      // collision detection - O(n^2) complexity
       let hasCollision = false;
       entities.forEach(otherEntity => {
         if (entity !== otherEntity) {
-          comparisons += 1;
           if (Physics.collision(entity.rect, otherEntity.rect)) {
             hasCollision = true;
           }
         }
       });
 
-      // indicate collision by setting color of entities
+      // indicate collision by collision flag
       entity.collision = hasCollision;
     });
 
     // collision resolution
-    console.log("comparisons:", comparisons);
   }
 }
 
