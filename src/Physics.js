@@ -1,4 +1,5 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collision" ] }] */
+/* eslint-disable no-param-reassign */
 export class Entity {
   static create(...args) {
     return new Entity(...args);
@@ -213,10 +214,10 @@ class Physics {
     const now = Date.now();
 
     let comparisons = 0;
+
     entities.forEach(entity => {
       comparisons += 1;
       const diff = now - entity.elapsed;
-      // eslint-disable-next-line no-param-reassign
       entity.elapsed = now;
 
       // update velocity
@@ -237,7 +238,7 @@ class Physics {
       // TODO - address O(n^2) time complexity
       let hasCollision = false;
       entities.forEach(otherEntity => {
-        if (entity != otherEntity) {
+        if (entity !== otherEntity) {
           comparisons += 1;
           if (Physics.collision(entity.rect, otherEntity.rect)) {
             hasCollision = true;
