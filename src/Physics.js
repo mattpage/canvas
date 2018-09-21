@@ -1,4 +1,4 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collision" ] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collisions" ] }] */
 /* eslint-disable no-param-reassign */
 export class Entity {
   static create(...args) {
@@ -32,15 +32,15 @@ export class Entity {
     this._ax = 0.0;
     this._ay = 0.0;
 
-    this._collision = false;
+    this._collisions = [];
   }
 
-  get collision() {
-    return this._collision;
+  get collisions() {
+    return this._collisions;
   }
 
-  set collision(hasCollision) {
-    this._collision = Boolean(hasCollision);
+  set collisions(indexArray) {
+    this._collisions = indexArray;
   }
 
   get elapsed() {
@@ -232,17 +232,15 @@ class Physics {
       Physics.constrainEntity(entity, bounds, this.options.bounds);
 
       // collision detection - O(n^2) complexity
-      let hasCollision = false;
-      entities.forEach(otherEntity => {
+      const collisions = [];
+      entities.forEach((otherEntity, otherEntityIndex) => {
         if (entity !== otherEntity) {
           if (Physics.collision(entity.rect, otherEntity.rect)) {
-            hasCollision = true;
+            collisions.push(otherEntityIndex);
           }
         }
       });
-
-      // indicate collision by collision flag
-      entity.collision = hasCollision;
+      entity.collisions = collisions;
     });
 
     // collision resolution

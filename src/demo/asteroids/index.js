@@ -105,7 +105,7 @@ game.start((context, canvas) => {
     // if there is a collision we replace an asteroid with 2 smaller asteroids
     // and update the velocity vectors so that the two smaller asteroids are
     // traveling apart at 30deg angles
-    if (state.asteroids[i].collision) {
+    if (state.asteroids[i].collisions.length > 0) {
       const asteroid = state.asteroids[i];
 
       switch (asteroid.size) {
