@@ -1,3 +1,4 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_size", "_rotation"] }] */
 import { Entity, Polygon, numberInRange, integerInRange } from "../../index";
 
 export const AsteroidSize = Object.freeze({
