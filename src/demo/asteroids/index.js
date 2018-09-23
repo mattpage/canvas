@@ -100,58 +100,53 @@ game.start((context, canvas) => {
     right: halfWidth
   });
 
-  // process all of the asteroids
-  for (let i = 0; i < state.asteroids.length; i += 1) {
-    // if there is a collision we replace an asteroid with 2 smaller asteroids
-    // and update the velocity vectors so that the two smaller asteroids are
-    // traveling apart at 30deg angles
-    if (state.asteroids[i].collisions.length > 0) {
-      const asteroid = state.asteroids[i];
+  // update all of the asteroids
+  state.asteroids = state.asteroids
+    .map(asteroid => {
+      const updates = [];
+      let shouldRender = true;
 
-      switch (asteroid.size) {
-        case AsteroidSize.Tiny:
-          // when a tiny asteroid collides, it is destroyed
-          // so we remove it from the array
-          state.asteroids.splice(i, 1);
-          // eslint-disable-next-line no-continue
-          continue;
+      // if there is a collision we replace an asteroid with 2 smaller asteroids
+      // and update the velocity vectors so that the two smaller asteroids are
+      // traveling apart at 30deg angles
+      if (asteroid.collisions.length > 0) {
+        switch (asteroid.size) {
+          case AsteroidSize.Tiny:
+            // when a tiny asteroid collides, it is destroyed
+            shouldRender = false;
+            break;
 
-        case AsteroidSize.Small:
-          // when a small asteroid collides, it is replaced with two tiny asteroids
-          state.asteroids.splice(
-            i,
-            1,
-            ...splitAsteroid(asteroid, AsteroidSize.Tiny, 10)
-          );
-          break;
+          case AsteroidSize.Small:
+            // when a small asteroid collides, it is replaced with two tiny asteroids
+            updates.push(...splitAsteroid(asteroid, AsteroidSize.Tiny, 10));
+            break;
 
-        case AsteroidSize.Medium:
-          // when a medium asteroid collides, it is replaced with two small asteroids
-          state.asteroids.splice(
-            i,
-            1,
-            ...splitAsteroid(asteroid, AsteroidSize.Small, 20)
-          );
-          break;
+          case AsteroidSize.Medium:
+            // when a medium asteroid collides, it is replaced with two small asteroids
+            updates.push(...splitAsteroid(asteroid, AsteroidSize.Small, 20));
+            break;
 
-        case AsteroidSize.Large:
-          // when a large asteroid collides, it is replaced with two medium asteroids
-          state.asteroids.splice(
-            i,
-            1,
-            ...splitAsteroid(asteroid, AsteroidSize.Medium, 40)
-          );
-          break;
+          case AsteroidSize.Large:
+            // when a large asteroid collides, it is replaced with two medium asteroids
+            updates.push(...splitAsteroid(asteroid, AsteroidSize.Medium, 40));
+            break;
 
-        default:
-          console.warn("unknown asteroid size", asteroid.size);
-          break;
-      } // end switch
-    } // end if(collision)
+          default:
+            console.warn("unknown asteroid size", asteroid.size);
+            break;
+        } // end switch
+      } else {
+        updates.push(asteroid);
+      }
 
-    // render the asteroid
-    state.asteroids[i].render(offscreenContext);
-  }
+      // render the asteroid
+      if (shouldRender) {
+        asteroid.render(offscreenContext);
+      }
+
+      return updates;
+    }) // flatten the array of arrays
+    .reduce((acc, val) => acc.concat(val), []);
 
   // unset cartesian coords
   offscreenContext.restore();

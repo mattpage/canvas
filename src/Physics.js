@@ -242,8 +242,6 @@ class Physics {
       });
       entity.collisions = collisions;
     });
-
-    // collision resolution
   }
 }
 
