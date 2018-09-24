@@ -110,10 +110,12 @@ game.start((context, canvas) => {
       // and update the velocity vectors so that the two smaller asteroids are
       // traveling apart at 30deg angles
       if (asteroid.collisions.length > 0) {
+        // this asteroid is being replaced or removed, so don't render it
+        shouldRender = false;
+
         switch (asteroid.size) {
           case AsteroidSize.Tiny:
-            // when a tiny asteroid collides, it is destroyed
-            shouldRender = false;
+            // when a tiny asteroid collides, it is destroyed. don't replace it or render it
             break;
 
           case AsteroidSize.Small:
@@ -136,11 +138,12 @@ game.start((context, canvas) => {
             break;
         } // end switch
       } else {
+        // if no collisions, keep the asteroid
         updates.push(asteroid);
       }
 
-      // render the asteroid
       if (shouldRender) {
+        // render the asteroid
         asteroid.render(offscreenContext);
       }
 
