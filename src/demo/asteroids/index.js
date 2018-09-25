@@ -48,7 +48,6 @@ const splitAsteroid = (asteroid, newSize, offset) => {
 };
 
 const game = Game.create("canvas");
-const physics = Physics.create({ bounds: { wrap: true } });
 const offscreen = Canvas.create();
 const offscreenContext = offscreen.context("2d");
 const state = {
@@ -93,12 +92,16 @@ game.start((context, canvas) => {
   offscreenContext.translate(halfWidth, halfHeight);
 
   // update asteroid physics
-  physics.update(state.asteroids, {
-    top: -halfHeight,
-    left: -halfWidth,
-    bottom: halfHeight,
-    right: halfWidth
-  });
+  Physics.update(
+    state.asteroids,
+    {
+      top: -halfHeight,
+      left: -halfWidth,
+      bottom: halfHeight,
+      right: halfWidth
+    },
+    { wrap: true }
+  );
 
   // update all of the asteroids
   state.asteroids = state.asteroids

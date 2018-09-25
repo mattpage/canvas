@@ -2,12 +2,7 @@ import Physics, { Entity } from "../Physics";
 
 describe("Physics", () => {
   describe("Physics", () => {
-    it("should construct", () => {
-      const physics = new Physics();
-      expect(physics).toBeInstanceOf(Physics);
-    });
-
-    describe("constrainEntity", () => {
+    describe("Physics.constrainEntity", () => {
       describe("with wrap option", () => {
         it("should not constrain an entity that is with the bounding rectangle", () => {
           const entity = Entity.create(0, 0, 10, 10);
@@ -153,18 +148,11 @@ describe("Physics", () => {
       });
     });
 
-    describe("collision", () => {
+    describe("Physics.collision", () => {
       it("should detect a collision when entities occupy the exact same space", () => {
         const a = Entity.create(0, 0, 100, 100);
         const b = Entity.create(0, 0, 100, 100);
         expect(Physics.collision(a, b)).toBe(true);
-      });
-    });
-
-    describe("Physics.create", () => {
-      it("should create", () => {
-        const physics = Physics.create();
-        expect(physics).toBeInstanceOf(Physics);
       });
     });
   });
@@ -245,6 +233,13 @@ describe("Physics", () => {
       expect(entity.ax).toEqual(2.4);
       entity.ay = 4.2;
       expect(entity.ay).toEqual(4.2);
+    });
+
+    it("should be possible to get/set collisions", () => {
+      const entity = new Entity();
+      const indexArray = [0, 1];
+      entity.collisions = indexArray;
+      expect(entity.collisions).toEqual(indexArray);
     });
 
     describe("Entity.create", () => {

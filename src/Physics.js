@@ -136,14 +136,6 @@ export class Entity {
 }
 
 class Physics {
-  static defaultOptions = {
-    bounds: { wrap: false }
-  };
-
-  static create(options) {
-    return new Physics(options);
-  }
-
   static constrainEntity(entity, boundsRect, options = {}) {
     const halfWidth = entity.width / 2;
     const halfHeight = entity.height / 2;
@@ -206,11 +198,7 @@ class Physics {
     );   
   }
 
-  constructor(options) {
-    this.options = options;
-  }
-
-  update(entities, bounds) {
+  static update(entities, bounds, options = { wrap: false }) {
     const now = Date.now();
 
     entities.forEach(entity => {
@@ -229,7 +217,7 @@ class Physics {
       entity.rotation = diff * entity.torque;
 
       // ensure the entity is within the world bounds
-      Physics.constrainEntity(entity, bounds, this.options.bounds);
+      Physics.constrainEntity(entity, bounds, options);
 
       // collision detection - O(n^2) complexity
       const collisions = [];
