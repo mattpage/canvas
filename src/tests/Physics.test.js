@@ -155,6 +155,33 @@ describe("Physics", () => {
         expect(Physics.collision(a, b)).toBe(true);
       });
     });
+
+    describe("Physics.update", () => {
+      it("should update the position of passed in entities", () => {
+        const entities = [Entity.create(), Entity.create()];
+        // give them some velocity
+        entities[0].vx = 1;
+        entities[0].vy = 1;
+        entities[1].vx = 10;
+        entities[1].vy = 10;
+        Physics.update(entities, { top: 0, left: 0, right: 100, bottom: 100 });
+        expect(entities[0].x).toEqual(1);
+        expect(entities[0].y).toEqual(1);
+        expect(entities[1].x).toEqual(10);
+        expect(entities[1].y).toEqual(10);
+        Physics.update(entities, { top: 0, left: 0, right: 100, bottom: 100 });
+        expect(entities[0].x).toEqual(2);
+        expect(entities[0].y).toEqual(2);
+        expect(entities[1].x).toEqual(20);
+        expect(entities[1].y).toEqual(20);
+      });
+
+      it("should update the rotation of passed in entities", () => {});
+
+      it("should constrain the passed in entities position to world bounds", () => {});
+
+      it("should detect collisions", () => {});
+    });
   });
 
   describe("Entity", () => {
