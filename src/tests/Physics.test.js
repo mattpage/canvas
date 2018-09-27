@@ -176,7 +176,20 @@ describe("Physics", () => {
         expect(entities[1].y).toEqual(20);
       });
 
-      it("should update the rotation of passed in entities", () => {});
+      it("should update the rotation of passed in entities", () => {
+        const entities = [Entity.create(), Entity.create()];
+        entities[0].torque = 1;
+        jest.useFakeTimers();
+        Physics.update(entities, {
+          top: 0,
+          left: 0,
+          right: 100,
+          bottom: 100
+        });
+        expect(entities[0].rotation).toBeGreaterThan(1);
+        expect(entities[1].rotation).toEqual(0);
+        jest.runAllTimers();
+      });
 
       it("should constrain the passed in entities position to world bounds", () => {});
 
@@ -267,6 +280,13 @@ describe("Physics", () => {
       const indexArray = [0, 1];
       entity.collisions = indexArray;
       expect(entity.collisions).toEqual(indexArray);
+    });
+
+    it("should be possible to get/set torque", () => {
+      const entity = new Entity();
+      expect(entity.torque).toEqual(0);
+      entity.torque = 1;
+      expect(entity.torque).toEqual(1);
     });
 
     describe("Entity.create", () => {
