@@ -69,6 +69,10 @@ export class Entity {
     return this._torque;
   }
 
+  set torque(t) {
+    this._torque = t;
+  }
+
   get x() {
     return this._x;
   }
