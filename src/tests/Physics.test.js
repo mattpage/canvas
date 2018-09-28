@@ -213,6 +213,8 @@ describe("Physics", () => {
       expect(entity.torque).toEqual(0);
       expect(entity.vx).toEqual(0);
       expect(entity.vy).toEqual(0);
+      expect(entity.ax).toEqual(0);
+      expect(entity.ay).toEqual(0);
     });
 
     it("should be possible to set position", () => {
@@ -221,14 +223,6 @@ describe("Physics", () => {
       entity.y = 24;
       expect(entity.x).toEqual(42);
       expect(entity.y).toEqual(24);
-    });
-
-    it("should be possible to get/set the collision flag", () => {
-      const entity = new Entity();
-      entity.collision = true;
-      expect(entity.collision).toBe(true);
-      entity.collision = false;
-      expect(entity.collision).toBe(false);
     });
 
     it("should set rotation angle to >=0 && <=360", () => {
@@ -250,7 +244,7 @@ describe("Physics", () => {
       expect(rc.bottom).toEqual(202);
     });
 
-    it("should have timestamp", () => {
+    it("should have elapsed timestamp", () => {
       const entity = new Entity();
       expect(entity.elapsed).toBeGreaterThan(0);
       expect(entity.elapsed).toBeLessThan(Number.MAX_VALUE);
