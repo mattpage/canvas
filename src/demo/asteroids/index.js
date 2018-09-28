@@ -1,5 +1,6 @@
 import { Game, Canvas, Physics, integerInRange } from "../../index";
 import Asteroid, { AsteroidSize } from "./Asteroid";
+import Spaceship from "./Spaceship";
 
 const calcSplitVelocityVectors = asteroid => {
   const { vx, vy } = asteroid;
@@ -52,6 +53,7 @@ const offscreen = Canvas.create();
 const offscreenContext = offscreen.context("2d");
 const state = {
   asteroids: [],
+  spaceship: null,
   initialized: false,
   maxAsteroids: 20
 };
@@ -77,6 +79,9 @@ game.start((context, canvas) => {
         Asteroid.createRandom(x, y, AsteroidSize.Large, options)
       );
     }
+
+    // create the player spaceship
+    state.spaceship = Spaceship.create(0, 0);
 
     console.log("game initialized");
     state.initialized = true;
