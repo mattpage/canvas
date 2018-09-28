@@ -190,10 +190,6 @@ describe("Physics", () => {
         expect(entities[1].rotation).toEqual(0);
         jest.runAllTimers();
       });
-
-      it("should constrain the passed in entities position to world bounds", () => {});
-
-      it("should detect collisions", () => {});
     });
   });
 
