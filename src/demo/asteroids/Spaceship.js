@@ -1,16 +1,28 @@
 /* eslint no-underscore-dangle: ["error", { "allow": [ "_rotation" ] }] */
 import { Entity, Polygon } from "../../index";
 
-class Spaceship extends Entity {
-  // spaceship in cartesian points
-  /* prettier-ignore */
-  static SPACESHIP = {
+export const SpaceshipType = Object.freeze({
+  Player: 1
+});
+
+// various spaceships in cartesian points
+/* prettier-ignore */
+export const SPACESHIPS = [
+  {
+    type: SpaceshipType.Player,
     points: [
-      0, 10,
-      5, 0,
+      0, 15,
+      7.5, 0,
       0, 2.5,
-      -5, 0,
+      -7.5, 0,
     ],
+  },
+]
+
+class Spaceship extends Entity {
+  static create(type = SpaceshipType.Player, x = 0, y = 0) {
+    const ships = SPACESHIPS.filter(s => s.type === type);
+    return new Spaceship(ships[0].points, x, y);
   }
 
   constructor(points, x, y) {

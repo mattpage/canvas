@@ -1,6 +1,6 @@
 import { Game, Canvas, Physics, integerInRange } from "../../index";
 import Asteroid, { AsteroidSize } from "./Asteroid";
-import Spaceship from "./Spaceship";
+import Spaceship, { SpaceshipType } from "./Spaceship";
 
 const calcSplitVelocityVectors = asteroid => {
   const { vx, vy } = asteroid;
@@ -52,8 +52,8 @@ const game = Game.create("canvas");
 const offscreen = Canvas.create();
 const offscreenContext = offscreen.context("2d");
 const state = {
-  asteroids: [],
-  spaceship: null,
+  entities: [],
+  playerShip: null,
   initialized: false,
   maxAsteroids: 20
 };
@@ -68,20 +68,21 @@ game.start((context, canvas) => {
     console.log("initializing game");
 
     // create a bunch of asteroids
-    while (state.asteroids.length < state.maxAsteroids) {
+    while (state.entities.length < state.maxAsteroids) {
       const x = integerInRange(-halfWidth, halfWidth);
       const y = integerInRange(-halfHeight, halfHeight);
       const options = {
         showOffset: false,
         showRect: false
       };
-      state.asteroids.push(
+      state.entities.push(
         Asteroid.createRandom(x, y, AsteroidSize.Large, options)
       );
     }
 
     // create the player spaceship
-    state.spaceship = Spaceship.create(0, 0);
+    state.playerShip = Spaceship.create(SpaceshipType.Player, 0, 0);
+    state.entities.push(state.playerShip);
 
     console.log("game initialized");
     state.initialized = true;
@@ -98,7 +99,7 @@ game.start((context, canvas) => {
 
   // update asteroid physics
   Physics.update(
-    state.asteroids,
+    state.entities,
     {
       top: -halfHeight,
       left: -halfWidth,
@@ -108,51 +109,56 @@ game.start((context, canvas) => {
     { wrap: true }
   );
 
-  // update all of the asteroids
-  state.asteroids = state.asteroids
-    .map(asteroid => {
+  // update all of the entities
+  state.entities = state.entities
+    .map(entity => {
       const updates = [];
       let shouldRender = true;
 
-      // if there is a collision we replace an asteroid with 2 smaller asteroids
+      const isSpaceship = entity === state.playerShip;
+
+      // if there is a collision we replace an asteroid entity with 2 smaller asteroids
       // and update the velocity vectors so that the two smaller asteroids are
-      // traveling apart at 30deg angles
-      if (asteroid.collisions.length > 0) {
-        // this asteroid is being replaced or removed, so don't render it
+      // traveling apart at 30deg angles. If the collision is with a spaceship entity,
+      // the spaceship is destroyed
+      if (entity.collisions.length > 0) {
+        // this entity is being replaced or removed, so don't render it
         shouldRender = false;
 
-        switch (asteroid.size) {
-          case AsteroidSize.Tiny:
-            // when a tiny asteroid collides, it is destroyed. don't replace it or render it
-            break;
+        if (!isSpaceship) {
+          switch (entity.size) {
+            case AsteroidSize.Tiny:
+              // when a tiny asteroid collides, it is destroyed. don't replace it or render it
+              break;
 
-          case AsteroidSize.Small:
-            // when a small asteroid collides, it is replaced with two tiny asteroids
-            updates.push(...splitAsteroid(asteroid, AsteroidSize.Tiny, 10));
-            break;
+            case AsteroidSize.Small:
+              // when a small asteroid collides, it is replaced with two tiny asteroids
+              updates.push(...splitAsteroid(entity, AsteroidSize.Tiny, 10));
+              break;
 
-          case AsteroidSize.Medium:
-            // when a medium asteroid collides, it is replaced with two small asteroids
-            updates.push(...splitAsteroid(asteroid, AsteroidSize.Small, 20));
-            break;
+            case AsteroidSize.Medium:
+              // when a medium asteroid collides, it is replaced with two small asteroids
+              updates.push(...splitAsteroid(entity, AsteroidSize.Small, 20));
+              break;
 
-          case AsteroidSize.Large:
-            // when a large asteroid collides, it is replaced with two medium asteroids
-            updates.push(...splitAsteroid(asteroid, AsteroidSize.Medium, 40));
-            break;
+            case AsteroidSize.Large:
+              // when a large asteroid collides, it is replaced with two medium asteroids
+              updates.push(...splitAsteroid(entity, AsteroidSize.Medium, 40));
+              break;
 
-          default:
-            console.warn("unknown asteroid size", asteroid.size);
-            break;
-        } // end switch
+            default:
+              console.warn("unknown asteroid size", entity.size);
+              break;
+          } // end switch
+        }
       } else {
-        // if no collisions, keep the asteroid
-        updates.push(asteroid);
+        // if no collisions, keep the entity
+        updates.push(entity);
       }
 
       if (shouldRender) {
-        // render the asteroid
-        asteroid.render(offscreenContext);
+        // render the entity
+        entity.render(offscreenContext);
       }
 
       return updates;

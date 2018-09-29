@@ -1,5 +1,4 @@
 class Mouse {
-
   constructor() {
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.mouse = {
