@@ -1,11 +1,13 @@
 import Canvas from "./Canvas";
 import Mouse from "./Mouse";
-/* eslint no-underscore-dangle: ["error", { "allow": ["_canvas", "_mouse", "_rafId"] }] */
+import Keyboard from "./Keyboard";
+/* eslint no-underscore-dangle: ["error", { "allow": ["_canvas", "_keyboard", "_mouse", "_rafId"] }] */
 
 class Game {
   static defaultOptions = {
     contextType: "2d",
     contextAttributes: undefined,
+    keyboard: true,
     mouse: true
   };
 
@@ -17,6 +19,9 @@ class Game {
     this._rafId = null;
     this._canvas = new Canvas(selector);
 
+    if (options.keyboard) {
+      this._keyboard = new Keyboard();
+    }
     if (options.mouse) {
       this._mouse = new Mouse();
     }
@@ -25,6 +30,10 @@ class Game {
 
   get canvas() {
     return this._canvas;
+  }
+
+  get keyboard() {
+    return this._keyboard;
   }
 
   get mouse() {
@@ -42,7 +51,7 @@ class Game {
       throw new Error("Missing render callback or method");
     }
     const animationLoop = () => {
-      if (renderer(context, this.canvas, this.mouse)) {
+      if (renderer(context, this.canvas, this.keyboard, this.mouse)) {
         this.rafId = window.requestAnimationFrame(animationLoop);
       }
     };

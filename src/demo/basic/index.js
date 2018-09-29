@@ -10,7 +10,7 @@ const myGame = Game.create("canvas");
 
 const dirty = [];
 
-myGame.start((context, canvas, mouse) => {
+myGame.start((context, canvas, keyboard, mouse) => {
   const pos = mouse.position;
   const width = 100;
   const height = 50;
