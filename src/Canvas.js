@@ -27,6 +27,10 @@ class Canvas {
     }
   }
 
+  get element() {
+    return this.canvas;
+  }
+
   context(type = "2d", attrs) {
     return this.canvas.getContext(type, attrs);
   }
