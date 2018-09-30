@@ -23,7 +23,7 @@ class Game {
       this._keyboard = new Keyboard();
     }
     if (options.mouse) {
-      this._mouse = new Mouse();
+      this._mouse = new Mouse(this._canvas.element);
     }
     this.options = options;
   }
