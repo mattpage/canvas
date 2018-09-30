@@ -1,5 +1,6 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collisions" ] }] */
-/* eslint-disable no-param-reassign */
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
 export class Entity {
   static create(...args) {
     return new Entity(...args);
