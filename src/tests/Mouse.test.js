@@ -45,24 +45,6 @@ describe("Mouse", () => {
     expect(endPosition).toEqual({ x: 100, y: 100 });
   });
 
-  it("should return offsetLeft of the supplied element", () => {
-    const fakeCanvas = {
-      offsetLeft: 100,
-      offsetTop: 100
-    };
-    const mouse = new Mouse(fakeCanvas);
-    expect(mouse.offsetLeft).toEqual(fakeCanvas.offsetLeft);
-  });
-
-  it("should return offsetTop of the supplied element", () => {
-    const fakeCanvas = {
-      offsetLeft: 100,
-      offsetTop: 100
-    };
-    const mouse = new Mouse(fakeCanvas);
-    expect(mouse.offsetTop).toEqual(fakeCanvas.offsetTop);
-  });
-
   it("should offset position if an element is supplied", () => {
     const fakeCanvas = {
       offsetLeft: 100,

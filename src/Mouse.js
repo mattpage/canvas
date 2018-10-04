@@ -36,18 +36,14 @@ class Mouse {
     }
   }
 
-  get offsetLeft() {
-    return this._element ? this._element.offsetLeft : 0;
-  }
-
-  get offsetTop() {
-    return this._element ? this._element.offsetTop : 0;
-  }
-
   get position() {
+    const offsets = {
+      offsetLeft: this._element ? this._element.offsetLeft : 0,
+      offsetTop: this._element ? this._element.offsetTop : 0
+    };
     return {
-      x: this._mouse.x - this.offsetLeft,
-      y: this._mouse.y - this.offsetTop
+      x: this._mouse.x - offsets.offsetLeft,
+      y: this._mouse.y - offsets.offsetTop
     };
   }
 
