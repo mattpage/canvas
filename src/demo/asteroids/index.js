@@ -1,4 +1,4 @@
-import { Game, Canvas, Physics, integerInRange } from "../../index";
+import { Game, Canvas, KEYS, Physics, integerInRange } from "../../index";
 import Asteroid, { AsteroidSize } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 
@@ -59,7 +59,7 @@ const state = {
 };
 
 // start the animation loop
-game.start((context, canvas) => {
+game.start((context, canvas, keyboard) => {
   const dim = canvas.dimensions;
   const halfWidth = dim.width / 2;
   const halfHeight = dim.height / 2;
@@ -83,6 +83,22 @@ game.start((context, canvas) => {
     // create the player spaceship
     state.playerShip = Spaceship.create(SpaceshipType.Player, 0, 0);
     state.entities.push(state.playerShip);
+
+    keyboard.captureKey(KEYS.ARROW_LEFT, keyInfo => {
+      if (state.playerShip) {
+        state.playerShip.torque = keyInfo.isDown ? -0.25 : 0;
+      }
+    });
+    keyboard.captureKey(KEYS.ARROW_RIGHT, keyInfo => {
+      if (state.playerShip) {
+        state.playerShip.torque = keyInfo.isDown ? 0.25 : 0;
+      }
+    });
+    keyboard.captureKey(KEYS.ARROW_UP, keyInfo => {
+      console.log(keyInfo);
+      if (state.playerShip) {
+      }
+    });
 
     console.log("game initialized");
     state.initialized = true;
@@ -125,7 +141,10 @@ game.start((context, canvas) => {
         // this entity is being replaced or removed, so don't render it
         shouldRender = false;
 
-        if (!isSpaceship) {
+        if (isSpaceship) {
+          // the spaceship is destroyed
+          state.playerShip = null;
+        } else {
           switch (entity.size) {
             case AsteroidSize.Tiny:
               // when a tiny asteroid collides, it is destroyed. don't replace it or render it
