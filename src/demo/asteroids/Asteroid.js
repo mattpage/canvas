@@ -1,5 +1,5 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_size", "_rotation"] }] */
-import { Entity, Polygon, numberInRange, integerInRange } from "../../index";
+import { PolygonEntity, numberInRange, integerInRange } from "../../index";
 
 export const AsteroidSize = Object.freeze({
   Large: 4,
@@ -179,7 +179,7 @@ export const ASTEROIDS = [
   }
 ];
 
-class Asteroid extends Entity {
+class Asteroid extends PolygonEntity {
   static createRandom(x, y, size, options = {}) {
     let asteroids = ASTEROIDS;
     if (size) {
@@ -189,7 +189,7 @@ class Asteroid extends Entity {
     const velX = numberInRange(0.001, 0.5);
     const velY = numberInRange(0.001, 0.5);
     const rotation = numberInRange(1, 360);
-    const torque = numberInRange(0.01, 0.1);
+    const torque = numberInRange(0.00001, 0.0005);
     return new Asteroid(
       asteroids[index].points,
       asteroids[index].size,
@@ -203,35 +203,15 @@ class Asteroid extends Entity {
     );
   }
 
-  constructor(points, size, x, y, velX, velY, rotation, torque, options = {}) {
-    const polygon = Polygon.create(points, options);
-    const rc = polygon.rect;
-    super(
-      x,
-      y,
-      rc.right - rc.left,
-      rc.bottom - rc.top,
-      velX,
-      velY,
-      rotation,
-      torque
-    );
-    this.polygon = polygon;
+  constructor(points, size, x, y, velX, velY, rotation, torque) {
+    super(points, x, y, velX, velY, rotation, torque);
+    this.velX = velX;
+    this.velX = velX;
     this._size = size;
   }
 
   get size() {
     return this._size;
-  }
-
-  set rotation(degrees) {
-    const newRotation = Math.min(degrees, 360 + 6);
-    this._rotation = newRotation > 360 ? 0 : newRotation;
-    this.polygon.rotate(this._rotation);
-  }
-
-  render(context) {
-    this.polygon.render(context, { x: this.x, y: this.y });
   }
 }
 
