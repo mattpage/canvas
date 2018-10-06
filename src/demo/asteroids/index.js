@@ -89,18 +89,22 @@ game.start((context, canvas, keyboard) => {
     state.entities.push(state.playerShip);
 
     keyboard.captureKey(KEYS.ARROW_LEFT, keyInfo => {
-      if (state.playerShip) {
-        state.playerShip.torque = keyInfo.isDown ? -0.005 : 0;
+      const ship = state.playerShip;
+      if (ship) {
+        ship.torque = keyInfo.isDown ? -0.005 : 0;
       }
     });
     keyboard.captureKey(KEYS.ARROW_RIGHT, keyInfo => {
-      if (state.playerShip) {
-        state.playerShip.torque = keyInfo.isDown ? 0.005 : 0;
+      const ship = state.playerShip;
+      if (ship) {
+        ship.torque = keyInfo.isDown ? 0.005 : 0;
       }
     });
     keyboard.captureKey(KEYS.ARROW_UP, keyInfo => {
-      if (state.playerShip) {
-        logger.log(keyInfo);
+      const ship = state.playerShip;
+      if (ship) {
+        ship.ax = keyInfo.isDown ? Math.cos(ship.rotation) * 0.05 : 0;
+        ship.ay = keyInfo.isDown ? Math.sin(ship.rotation) * 0.05 : 0;
       }
     });
 

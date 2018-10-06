@@ -11,10 +11,10 @@ export const SPACESHIPS = [
   {
     type: SpaceshipType.Player,
     points: [
-      0, 15,
-      7.5, 0,
-      0, 2.5,
-      -7.5, 0,
+      15, 0,
+      0, 7.5,
+      2.5, 0,
+      0, -7.5,
     ],
   },
 ]
