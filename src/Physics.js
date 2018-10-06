@@ -1,5 +1,6 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collisions" ] }] */
 /* eslint no-param-reassign: ["error", { "props": false }] */
+import Polygon from "./Polygon";
 
 export class Entity {
   static create(...args) {
@@ -58,10 +59,10 @@ export class Entity {
 
   set rotation(degrees) {
     let newRotation = degrees;
-    if (newRotation > 360) {
+    if (newRotation >= 360) {
       newRotation = 0;
-    } else if (newRotation < 0) {
-      newRotation = 360;
+    } else if (newRotation <= -360) {
+      newRotation = 0;
     }
     this._rotation = newRotation;
   }
@@ -137,6 +138,28 @@ export class Entity {
       right: this.x + this.width,
       bottom: this.y + this.height
     };
+  }
+}
+
+export class PolygonEntity extends Entity {
+  constructor(points, x, y, vx = 0, vy = 0, rotation = 0, torque = 0) {
+    const polygon = Polygon.create(points, {});
+    const rc = polygon.rect;
+    super(
+      x,
+      y,
+      rc.right - rc.left,
+      rc.bottom - rc.top,
+      vx,
+      vy,
+      rotation,
+      torque
+    );
+    this.polygon = polygon;
+  }
+
+  render(context) {
+    this.polygon.render(context, { x: this.x, y: this.y }, super.rotation);
   }
 }
 
@@ -218,9 +241,11 @@ class Physics {
       entity.x += entity.vx;
       entity.y += entity.vy;
 
-      // rotate the entity
-      entity.rotation = diff * entity.torque;
-
+      // if it has torque, rotate the entity
+      const r = diff * entity.torque;
+      if (r !== 0) {
+        entity.rotation += r;
+      }
       // ensure the entity is within the world bounds
       Physics.constrainEntity(entity, bounds, options);
 

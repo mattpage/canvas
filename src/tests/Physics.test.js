@@ -1,4 +1,4 @@
-import Physics, { Entity } from "../Physics";
+import Physics, { Entity, PolygonEntity } from "../Physics";
 
 describe("Physics", () => {
   describe("Physics", () => {
@@ -221,13 +221,15 @@ describe("Physics", () => {
       expect(entity.y).toEqual(24);
     });
 
-    it("should set rotation angle to >=0 && <=360", () => {
+    it("should set rotation angle to >-360 && <360", () => {
       const entity = new Entity();
       entity.rotation = 1;
       expect(entity.rotation).toEqual(1);
       entity.rotation = -1;
-      expect(entity.rotation).toEqual(360);
-      entity.rotation = 361;
+      expect(entity.rotation).toEqual(-1);
+      entity.rotation = 360;
+      expect(entity.rotation).toEqual(0);
+      entity.rotation = -360;
       expect(entity.rotation).toEqual(0);
     });
 
@@ -284,6 +286,16 @@ describe("Physics", () => {
         const entity = Entity.create();
         expect(entity).toBeInstanceOf(Entity);
       });
+    });
+  });
+
+  describe("PolygonEntity", () => {
+    it("should construct", () => {
+      const entity = new PolygonEntity();
+      expect(entity).toBeInstanceOf(PolygonEntity);
+    });
+    describe("render", () => {
+      // TODO it should have some tests
     });
   });
 });
