@@ -52,30 +52,15 @@ class Polygon {
     };
   }
 
-  rotate(degrees) {
-    const angle = (degrees * Math.PI) / 180.0;
-    let x;
-    let y;
-    let x1;
-    let y1;
-    const rotated = [];
+  render(context, offset, rotation) {
     const points = this.points.slice(0);
-    while (points.length) {
-      x = points.shift();
-      y = points.shift();
-      x1 = x * Math.cos(angle) - y * Math.sin(angle);
-      y1 = x * Math.sin(angle) + y * Math.cos(angle);
-      rotated.push(x1, y1);
-    }
-    this.points = rotated;
-  }
-
-  render(context, offset) {
-    const points = this.points.slice(0);
-    if (offset) {
+    if (offset || rotation) {
       context.save();
       if (offset) {
         context.translate(offset.x, offset.y);
+      }
+      if (rotation) {
+        context.rotate(rotation);
       }
     }
 
@@ -100,7 +85,7 @@ class Polygon {
       );
     }
 
-    if (offset) {
+    if (offset || rotation) {
       context.restore();
 
       if (this.options.showOffset) {

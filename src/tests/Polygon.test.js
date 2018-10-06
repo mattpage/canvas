@@ -16,26 +16,13 @@ describe("Polygon", () => {
     });
   });
 
-  describe("rotate", () => {
-    it("should rotate a polygon", () => {
-      const poly = new Polygon(testPoints);
-      let rc = poly.rect;
-      expect(rc).toEqual({ top: 2, left: 1, bottom: 8, right: 7 });
-      poly.rotate(90);
-      rc = poly.rect;
-      rc.top = Math.round(rc.top);
-      rc.left = Math.round(rc.left);
-      rc.bottom = Math.round(rc.bottom);
-      rc.right = Math.round(rc.right);
-      expect(rc).toEqual({ top: 1, left: -8, bottom: 7, right: -2 });
-    });
-  });
-
   describe("create", () => {
     it("should return a Polygon instance", () => {
       expect(Polygon.create(testPoints)).toBeInstanceOf(Polygon);
     });
   });
 
-  describe("render", () => {});
+  describe("render", () => {
+    // TODO it should have some tests
+  });
 });
