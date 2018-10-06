@@ -2,6 +2,8 @@ import { Game, Canvas, KEYS, Physics, integerInRange } from "../../index";
 import Asteroid, { AsteroidSize } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 
+const logger = console;
+
 const calcSplitVelocityVectors = asteroid => {
   const { vx, vy } = asteroid;
   // directional recoil
@@ -61,16 +63,14 @@ const state = {
 // start the animation loop
 game.start((context, canvas, keyboard) => {
   const dim = canvas.dimensions;
-  const halfWidth = dim.width / 2;
-  const halfHeight = dim.height / 2;
 
   if (!state.initialized) {
-    console.log("initializing game");
+    logger.log("initializing game");
 
     // create a bunch of asteroids
     while (state.entities.length < state.maxAsteroids) {
-      const x = integerInRange(-halfWidth, halfWidth);
-      const y = integerInRange(-halfHeight, halfHeight);
+      const x = integerInRange(0, dim.width);
+      const y = integerInRange(0, dim.height);
       const options = {
         showOffset: false,
         showRect: false
@@ -81,26 +81,30 @@ game.start((context, canvas, keyboard) => {
     }
 
     // create the player spaceship
-    state.playerShip = Spaceship.create(SpaceshipType.Player, 0, 0);
+    state.playerShip = Spaceship.create(
+      SpaceshipType.Player,
+      dim.width / 2,
+      dim.height / 2
+    );
     state.entities.push(state.playerShip);
 
     keyboard.captureKey(KEYS.ARROW_LEFT, keyInfo => {
       if (state.playerShip) {
-        state.playerShip.torque = keyInfo.isDown ? -0.25 : 0;
+        state.playerShip.torque = keyInfo.isDown ? -0.005 : 0;
       }
     });
     keyboard.captureKey(KEYS.ARROW_RIGHT, keyInfo => {
       if (state.playerShip) {
-        state.playerShip.torque = keyInfo.isDown ? 0.25 : 0;
+        state.playerShip.torque = keyInfo.isDown ? 0.005 : 0;
       }
     });
     keyboard.captureKey(KEYS.ARROW_UP, keyInfo => {
-      console.log(keyInfo);
       if (state.playerShip) {
+        logger.log(keyInfo);
       }
     });
 
-    console.log("game initialized");
+    logger.log("game initialized");
     state.initialized = true;
   }
 
@@ -110,17 +114,14 @@ game.start((context, canvas, keyboard) => {
 
   offscreenContext.save();
 
-  // set cartesian coordinates
-  offscreenContext.translate(halfWidth, halfHeight);
-
   // update asteroid physics
   Physics.update(
     state.entities,
     {
-      top: -halfHeight,
-      left: -halfWidth,
-      bottom: halfHeight,
-      right: halfWidth
+      top: 0,
+      left: 0,
+      bottom: dim.height,
+      right: dim.width
     },
     { wrap: true }
   );
@@ -166,7 +167,7 @@ game.start((context, canvas, keyboard) => {
               break;
 
             default:
-              console.warn("unknown asteroid size", entity.size);
+              logger.warn("unknown asteroid size", entity.size);
               break;
           } // end switch
         }
@@ -183,9 +184,6 @@ game.start((context, canvas, keyboard) => {
       return updates;
     }) // flatten the array of arrays
     .reduce((acc, val) => acc.concat(val), []);
-
-  // unset cartesian coords
-  offscreenContext.restore();
 
   // copy the offscreen canvas to the display canvas
   context.drawImage(offscreen.canvas, 0, 0);
