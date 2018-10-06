@@ -1,7 +1,7 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_canvas", "_keyboard", "_mouse", "_rafId"] }] */
 import Canvas from "./Canvas";
 import Mouse from "./Mouse";
 import Keyboard from "./Keyboard";
-/* eslint no-underscore-dangle: ["error", { "allow": ["_canvas", "_keyboard", "_mouse", "_rafId"] }] */
 
 class Game {
   static defaultOptions = {
