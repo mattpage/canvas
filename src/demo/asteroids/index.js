@@ -61,7 +61,7 @@ const state = {
 };
 
 // start the animation loop
-game.start((context, canvas, keyboard) => {
+game.start((context, canvas, controls) => {
   const dim = canvas.dimensions;
 
   if (!state.initialized) {
@@ -88,19 +88,19 @@ game.start((context, canvas, keyboard) => {
     );
     state.entities.push(state.playerShip);
 
-    keyboard.captureKey(KEYS.ARROW_LEFT, keyInfo => {
+    controls.keyboard.captureKey(KEYS.ARROW_LEFT, keyInfo => {
       const ship = state.playerShip;
       if (ship) {
         ship.torque = keyInfo.isDown ? -0.005 : 0;
       }
     });
-    keyboard.captureKey(KEYS.ARROW_RIGHT, keyInfo => {
+    controls.keyboard.captureKey(KEYS.ARROW_RIGHT, keyInfo => {
       const ship = state.playerShip;
       if (ship) {
         ship.torque = keyInfo.isDown ? 0.005 : 0;
       }
     });
-    keyboard.captureKey(KEYS.ARROW_UP, keyInfo => {
+    controls.keyboard.captureKey(KEYS.ARROW_UP, keyInfo => {
       const ship = state.playerShip;
       if (ship) {
         ship.ax = keyInfo.isDown ? Math.cos(ship.rotation) * 0.05 : 0;

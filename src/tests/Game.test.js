@@ -18,23 +18,23 @@ describe("Game", () => {
       qs.mockReturnValue({});
     });
 
-    it("should construct a new canvas, keyboard, and mouse", () => {
+    it("should construct a new canvas, keyboerd, and mouse", () => {
       const game = new Game("test");
       expect(game.canvas).toBeInstanceOf(Object);
-      expect(game.keyboard).toBeInstanceOf(Object);
-      expect(game.mouse).toBeInstanceOf(Object);
+      expect(game.controls.keyboard).toBeInstanceOf(Object);
+      expect(game.controls.mouse).toBeInstanceOf(Object);
     });
 
-    it("should construct a new canvas without keyboard support", () => {
+    it("should construct a  canvas without keyboard support", () => {
       const game = new Game("test", { contextType: "2d", keyboard: false });
       expect(game.canvas).toBeInstanceOf(Object);
-      expect(game.keyboard).toBeUndefined();
+      expect(game.controls.keyboard).toBeUndefined();
     });
 
     it("should construct a new canvas without mouse support", () => {
       const game = new Game("test", { contextType: "2d", mouse: false });
       expect(game.canvas).toBeInstanceOf(Object);
-      expect(game.mouse).toBeUndefined();
+      expect(game.controls.mouse).toBeUndefined();
     });
   });
 
@@ -59,14 +59,12 @@ describe("Game", () => {
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls).toHaveLength(1);
       const args = callback.mock.calls[0];
-      expect(args).toHaveLength(4);
+      expect(args).toHaveLength(3);
       expect(args[0]).toBeInstanceOf(Object);
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
-      expect(args[2]).toEqual(game.keyboard);
-      expect(args[3]).toBeInstanceOf(Object);
-      expect(args[3]).toEqual(game.mouse);
+      expect(args[2]).toEqual(game.controls);
       expect(window.requestAnimationFrame).not.toHaveBeenCalled();
     });
 
@@ -120,14 +118,12 @@ describe("Game", () => {
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls).toHaveLength(1);
       const args = callback.mock.calls[0];
-      expect(args).toHaveLength(4);
+      expect(args).toHaveLength(3);
       expect(args[0]).toBeInstanceOf(Object);
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
-      expect(args[2]).toEqual(game.keyboard);
-      expect(args[3]).toBeInstanceOf(Object);
-      expect(args[3]).toEqual(game.mouse);
+      expect(args[2]).toEqual(game.controls);
       expect(window.requestAnimationFrame).toHaveBeenCalled();
     });
   });

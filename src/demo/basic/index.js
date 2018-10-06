@@ -13,14 +13,14 @@ const state = {
 
 let initialized = false;
 
-myGame.start((context, canvas, keyboard, mouse) => {
-  const pos = mouse.position;
+myGame.start((context, canvas, controls) => {
+  const pos = controls.mouse.position;
 
   if (!initialized) {
     initialized = true;
 
     // when the mouse is clicked, add a pinned rectangle
-    mouse.onClick = e => {
+    controls.mouse.onClick = e => {
       state.rectangles.push({
         x: e.position.x,
         y: e.position.y,
