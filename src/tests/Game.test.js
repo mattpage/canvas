@@ -55,16 +55,19 @@ describe("Game", () => {
     it("should call the callback", () => {
       const game = new Game("test");
       const callback = jest.fn();
-      game.start(callback);
+      const initialGameState = {};
+      game.start(callback, initialGameState);
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls).toHaveLength(1);
       const args = callback.mock.calls[0];
-      expect(args).toHaveLength(3);
+      expect(args).toHaveLength(4);
       expect(args[0]).toBeInstanceOf(Object);
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
       expect(args[2]).toEqual(game.controls);
+      expect(args[3]).toBeInstanceOf(Array);
+      expect(args[3]).toEqual([initialGameState]);
       expect(window.requestAnimationFrame).not.toHaveBeenCalled();
     });
 
@@ -113,17 +116,20 @@ describe("Game", () => {
       }
       const game = new MyGame("test");
       const callback = jest.fn();
+      const myArgs = {};
       callback.mockReturnValue(true);
-      game.start(callback);
+      game.start(callback, myArgs);
       expect(callback).toHaveBeenCalled();
       expect(callback.mock.calls).toHaveLength(1);
       const args = callback.mock.calls[0];
-      expect(args).toHaveLength(3);
+      expect(args).toHaveLength(4);
       expect(args[0]).toBeInstanceOf(Object);
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
       expect(args[2]).toEqual(game.controls);
+      expect(args[3]).toBeInstanceOf(Array);
+      expect(args[3]).toEqual([myArgs]);
       expect(window.requestAnimationFrame).toHaveBeenCalled();
     });
   });

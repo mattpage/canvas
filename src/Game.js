@@ -37,7 +37,7 @@ class Game {
     return this._controls;
   }
 
-  start(callback) {
+  start(callback, ...args) {
     const context = this.canvas.context(
       this.options.contextType,
       this.options.contextAttributes
@@ -48,7 +48,7 @@ class Game {
       throw new Error("Missing render callback or method");
     }
     const animationLoop = () => {
-      if (renderer(context, this.canvas, this.controls)) {
+      if (renderer(context, this.canvas, this.controls, args)) {
         this.rafId = window.requestAnimationFrame(animationLoop);
       }
     };
