@@ -108,6 +108,7 @@ describe("Game", () => {
 
     it("should call the render method", () => {
       class MyGame extends Game {
+        // eslint-disable-next-line
         render() {
           return true;
         }

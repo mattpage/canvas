@@ -59,6 +59,7 @@ describe("Mouse", () => {
   });
 
   it("should intercept dragstart, by default", () => {
+    /* eslint-disable-next-line no-unused-vars */
     const mouse = new Mouse();
     const e = simulateMouseEvent("dragstart", 0, 0);
     expect(e.preventDefault).toHaveBeenCalled();
@@ -66,6 +67,7 @@ describe("Mouse", () => {
   });
 
   it("should intercept selectstart, by default", () => {
+    /* eslint-disable-next-line no-unused-vars */
     const mouse = new Mouse();
     const e = simulateMouseEvent("selectstart", 0, 0);
     expect(e.preventDefault).toHaveBeenCalled();
