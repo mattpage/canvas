@@ -1,5 +1,10 @@
 /* eslint no-underscore-dangle: ["error", { "allow": ["_size", "_rotation"] }] */
-import { PolygonEntity, numberInRange, integerInRange } from "../../index";
+import {
+  Physics,
+  PolygonEntity,
+  numberInRange,
+  integerInRange
+} from "../../index";
 
 export const AsteroidSize = Object.freeze({
   Large: 4,
@@ -201,6 +206,22 @@ class Asteroid extends PolygonEntity {
       torque,
       options
     );
+  }
+
+  static split(asteroid, newSize, offset) {
+    const a1 = Asteroid.createRandom(asteroid.x, asteroid.y, newSize);
+    const a2 = Asteroid.createRandom(
+      asteroid.x + offset,
+      asteroid.y + offset,
+      newSize
+    );
+
+    const vectors = Physics.splitVelocityVector(asteroid.vx, asteroid.vy);
+    a1.vx = vectors[0].vx;
+    a1.vy = vectors[0].vy;
+    a2.vx = vectors[1].vx;
+    a2.vy = vectors[1].vy;
+    return [a1, a2];
   }
 
   constructor(points, size, x, y, velX, velY, rotation, torque) {

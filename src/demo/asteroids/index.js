@@ -5,58 +5,16 @@ import Spaceship, { SpaceshipType } from "./Spaceship";
 
 const logger = console;
 
-const calcSplitVelocityVectors = asteroid => {
-  const { vx, vy } = asteroid;
-  // directional recoil
-  const kx = vx < 0 ? -1 : 1;
-  const ky = vy < 0 ? -1 : 1;
-
-  // velocity vector
-  const vector = Math.sqrt(vx * vx + vy * vy);
-
-  // angle of velocity vector
-  const theta = Math.atan(vy / vx);
-
-  // new debris travels +- 30 degrees
-  const alpha1 = (30 * Math.PI) / 180;
-  const alpha2 = -alpha1;
-
-  // new vector angles
-  const vx1 = vector * Math.cos(alpha1 + theta) * kx;
-  const vy1 = vector * Math.sin(alpha1 + theta) * ky;
-  const vx2 = vector * Math.cos(alpha2 + theta) * kx;
-  const vy2 = vector * Math.sin(alpha2 + theta) * ky;
-  return {
-    vx1,
-    vy1,
-    vx2,
-    vy2
-  };
-};
-
-const splitAsteroid = (asteroid, newSize, offset) => {
-  const a1 = Asteroid.createRandom(asteroid.x, asteroid.y, newSize);
-  const a2 = Asteroid.createRandom(
-    asteroid.x + offset,
-    asteroid.y + offset,
-    newSize
-  );
-
-  const { vx1, vy1, vx2, vy2 } = calcSplitVelocityVectors(asteroid);
-  a1.vx = vx1;
-  a1.vy = vy1;
-  a2.vx = vx2;
-  a2.vy = vy2;
-
-  return [a1, a2];
-};
-
+// This gets called once before render.
+// Here setup the game state and create a bunch of stuff
 const initializer = (context, canvas, controls, state) => {
+  logger.log("initializing game");
+
+  // offscreen canvas for double buffering
   state.offscreen = Canvas.create();
   state.offscreenContext = state.offscreen.context("2d");
 
   const dim = canvas.dimensions;
-  logger.log("initializing game");
 
   // create a bunch of asteroids
   while (state.entities.length < state.maxAsteroids) {
@@ -79,19 +37,23 @@ const initializer = (context, canvas, controls, state) => {
   );
   state.entities.push(state.playerShip);
 
+  // hookup the player keys
   controls.keyboard.captureKey(KEYS.ARROW_LEFT, keyInfo => {
+    // rotate the ship left
     const ship = state.playerShip;
     if (ship) {
       ship.torque = keyInfo.isDown ? -0.005 : 0;
     }
   });
   controls.keyboard.captureKey(KEYS.ARROW_RIGHT, keyInfo => {
+    // rotate the ship right
     const ship = state.playerShip;
     if (ship) {
       ship.torque = keyInfo.isDown ? 0.005 : 0;
     }
   });
   controls.keyboard.captureKey(KEYS.ARROW_UP, keyInfo => {
+    // accelerate the ship
     const ship = state.playerShip;
     if (ship) {
       ship.ax = keyInfo.isDown ? Math.cos(ship.rotation) * 0.05 : 0;
@@ -102,14 +64,14 @@ const initializer = (context, canvas, controls, state) => {
   logger.log("game initialized");
 };
 
+// This gets called every repeatedly (requestAnimationFrame)
+// Here's where the bulk of the game happens
 const renderer = (context, canvas, controls, state) => {
   const dim = canvas.dimensions;
 
   // erase the offscreen canvas
   state.offscreenContext.fillStyle = "white";
   state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
-
-  state.offscreenContext.save();
 
   // update asteroid physics
   Physics.update(
@@ -123,7 +85,7 @@ const renderer = (context, canvas, controls, state) => {
     { wrap: true }
   );
 
-  // update all of the entities
+  // process all of the entities
   state.entities = state.entities
     .map(entity => {
       const updates = [];
@@ -150,17 +112,17 @@ const renderer = (context, canvas, controls, state) => {
 
             case AsteroidSize.Small:
               // when a small asteroid collides, it is replaced with two tiny asteroids
-              updates.push(...splitAsteroid(entity, AsteroidSize.Tiny, 10));
+              updates.push(...Asteroid.split(entity, AsteroidSize.Tiny, 10));
               break;
 
             case AsteroidSize.Medium:
               // when a medium asteroid collides, it is replaced with two small asteroids
-              updates.push(...splitAsteroid(entity, AsteroidSize.Small, 20));
+              updates.push(...Asteroid.split(entity, AsteroidSize.Small, 20));
               break;
 
             case AsteroidSize.Large:
               // when a large asteroid collides, it is replaced with two medium asteroids
-              updates.push(...splitAsteroid(entity, AsteroidSize.Medium, 40));
+              updates.push(...Asteroid.split(entity, AsteroidSize.Medium, 40));
               break;
 
             default:
@@ -189,12 +151,15 @@ const renderer = (context, canvas, controls, state) => {
   return true;
 };
 
+// create our Game object and use the canvas with specified id
 const game = Game.create("canvas");
 
+// our initial state that gets passed to initialize and render
 const initialGameState = {
   entities: [],
   playerShip: null,
   maxAsteroids: 20
 };
 
+// start the game (call initializer and then renderer repeatedly)
 game.start(renderer, initializer, initialGameState);

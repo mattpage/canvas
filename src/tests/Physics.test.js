@@ -156,6 +156,12 @@ describe("Physics", () => {
       });
     });
 
+    describe("Physics.splitVelocityVector", () => {
+      it("should have some tests", () => {
+        // TODO - add tests
+      });
+    });
+
     describe("Physics.update", () => {
       it("should update the position of passed in entities", () => {
         const entities = [Entity.create(), Entity.create()];

@@ -261,6 +261,33 @@ class Physics {
       entity.collisions = collisions;
     });
   }
+
+  static splitVelocityVector(vx, vy, deflectionDegrees = 30) {
+    // directional recoil
+    const kx = vx < 0 ? -1 : 1;
+    const ky = vy < 0 ? -1 : 1;
+
+    // velocity vector
+    const vector = Math.sqrt(vx * vx + vy * vy);
+
+    // angle of velocity vector
+    const theta = Math.atan(vy / vx);
+
+    // deflect +- deflectionDegrees
+    const alpha1 = (deflectionDegrees * Math.PI) / 180;
+    const alpha2 = -alpha1;
+
+    return [
+      {
+        vx: vector * Math.cos(alpha1 + theta) * kx,
+        vy: vector * Math.sin(alpha1 + theta) * ky
+      },
+      {
+        vx: vector * Math.cos(alpha2 + theta) * kx,
+        vy: vector * Math.sin(alpha2 + theta) * ky
+      }
+    ];
+  }
 }
 
 export default Physics;
