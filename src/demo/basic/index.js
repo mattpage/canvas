@@ -7,13 +7,13 @@ const RECTANGLE_WIDTH = 100;
 const RECTANGLE_HEIGHT = 50;
 
 const myGame = Game.create("canvas");
-const state = {
+const initialGameState = {
   rectangles: []
 };
 
 let initialized = false;
 
-myGame.start((context, canvas, controls) => {
+myGame.start((context, canvas, controls, state) => {
   const pos = controls.mouse.position;
 
   if (!initialized) {
@@ -72,4 +72,4 @@ myGame.start((context, canvas, controls) => {
 
   // return true to keep animating
   return true;
-});
+}, initialGameState);

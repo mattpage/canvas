@@ -1,3 +1,4 @@
+/* eslint no-param-reassign: ["error", { "props": false }] */
 import { Game, Canvas, KEYS, Physics, integerInRange } from "../../index";
 import Asteroid, { AsteroidSize } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
@@ -53,7 +54,7 @@ const splitAsteroid = (asteroid, newSize, offset) => {
 const game = Game.create("canvas");
 const offscreen = Canvas.create();
 const offscreenContext = offscreen.context("2d");
-const state = {
+const initialState = {
   entities: [],
   playerShip: null,
   initialized: false,
@@ -61,7 +62,7 @@ const state = {
 };
 
 // start the animation loop
-game.start((context, canvas, controls) => {
+game.start((context, canvas, controls, state) => {
   const dim = canvas.dimensions;
 
   if (!state.initialized) {
@@ -194,4 +195,4 @@ game.start((context, canvas, controls) => {
 
   // return true to keep animating
   return true;
-});
+}, initialState);
