@@ -37,19 +37,25 @@ class Game {
     return this._controls;
   }
 
-  start(callback, ...args) {
+  start(renderer, initializer, ...args) {
     const context = this.canvas.context(
       this.options.contextType,
       this.options.contextAttributes
     );
 
-    const gameArgs = args.length === 1 ? args.pop() : args;
-    const renderer = callback || this.render;
-    if (!renderer) {
+    const init = initializer || this.initialize;
+    const render = renderer || this.render;
+    if (!render) {
       throw new Error("Missing render callback or method");
     }
+
+    const gameArgs = args.length === 1 ? args[0] : args;
+
+    if (init) {
+      init(context, this.canvas, this.controls, gameArgs);
+    }
     const animationLoop = () => {
-      if (renderer(context, this.canvas, this.controls, gameArgs)) {
+      if (render(context, this.canvas, this.controls, gameArgs)) {
         this.rafId = window.requestAnimationFrame(animationLoop);
       }
     };

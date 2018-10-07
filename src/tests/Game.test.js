@@ -45,21 +45,20 @@ describe("Game", () => {
       window.requestAnimationFrame = jest.fn();
     });
 
-    it("should throw an exception if no callback is supplied", () => {
+    it("should throw an exception if no renderer is supplied", () => {
       const game = new Game("test");
       expect(() => game.start()).toThrowError(
         /^Missing render callback or method/
       );
     });
 
-    it("should call the callback", () => {
+    it("should call the renderer", () => {
       const game = new Game("test");
-      const callback = jest.fn();
-      const initialGameState = {};
-      game.start(callback, initialGameState);
-      expect(callback).toHaveBeenCalled();
-      expect(callback.mock.calls).toHaveLength(1);
-      const args = callback.mock.calls[0];
+      const renderer = jest.fn();
+      game.start(renderer);
+      expect(renderer).toHaveBeenCalled();
+      expect(renderer.mock.calls).toHaveLength(1);
+      const args = renderer.mock.calls[0];
       expect(args).toHaveLength(4);
       expect(args[0]).toBeInstanceOf(Object);
       expect(args[1]).toBeInstanceOf(Object);
@@ -67,15 +66,33 @@ describe("Game", () => {
       expect(args[2]).toBeInstanceOf(Object);
       expect(args[2]).toEqual(game.controls);
       expect(args[3]).toBeInstanceOf(Array);
-      expect(args[3]).toEqual([initialGameState]);
+      expect(args[3]).toEqual([]);
       expect(window.requestAnimationFrame).not.toHaveBeenCalled();
     });
 
-    it("should call requestAnimationFrame if the callback returns true", () => {
+    it("should call the initializer", () => {
       const game = new Game("test");
-      const callback = jest.fn();
-      callback.mockReturnValue(true);
-      game.start(callback);
+      const renderer = jest.fn();
+      const initializer = jest.fn();
+      game.start(renderer, initializer);
+      expect(initializer).toHaveBeenCalled();
+      expect(initializer.mock.calls).toHaveLength(1);
+      const args = renderer.mock.calls[0];
+      expect(args).toHaveLength(4);
+      expect(args[0]).toBeInstanceOf(Object);
+      expect(args[1]).toBeInstanceOf(Object);
+      expect(args[1]).toEqual(game.canvas);
+      expect(args[2]).toBeInstanceOf(Object);
+      expect(args[2]).toEqual(game.controls);
+      expect(args[3]).toBeInstanceOf(Array);
+      expect(args[3]).toEqual([]);
+    });
+
+    it("should call requestAnimationFrame if the renderer returns true", () => {
+      const game = new Game("test");
+      const renderer = jest.fn();
+      renderer.mockReturnValue(true);
+      game.start(renderer);
       expect(window.requestAnimationFrame).toHaveBeenCalled();
     });
   });
@@ -91,9 +108,9 @@ describe("Game", () => {
 
     it("should call cancelAnimationFrame", () => {
       const game = new Game("test");
-      const callback = jest.fn();
-      callback.mockReturnValue(true);
-      game.start(callback);
+      const renderer = jest.fn();
+      renderer.mockReturnValue(true);
+      game.start(renderer);
       expect(window.requestAnimationFrame).toHaveBeenCalled();
       game.stop();
       expect(window.cancelAnimationFrame).toHaveBeenCalled();
@@ -109,28 +126,53 @@ describe("Game", () => {
 
     it("should call the render method", () => {
       class MyGame extends Game {
-        // eslint-disable-next-line
-        render() {
-          return true;
+        constructor(id) {
+          super(id);
+          this.render = jest.fn();
+          this.render.mockReturnValue(true);
         }
       }
       const game = new MyGame("test");
-      const callback = jest.fn();
-      const myArgs = {};
-      callback.mockReturnValue(true);
-      game.start(callback, myArgs);
-      expect(callback).toHaveBeenCalled();
-      expect(callback.mock.calls).toHaveLength(1);
-      const args = callback.mock.calls[0];
+      game.start();
+      expect(game.render).toHaveBeenCalled();
+      expect(game.render.mock.calls).toHaveLength(1);
+      const args = game.render.mock.calls[0];
       expect(args).toHaveLength(4);
       expect(args[0]).toBeInstanceOf(Object);
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
       expect(args[2]).toEqual(game.controls);
-      expect(args[3]).toBeInstanceOf(Array);
-      expect(args[3]).toEqual([myArgs]);
       expect(window.requestAnimationFrame).toHaveBeenCalled();
+    });
+  });
+
+  describe("initialize method", () => {
+    beforeEach(() => {
+      const qs = (window.document.querySelector = jest.fn());
+      qs.mockReturnValue({ getContext: () => ({}) });
+      window.requestAnimationFrame = jest.fn();
+    });
+
+    it("should call the initialize method", () => {
+      class MyGame extends Game {
+        constructor(id) {
+          super(id);
+          this.initialize = jest.fn();
+          this.render = jest.fn();
+        }
+      }
+      const game = new MyGame("test");
+      game.start();
+      expect(game.initialize).toHaveBeenCalled();
+      expect(game.initialize.mock.calls).toHaveLength(1);
+      const args = game.initialize.mock.calls[0];
+      expect(args).toHaveLength(4);
+      expect(args[0]).toBeInstanceOf(Object);
+      expect(args[1]).toBeInstanceOf(Object);
+      expect(args[1]).toEqual(game.canvas);
+      expect(args[2]).toBeInstanceOf(Object);
+      expect(args[2]).toEqual(game.controls);
     });
   });
 
