@@ -6,31 +6,22 @@ import { randomColor } from "../../utils";
 const RECTANGLE_WIDTH = 100;
 const RECTANGLE_HEIGHT = 50;
 
-const myGame = Game.create("canvas");
-const initialGameState = {
-  rectangles: []
+const initializer = (context, canvas, controls, state) => {
+  // when the mouse is clicked, add a pinned rectangle
+  controls.mouse.onClick = e => {
+    state.rectangles.push({
+      x: e.position.x,
+      y: e.position.y,
+      width: RECTANGLE_WIDTH,
+      height: RECTANGLE_HEIGHT,
+      pinned: true,
+      color: randomColor()
+    });
+  };
 };
 
-let initialized = false;
-
-myGame.start((context, canvas, controls, state) => {
+const renderer = (context, canvas, controls, state) => {
   const pos = controls.mouse.position;
-
-  if (!initialized) {
-    initialized = true;
-
-    // when the mouse is clicked, add a pinned rectangle
-    controls.mouse.onClick = e => {
-      state.rectangles.push({
-        x: e.position.x,
-        y: e.position.y,
-        width: RECTANGLE_WIDTH,
-        height: RECTANGLE_HEIGHT,
-        pinned: true,
-        color: randomColor()
-      });
-    };
-  }
 
   // erase and remove all of the rectangles that aren't pinned
   state.rectangles = state.rectangles
@@ -72,4 +63,10 @@ myGame.start((context, canvas, controls, state) => {
 
   // return true to keep animating
   return true;
-}, initialGameState);
+};
+
+const myGame = Game.create("canvas");
+const initialGameState = {
+  rectangles: []
+};
+myGame.start(renderer, initializer, initialGameState);
