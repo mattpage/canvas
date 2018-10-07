@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": [ "_rotation" ] }] */
 import { PolygonEntity } from "../../index";
 
 export const SpaceshipType = Object.freeze({
