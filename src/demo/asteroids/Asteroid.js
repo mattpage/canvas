@@ -1,10 +1,12 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_size", "_rotation"] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_size"] }] */
 import {
   Physics,
   PolygonEntity,
   numberInRange,
   integerInRange
 } from "../../index";
+
+const logger = console;
 
 export const AsteroidSize = Object.freeze({
   Large: 4,
@@ -233,6 +235,35 @@ class Asteroid extends PolygonEntity {
 
   get size() {
     return this._size;
+  }
+
+  collision() {
+    const result = [];
+
+    switch (this.size) {
+      case AsteroidSize.Tiny:
+        // when a tiny asteroid collides, it is destroyed. don't replace it or render it
+        break;
+      case AsteroidSize.Small:
+        // when a small asteroid collides, it is replaced with two tiny asteroids
+        result.push(...Asteroid.split(this, AsteroidSize.Tiny, 10));
+        break;
+
+      case AsteroidSize.Medium:
+        // when a medium asteroid collides, it is replaced with two small asteroids
+        result.push(...Asteroid.split(this, AsteroidSize.Small, 20));
+        break;
+
+      case AsteroidSize.Large:
+        // when a large asteroid collides, it is replaced with two medium asteroids
+        result.push(...Asteroid.split(this, AsteroidSize.Medium, 40));
+        break;
+
+      default:
+        logger.warn("unknown asteroid size", this.size);
+        break;
+    } // end switch
+    return result;
   }
 }
 

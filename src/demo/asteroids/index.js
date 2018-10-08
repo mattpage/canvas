@@ -2,6 +2,7 @@
 import { Game, Canvas, KEYS, Physics, integerInRange } from "../../index";
 import Asteroid, { AsteroidSize } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
+import Bullet, { BulletType } from "./Bullet";
 
 const logger = console;
 
@@ -60,6 +61,25 @@ const initializer = (context, canvas, controls, state) => {
       ship.ay = keyInfo.isDown ? Math.sin(ship.rotation) * 0.05 : 0;
     }
   });
+  controls.keyboard.captureKey(KEYS.SPACEBAR, keyInfo => {
+    const ship = state.playerShip;
+    if (ship) {
+      if (keyInfo.isDown) {
+        const bullet = Bullet.create(
+          BulletType.Diamond,
+          ship.x,
+          ship.y,
+          0, // vx
+          0, // vy
+          ship.rotation,
+          1 // torque
+        );
+        bullet.ax = Math.cos(ship.rotation) * 0.5;
+        bullet.ay = Math.sin(ship.rotation) * 0.5;
+        state.entities.push(bullet);
+      }
+    }
+  });
 
   logger.log("game initialized");
 };
@@ -90,45 +110,25 @@ const renderer = (context, canvas, controls, state) => {
     .map(entity => {
       const updates = [];
       let shouldRender = true;
-
-      const isSpaceship = entity === state.playerShip;
+      const isSpaceship = entity.constructor.name === "Spaceship";
+      const isBullet = entity.constructor.name === "Bullet";
+      const isAsteroid = entity.constructor.name === "Asteroid";
 
       // if there is a collision we replace an asteroid entity with 2 smaller asteroids
       // and update the velocity vectors so that the two smaller asteroids are
       // traveling apart at 30deg angles. If the collision is with a spaceship entity,
       // the spaceship is destroyed
       if (entity.collisions.length > 0) {
-        // this entity is being replaced or removed, so don't render it
+        // assume this entity is not going to be survive collision
         shouldRender = false;
 
         if (isSpaceship) {
-          // the spaceship is destroyed
+          // the spaceship is destroyed if it collides with anything
           state.playerShip = null;
-        } else {
-          switch (entity.size) {
-            case AsteroidSize.Tiny:
-              // when a tiny asteroid collides, it is destroyed. don't replace it or render it
-              break;
-
-            case AsteroidSize.Small:
-              // when a small asteroid collides, it is replaced with two tiny asteroids
-              updates.push(...Asteroid.split(entity, AsteroidSize.Tiny, 10));
-              break;
-
-            case AsteroidSize.Medium:
-              // when a medium asteroid collides, it is replaced with two small asteroids
-              updates.push(...Asteroid.split(entity, AsteroidSize.Small, 20));
-              break;
-
-            case AsteroidSize.Large:
-              // when a large asteroid collides, it is replaced with two medium asteroids
-              updates.push(...Asteroid.split(entity, AsteroidSize.Medium, 40));
-              break;
-
-            default:
-              logger.warn("unknown asteroid size", entity.size);
-              break;
-          } // end switch
+        } else if (isBullet) {
+          // a bullet is destroyed if it collides with anything
+        } else if (isAsteroid) {
+          updates.push(...entity.collision());
         }
       } else {
         // if no collisions, keep the entity
@@ -157,8 +157,8 @@ const game = Game.create("canvas");
 // our initial state that gets passed to initialize and render
 const initialGameState = {
   entities: [],
-  playerShip: null,
-  maxAsteroids: 20
+  maxAsteroids: 20,
+  playerShip: null
 };
 
 // start the game (call initializer and then renderer repeatedly)
