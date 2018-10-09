@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
 export const CSS_COLOR_NAMES = [
   "AliceBlue",
   "AntiqueWhite",
@@ -156,3 +158,26 @@ export const integerInRange = (min, max) =>
 
 export const randomColor = () =>
   CSS_COLOR_NAMES[integerInRange(0, CSS_COLOR_NAMES.length - 1)];
+
+export const createAvgFpsRenderer = () => {
+  let lastCalledTime = Date.now();
+  let fps = [];
+
+  return (context, x, y) => {
+    // calc and display framerate
+    const now = Date.now();
+    const delta = (now - lastCalledTime) / 1000;
+    lastCalledTime = now;
+    fps.push(1 / delta);
+    const fpsAvg = Math.round(
+      fps.reduce((acc, value) => acc + value, 0) / fps.length
+    );
+    if (fps.length >= 100) {
+      fps = fps.slice(50);
+    }
+    const fontSize = 24;
+    context.font = `${fontSize}px serif`;
+    context.fillStyle = "black";
+    context.fillText(`fps: ${fpsAvg}`, x, y);
+  };
+};

@@ -1,5 +1,12 @@
 /* eslint no-param-reassign: ["error", { "props": false }] */
-import { Game, Canvas, KEYS, Physics, integerInRange } from "../../index";
+import {
+  Game,
+  Canvas,
+  KEYS,
+  Physics,
+  createAvgFpsRenderer,
+  integerInRange
+} from "../../index";
 import Asteroid, { AsteroidSize } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 import Bullet, { BulletType } from "./Bullet";
@@ -14,6 +21,7 @@ const initializer = (context, canvas, controls, state) => {
   // offscreen canvas for double buffering
   state.offscreen = Canvas.create();
   state.offscreenContext = state.offscreen.context("2d");
+  state.displayAvgFps = createAvgFpsRenderer();
 
   const dim = canvas.dimensions;
 
@@ -92,6 +100,8 @@ const renderer = (context, canvas, controls, state) => {
   // erase the offscreen canvas
   state.offscreenContext.fillStyle = "white";
   state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
+
+  state.displayAvgFps(state.offscreenContext, dim.width - 110, 24);
 
   // update asteroid physics
   Physics.update(

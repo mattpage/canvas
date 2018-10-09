@@ -1,7 +1,6 @@
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
-import { Game } from "../../index";
-import { randomColor } from "../../utils";
+import { Game, randomColor } from "../../index";
 
 const RECTANGLE_WIDTH = 100;
 const RECTANGLE_HEIGHT = 50;
