@@ -1,4 +1,3 @@
-/* eslint no-param-reassign: ["error", { "props": false }] */
 import { PolygonEntity } from "../../index";
 
 export const BulletType = Object.freeze({

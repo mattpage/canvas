@@ -13,6 +13,7 @@
       "babel"
     ],
     "rules": {
-      "babel/object-curly-spacing": 0
+      "babel/object-curly-spacing": 0,
+      "no-param-reassign" : ["error", { "props": false }]
     }
 }

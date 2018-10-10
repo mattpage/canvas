@@ -1,5 +1,3 @@
-/* eslint no-param-reassign: ["error", { "props": false }] */
-
 import { Game, randomColor } from "../../index";
 
 const RECTANGLE_WIDTH = 100;

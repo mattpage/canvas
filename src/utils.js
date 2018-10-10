@@ -1,5 +1,3 @@
-/* eslint no-param-reassign: ["error", { "props": false }] */
-
 export const CSS_COLOR_NAMES = [
   "AliceBlue",
   "AntiqueWhite",
