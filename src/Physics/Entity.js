@@ -1,4 +1,6 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collisions" ] }] */
+/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collisions", "_key" ] }] */
+import shortid from "shortid";
+
 class Entity {
   static create(...args) {
     return new Entity(...args);
@@ -12,7 +14,8 @@ class Entity {
     vx = 0,
     vy = 0,
     rotation = 0,
-    torque = 0
+    torque = 0,
+    key = null
   ) {
     this._x = x;
     this._y = y;
@@ -32,6 +35,15 @@ class Entity {
     this._ay = 0.0;
 
     this._collisions = [];
+
+    // every entity needs a unique key
+    if (!key) {
+      this._key = shortid.generate();
+    }
+  }
+
+  get key() {
+    return this._key;
   }
 
   get collisions() {

@@ -18,7 +18,9 @@
   "jest": {
     "verbose": true
   },
-  "dependencies": {},
+  "dependencies": {
+    "shortid": "^2.2.13"
+  },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",

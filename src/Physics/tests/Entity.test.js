@@ -18,6 +18,8 @@ describe("Entity", () => {
     expect(entity.vy).toEqual(0);
     expect(entity.ax).toEqual(0);
     expect(entity.ay).toEqual(0);
+    expect(typeof entity.key).toBe("string");
+    expect(entity.key.length).not.toEqual(0);
   });
 
   it("should be possible to set position", () => {
