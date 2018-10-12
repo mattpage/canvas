@@ -4,7 +4,7 @@ class Canvas {
   };
 
   static create(...args) {
-    return new Canvas(args);
+    return new Canvas(...args);
   }
 
   constructor(selector, options = Canvas.defaultOptions) {
