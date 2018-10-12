@@ -12,7 +12,7 @@ class Game {
   };
 
   static create(...args) {
-    return new Game(args);
+    return new Game(...args);
   }
 
   constructor(selector, options = Game.defaultOptions) {
