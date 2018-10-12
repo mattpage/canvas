@@ -18,9 +18,7 @@
   "jest": {
     "verbose": true
   },
-  "dependencies": {
-    "shortid": "^2.2.13"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",
@@ -29,7 +27,7 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "browser-sync": "^2.24.4",
+    "browser-sync": "^2.26.0",
     "browser-sync-webpack-plugin": "^2.2.2",
     "eslint": "^5.4.0",
     "eslint-config-airbnb-base": "^13.1.0",
