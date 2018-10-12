@@ -1,5 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_capturedKeys", "_lastKey"] }] */
-
 export const KEYS = {
   A: "A".charCodeAt(0),
   B: "B".charCodeAt(0),

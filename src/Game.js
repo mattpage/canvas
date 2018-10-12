@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_canvas", "_controls", "_rafId"] }] */
 import Canvas from "./Canvas";
 import Mouse from "./Mouse";
 import Keyboard from "./Keyboard";

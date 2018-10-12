@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_element", "_lastClick", "_mouse", "_onClickHandler", "_onMoveHandler"] }] */
 class Mouse {
   static defaultOptions = {
     disableDrag: true,
