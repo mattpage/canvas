@@ -103,6 +103,7 @@ const initializer = (context, canvas, controls, state) => {
         bullet.ax = Math.cos(ship.rotation) * 0.5;
         bullet.ay = Math.sin(ship.rotation) * 0.5;
         bullet.collidesWith = createCollidesWithMap(true);
+        bullet.expires = 1000; // bullets disappear after 1sec
         state.entities.push(bullet);
       }
     }

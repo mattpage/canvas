@@ -21,6 +21,7 @@ class Entity {
     this._torque = torque;
 
     this._elapsed = Date.now();
+    this._expires = null;
 
     // velocity
     this._vx = vx;
@@ -55,6 +56,14 @@ class Entity {
 
   set elapsed(ms) {
     this._elapsed = ms;
+  }
+
+  get expires() {
+    return this._expires;
+  }
+
+  set expires(ms) {
+    this._expires = ms;
   }
 
   get rotation() {

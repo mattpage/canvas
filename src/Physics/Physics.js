@@ -71,6 +71,15 @@ class Physics {
       const diff = now - entity.elapsed;
       entity.elapsed = now;
 
+      if (entity.expires) {
+        entity.expires -= diff;
+        if (entity.expires <= 0) {
+          // this entity has expired and should be removed from the game
+          entity.expired = true;
+          return;
+        }
+      }
+
       // update velocity
       entity.vx += entity.ax;
       entity.vy += entity.ay;
@@ -103,7 +112,7 @@ class Physics {
         }
       });
 
-      if (!hasCollisions) {
+      if (!hasCollisions && !entity.expired) {
         updatedEntities.push(entity);
       }
     });
