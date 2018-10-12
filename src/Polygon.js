@@ -2,7 +2,7 @@ class Polygon {
   static defaultOptions = { showRect: false, showOffset: false };
 
   static create(...args) {
-    return new Polygon(args);
+    return new Polygon(...args);
   }
 
   constructor(points = [], options = Polygon.defaultOptions) {
