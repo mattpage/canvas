@@ -3,8 +3,8 @@ class Canvas {
     resizable: true
   };
 
-  static create(selector, options) {
-    return new Canvas(selector, options);
+  static create(...args) {
+    return new Canvas(args);
   }
 
   constructor(selector, options = Canvas.defaultOptions) {
