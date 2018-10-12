@@ -11,8 +11,8 @@ class Game {
     mouse: true
   };
 
-  static create(selector, options = Game.defaultOptions) {
-    return new Game(selector, options);
+  static create(...args) {
+    return new Game(args);
   }
 
   constructor(selector, options = Game.defaultOptions) {
