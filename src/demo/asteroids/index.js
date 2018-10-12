@@ -12,6 +12,23 @@ import Bullet, { BulletType } from "./Bullet";
 
 const logger = console;
 
+// this map indicates what the entity can collide with
+const createCollidesWithMap = friendly => {
+  const collidesWith = {
+    // [SpaceshipType.Enemy]: friendly,
+    [BulletType.Enemy]: friendly,
+    [BulletType.Player]: !friendly,
+    [SpaceshipType.Player]: !friendly
+  };
+
+  // add all of the asteroids
+  Object.values(AsteroidType).forEach(t => {
+    collidesWith[t] = true;
+  });
+
+  return collidesWith;
+};
+
 // This gets called once before render.
 // Here setup the game state and create a bunch of stuff
 const initializer = (context, canvas, controls, state) => {
@@ -44,17 +61,7 @@ const initializer = (context, canvas, controls, state) => {
     dim.height / 2
   );
 
-  const defaultCollidesWith = {
-    // [SpaceshipType.Enemy]: 1,
-    [BulletType.Enemy]: 1,
-    [BulletType.Player]: 0,
-    [SpaceshipType.Player]: 0
-  };
-  Object.values(AsteroidType).forEach(t => {
-    defaultCollidesWith[t] = 1;
-  });
-
-  state.playerShip.collidesWith = defaultCollidesWith;
+  state.playerShip.collidesWith = createCollidesWithMap(true);
   state.entities.push(state.playerShip);
 
   // hookup the player keys
@@ -95,7 +102,7 @@ const initializer = (context, canvas, controls, state) => {
         );
         bullet.ax = Math.cos(ship.rotation) * 0.5;
         bullet.ay = Math.sin(ship.rotation) * 0.5;
-        bullet.collidesWith = defaultCollidesWith;
+        bullet.collidesWith = createCollidesWithMap(true);
         state.entities.push(bullet);
       }
     }
