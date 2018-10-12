@@ -1,6 +1,4 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_collisions", "_key" ] }] */
-import shortid from "shortid";
-
+/* eslint no-underscore-dangle: ["error", { "allow": ["_x", "_y", "_vx", "_vy", "_ax", "_ay", "_height", "_width", "_elapsed", "_rotation", "_torque", "_type", "_collidesWith" ] }] */
 class Entity {
   static create(...args) {
     return new Entity(...args);
@@ -14,8 +12,7 @@ class Entity {
     vx = 0,
     vy = 0,
     rotation = 0,
-    torque = 0,
-    key = null
+    torque = 0
   ) {
     this._x = x;
     this._y = y;
@@ -34,24 +31,23 @@ class Entity {
     this._ax = 0.0;
     this._ay = 0.0;
 
-    this._collisions = [];
-
-    // every entity needs a unique key
-    if (!key) {
-      this._key = shortid.generate();
-    }
+    this._collidesWith = {};
   }
 
-  get key() {
-    return this._key;
+  get collidesWith() {
+    return this._collidesWith;
   }
 
-  get collisions() {
-    return this._collisions;
+  set collidesWith(mapOfTypes) {
+    this._collidesWith = mapOfTypes;
   }
 
-  set collisions(indexArray) {
-    this._collisions = indexArray;
+  get type() {
+    return this._type;
+  }
+
+  set type(t) {
+    this._type = t;
   }
 
   get elapsed() {
@@ -147,6 +143,19 @@ class Entity {
       right: this.x + this.width,
       bottom: this.y + this.height
     };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  collision(entities) {
+    // Given an array of colliding entities, this method must return a new array of resulting entities (if any).
+    // By default, this checks to see if any of the entity types can collide with this entity.
+    // If so, this entity is destroyed.
+    const { collidesWith } = this;
+    const collisions = entities.reduce(
+      (acc, entity) => (collidesWith[entity.type] ? acc + 1 : 0),
+      0
+    );
+    return collisions > 0 ? [] : [this];
   }
 }
 

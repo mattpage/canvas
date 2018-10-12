@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: ["error", { "allow": ["_size"] }] */
 import {
   Physics,
   PolygonEntity,
@@ -8,18 +7,18 @@ import {
 
 const logger = console;
 
-export const AsteroidSize = Object.freeze({
-  Large: 4,
-  Medium: 3,
-  Small: 2,
-  Tiny: 1
+export const AsteroidType = Object.freeze({
+  Large: "LargeAsteroid",
+  Medium: "MediumAsteroid",
+  Small: "SmallAsteroid",
+  Tiny: "TinyAsteroid"
 });
 
 // asteroids in cartesian points
 /* prettier-ignore */
 export const ASTEROIDS = [
   {
-    size: AsteroidSize.Large,
+    type: AsteroidType.Large,
     points: [
       0, 30,
       20, 0,
@@ -35,7 +34,7 @@ export const ASTEROIDS = [
     ],
   },
   {
-    size: AsteroidSize.Large,
+    type: AsteroidType.Large,
     points: [
         0, 30,
         30, 0,
@@ -49,7 +48,7 @@ export const ASTEROIDS = [
       ],
   },
   {
-    size: AsteroidSize.Medium,
+    type: AsteroidType.Medium,
     points: [
       0, 10,
       5, 20,
@@ -70,7 +69,7 @@ export const ASTEROIDS = [
     ],
   },
   {
-    size: AsteroidSize.Medium,
+    type: AsteroidType.Medium,
     points: [
       0, 20,
       5, 20,
@@ -92,7 +91,7 @@ export const ASTEROIDS = [
   },
   {
     name: 'wobbly-em',
-    size: AsteroidSize.Small,
+    type: AsteroidType.Small,
     points: [
       0, 15,
       5, 10,
@@ -116,7 +115,7 @@ export const ASTEROIDS = [
   },
   {
     name: 'knights-head',
-    size: AsteroidSize.Small,
+    type: AsteroidType.Small,
     points: [
       0, 15,
       5, 10,
@@ -136,7 +135,7 @@ export const ASTEROIDS = [
   },
   {
     name: 'ugly-muffin',
-    size: AsteroidSize.Small,
+    type: AsteroidType.Small,
     points: [
       0, 10,
       5, 5,
@@ -157,7 +156,7 @@ export const ASTEROIDS = [
   },
   {
     name: 'idaho',
-    size: AsteroidSize.Tiny,
+    type: AsteroidType.Tiny,
     points: [
       0, 5,
       3, 5,
@@ -172,7 +171,7 @@ export const ASTEROIDS = [
   },
   {
     name: 'little-boulder',
-    size: AsteroidSize.Tiny,
+    type: AsteroidType.Tiny,
     points: [
       0, 5,
       5, 3,
@@ -187,10 +186,10 @@ export const ASTEROIDS = [
 ];
 
 class Asteroid extends PolygonEntity {
-  static createRandom(x, y, size, options = {}) {
+  static createRandom(x, y, type, options = {}) {
     let asteroids = ASTEROIDS;
-    if (size) {
-      asteroids = asteroids.filter(a => a.size === size);
+    if (type) {
+      asteroids = asteroids.filter(a => a.type === type);
     }
     const index = integerInRange(0, asteroids.length - 1);
     const velX = numberInRange(0.001, 0.5);
@@ -199,7 +198,7 @@ class Asteroid extends PolygonEntity {
     const torque = numberInRange(0.00001, 0.0005);
     return new Asteroid(
       asteroids[index].points,
-      asteroids[index].size,
+      asteroids[index].type,
       x,
       y,
       velX,
@@ -226,41 +225,37 @@ class Asteroid extends PolygonEntity {
     return [a1, a2];
   }
 
-  constructor(points, size, x, y, velX, velY, rotation, torque) {
+  constructor(points, type, x, y, velX, velY, rotation, torque) {
     super(points, x, y, velX, velY, rotation, torque);
     this.velX = velX;
     this.velX = velX;
-    this._size = size;
-  }
-
-  get size() {
-    return this._size;
+    this.type = type;
   }
 
   collision() {
     const result = [];
 
-    switch (this.size) {
-      case AsteroidSize.Tiny:
+    switch (this.type) {
+      case AsteroidType.Tiny:
         // when a tiny asteroid collides, it is destroyed. don't replace it or render it
         break;
-      case AsteroidSize.Small:
+      case AsteroidType.Small:
         // when a small asteroid collides, it is replaced with two tiny asteroids
-        result.push(...Asteroid.split(this, AsteroidSize.Tiny, 10));
+        result.push(...Asteroid.split(this, AsteroidType.Tiny, 10));
         break;
 
-      case AsteroidSize.Medium:
+      case AsteroidType.Medium:
         // when a medium asteroid collides, it is replaced with two small asteroids
-        result.push(...Asteroid.split(this, AsteroidSize.Small, 20));
+        result.push(...Asteroid.split(this, AsteroidType.Small, 20));
         break;
 
-      case AsteroidSize.Large:
+      case AsteroidType.Large:
         // when a large asteroid collides, it is replaced with two medium asteroids
-        result.push(...Asteroid.split(this, AsteroidSize.Medium, 40));
+        result.push(...Asteroid.split(this, AsteroidType.Medium, 40));
         break;
 
       default:
-        logger.warn("unknown asteroid size", this.size);
+        logger.warn("unknown asteroid type", this.type);
         break;
     } // end switch
     return result;

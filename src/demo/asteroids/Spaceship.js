@@ -1,7 +1,7 @@
 import { PolygonEntity } from "../../index";
 
 export const SpaceshipType = Object.freeze({
-  Player: 1
+  Player: "PlayerShip"
 });
 
 // various spaceships in cartesian points
@@ -21,7 +21,9 @@ export const SPACESHIPS = [
 class Spaceship extends PolygonEntity {
   static create(type = SpaceshipType.Player, x = 0, y = 0) {
     const ships = SPACESHIPS.filter(s => s.type === type);
-    return new Spaceship(ships[0].points, x, y);
+    const ship = new Spaceship(ships[0].points, x, y);
+    ship.type = type;
+    return ship;
   }
 }
 

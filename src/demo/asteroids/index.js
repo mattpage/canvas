@@ -6,7 +6,7 @@ import {
   createAvgFpsRenderer,
   integerInRange
 } from "../../index";
-import Asteroid, { AsteroidSize } from "./Asteroid";
+import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 import Bullet, { BulletType } from "./Bullet";
 
@@ -33,7 +33,7 @@ const initializer = (context, canvas, controls, state) => {
       showRect: false
     };
     state.entities.push(
-      Asteroid.createRandom(x, y, AsteroidSize.Large, options)
+      Asteroid.createRandom(x, y, AsteroidType.Large, options)
     );
   }
 
@@ -43,6 +43,18 @@ const initializer = (context, canvas, controls, state) => {
     dim.width / 2,
     dim.height / 2
   );
+
+  const defaultCollidesWith = {
+    // [SpaceshipType.Enemy]: 1,
+    [BulletType.Enemy]: 1,
+    [BulletType.Player]: 0,
+    [SpaceshipType.Player]: 0
+  };
+  Object.values(AsteroidType).forEach(t => {
+    defaultCollidesWith[t] = 1;
+  });
+
+  state.playerShip.collidesWith = defaultCollidesWith;
   state.entities.push(state.playerShip);
 
   // hookup the player keys
@@ -83,6 +95,7 @@ const initializer = (context, canvas, controls, state) => {
         );
         bullet.ax = Math.cos(ship.rotation) * 0.5;
         bullet.ay = Math.sin(ship.rotation) * 0.5;
+        bullet.collidesWith = defaultCollidesWith;
         state.entities.push(bullet);
       }
     }
@@ -103,7 +116,7 @@ const renderer = (context, canvas, controls, state) => {
   state.displayAvgFps(state.offscreenContext, dim.width - 110, 24);
 
   // update asteroid physics
-  Physics.update(
+  state.entities = Physics.update(
     state.entities,
     {
       top: 0,
@@ -114,44 +127,8 @@ const renderer = (context, canvas, controls, state) => {
     { wrap: true }
   );
 
-  // process all of the entities
-  state.entities = state.entities
-    .map(entity => {
-      const updates = [];
-      let shouldRender = true;
-      const isSpaceship = entity.constructor.name === "Spaceship";
-      const isBullet = entity.constructor.name === "Bullet";
-      const isAsteroid = entity.constructor.name === "Asteroid";
-
-      // if there is a collision we replace an asteroid entity with 2 smaller asteroids
-      // and update the velocity vectors so that the two smaller asteroids are
-      // traveling apart at 30deg angles. If the collision is with a spaceship entity,
-      // the spaceship is destroyed
-      if (entity.collisions.length > 0) {
-        // assume this entity is not going to be survive collision
-        shouldRender = false;
-
-        if (isSpaceship) {
-          // the spaceship is destroyed if it collides with anything
-          state.playerShip = null;
-        } else if (isBullet) {
-          // a bullet is destroyed if it collides with anything
-        } else if (isAsteroid) {
-          updates.push(...entity.collision());
-        }
-      } else {
-        // if no collisions, keep the entity
-        updates.push(entity);
-      }
-
-      if (shouldRender) {
-        // render the entity
-        entity.render(state.offscreenContext);
-      }
-
-      return updates;
-    }) // flatten the array of arrays
-    .reduce((acc, val) => acc.concat(val), []);
+  // render all of the entities
+  state.entities.forEach(entity => entity.render(state.offscreenContext));
 
   // copy the offscreen canvas to the display canvas
   context.drawImage(state.offscreen.canvas, 0, 0);

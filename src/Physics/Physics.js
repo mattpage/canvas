@@ -64,6 +64,9 @@ class Physics {
   static update(entities, bounds, options = { wrap: false }) {
     const now = Date.now();
 
+    const updatedEntities = [];
+
+    // move and constrain
     entities.forEach(entity => {
       const diff = now - entity.elapsed;
       entity.elapsed = now;
@@ -83,18 +86,35 @@ class Physics {
       }
       // ensure the entity is within the world bounds
       Physics.constrainEntity(entity, bounds, options);
+    });
 
-      // collision detection - O(n^2) complexity
-      const collisions = [];
-      entities.forEach((otherEntity, otherEntityIndex) => {
+    // collision detection - O(n^2) complexity
+    const collisionMap = new Map();
+    entities.forEach(entity => {
+      let hasCollisions = false;
+      entities.forEach(otherEntity => {
         if (entity !== otherEntity) {
           if (Physics.collision(entity.rect, otherEntity.rect)) {
-            collisions.push(otherEntityIndex);
+            hasCollisions = true;
+            const collisions = collisionMap.get(entity) || [];
+            collisions.push(otherEntity);
+            collisionMap.set(entity, collisions);
           }
         }
       });
-      entity.collisions = collisions;
+
+      if (!hasCollisions) {
+        updatedEntities.push(entity);
+      }
     });
+
+    // resolve collisions
+    collisionMap.forEach((collisions, entity) => {
+      updatedEntities.push(entity.collision(collisions));
+    });
+
+    // flatten any nested arrays and return an updated collection of entities
+    return updatedEntities.reduce((acc, val) => acc.concat(val), []);
   }
 
   static splitVelocityVector(vx, vy, deflectionDegrees = 30) {

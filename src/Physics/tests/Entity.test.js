@@ -18,8 +18,6 @@ describe("Entity", () => {
     expect(entity.vy).toEqual(0);
     expect(entity.ax).toEqual(0);
     expect(entity.ay).toEqual(0);
-    expect(typeof entity.key).toBe("string");
-    expect(entity.key.length).not.toEqual(0);
   });
 
   it("should be possible to set position", () => {
@@ -76,18 +74,31 @@ describe("Entity", () => {
     expect(entity.ay).toEqual(4.2);
   });
 
-  it("should be possible to get/set collisions", () => {
-    const entity = new Entity();
-    const indexArray = [0, 1];
-    entity.collisions = indexArray;
-    expect(entity.collisions).toEqual(indexArray);
-  });
-
   it("should be possible to get/set torque", () => {
     const entity = new Entity();
     expect(entity.torque).toEqual(0);
     entity.torque = 1;
     expect(entity.torque).toEqual(1);
+  });
+
+  it("should be possible to get/set type", () => {
+    const entity = new Entity();
+    expect(entity.type).toBeUndefined();
+    entity.type = "test";
+    expect(entity.type).toEqual("test");
+    entity.type = 42;
+    expect(entity.type).toEqual(42);
+  });
+
+  it("should be possible to handle collisions", () => {
+    const entity = new Entity();
+    entity.type = "A";
+    entity.collidesWith = { B: 1 };
+    const otherEntity = Entity.create();
+    otherEntity.type = "B";
+    const result = entity.collision([otherEntity]);
+    expect(result).toBeInstanceOf(Array);
+    expect(result.length).toEqual(0);
   });
 
   describe("Entity.create", () => {
