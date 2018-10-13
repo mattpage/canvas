@@ -136,7 +136,31 @@ const renderer = (context, canvas, controls, state) => {
   );
 
   // render all of the entities
-  state.entities.forEach(entity => entity.render(state.offscreenContext));
+  let other = 0;
+  let players = 0;
+
+  state.entities.forEach(entity => {
+    if (entity.type === SpaceshipType.Player) {
+      players += 1;
+    } else {
+      other += 1;
+    }
+
+    entity.render(state.offscreenContext);
+  });
+
+  if (players < 1) {
+    // game over
+    const fontSize = 24;
+    state.offscreenContext.font = `${fontSize}px courier`;
+    state.offscreenContext.fillStyle = "black";
+    state.offscreenContext.textAlign = "center";
+    state.offscreenContext.fillText("GAME OVER", dim.width / 2, dim.height / 2);
+  }
+  if (other < 1) {
+    // next level
+    console.log("next level");
+  }
 
   // copy the offscreen canvas to the display canvas
   context.drawImage(state.offscreen.canvas, 0, 0);
@@ -151,7 +175,8 @@ const game = Game.create("canvas");
 // our initial state that gets passed to initialize and render
 const initialGameState = {
   entities: [],
-  maxAsteroids: 20,
+  level: 1,
+  maxAsteroids: 1,
   playerShip: null
 };
 
