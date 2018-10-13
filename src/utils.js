@@ -173,9 +173,9 @@ export const createAvgFpsRenderer = () => {
     if (fps.length >= 100) {
       fps = fps.slice(50);
     }
-    const fontSize = 24;
-    context.font = `${fontSize}px serif`;
+    const fontSize = 12;
+    context.font = `${fontSize}px courier`;
     context.fillStyle = "black";
-    context.fillText(`fps: ${fpsAvg}`, x, y);
+    context.fillText(`FPS: ${fpsAvg}`, x, y);
   };
 };
