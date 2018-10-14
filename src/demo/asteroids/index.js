@@ -4,6 +4,7 @@ import {
   KEYS,
   Physics,
   createAvgFpsRenderer,
+  drawText,
   integerInRange
 } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
@@ -29,7 +30,21 @@ const createCollidesWithMap = friendly => {
   return collidesWith;
 };
 
-// This gets called once before render.
+const createAsteroids = (state, dimensions) => {
+  // create a bunch of asteroids
+  while (state.entities.length < state.maxAsteroids) {
+    const x = integerInRange(0, dimensions.width);
+    const y = integerInRange(0, dimensions.height);
+    const options = {
+      showOffset: false,
+      showRect: false
+    };
+    state.entities.push(
+      Asteroid.createRandom(x, y, AsteroidType.Large, options)
+    );
+  }
+};
+
 // Here setup the game state and create a bunch of stuff
 const initializer = (context, canvas, controls, state) => {
   logger.log("initializing game");
@@ -41,18 +56,7 @@ const initializer = (context, canvas, controls, state) => {
 
   const dim = canvas.dimensions;
 
-  // create a bunch of asteroids
-  while (state.entities.length < state.maxAsteroids) {
-    const x = integerInRange(0, dim.width);
-    const y = integerInRange(0, dim.height);
-    const options = {
-      showOffset: false,
-      showRect: false
-    };
-    state.entities.push(
-      Asteroid.createRandom(x, y, AsteroidType.Large, options)
-    );
-  }
+  createAsteroids(state, dim);
 
   // create the player spaceship
   state.playerShip = Spaceship.create(
@@ -151,16 +155,37 @@ const renderer = (context, canvas, controls, state) => {
 
   if (players < 1) {
     // game over
-    const fontSize = 24;
-    state.offscreenContext.font = `${fontSize}px courier`;
-    state.offscreenContext.fillStyle = "black";
-    state.offscreenContext.textAlign = "center";
-    state.offscreenContext.fillText("GAME OVER", dim.width / 2, dim.height / 2);
+    const msg = "GAME OVER";
+    const index = state.messages.indexOf(msg);
+    if (index === -1) {
+      state.messages.push(msg);
+    }
   }
   if (other < 1) {
     // next level
-    console.log("next level");
+    state.level += 1;
+    state.maxAsteroids += 5;
+    const msg = `LEVEL ${state.level}`;
+    state.messages.push(msg);
+    createAsteroids(state, dim);
+    setTimeout(() => {
+      const index = state.messages.indexOf(msg);
+      if (index > -1) {
+        state.messages.splice(index, 1);
+      }
+    }, 2000);
   }
+
+  // draw any messages to the screen
+  state.messages.forEach((message, index) => {
+    drawText(
+      state.offscreenContext,
+      message,
+      dim.width / 2,
+      dim.height / 2 + index * 24,
+      { textAlign: "center" }
+    );
+  });
 
   // copy the offscreen canvas to the display canvas
   context.drawImage(state.offscreen.canvas, 0, 0);
@@ -176,7 +201,8 @@ const game = Game.create("canvas");
 const initialGameState = {
   entities: [],
   level: 1,
-  maxAsteroids: 1,
+  maxAsteroids: 20,
+  messages: [],
   playerShip: null
 };
 
