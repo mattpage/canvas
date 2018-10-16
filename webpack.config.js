@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const BrowserSyncPlugin = require("browser-sync-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const webpackConfig = {
   mode: "development",
@@ -22,10 +23,18 @@ const webpackConfig = {
             presets: ["env"]
           }
         }
+      },
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader"]
       }
     ]
   },
   plugins: [
+    new MiniCssExtractPlugin({
+      filename: "[name].css",
+      chunkFilename: "[id].css"
+    }),
     new BrowserSyncPlugin({
       host: "localhost",
       port: 3000,

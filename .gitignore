@@ -1,4 +1,6 @@
 coverage
+dist/*.css
+dist/*.css.map
 dist/demo
 node_modules
 tags
