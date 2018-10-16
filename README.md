@@ -1,6 +1,6 @@
 # canvas
 
-My scratchbuilt game framework, some basic physics, and the start of an asteroids game.
+My scratchbuilt game framework, some basic physics, and a playable asteroids game.
 
 ## scripts
 run the demo(s)
