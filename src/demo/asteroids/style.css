@@ -1,0 +1,28 @@
+body {
+}
+
+#game-over {
+  position: absolute;
+  top: 40%;
+  left: 0;
+  text-align: center;
+  width: 100%;
+  font-family: 'courier';
+}
+
+#game-over.hidden {
+  display: none;
+}
+
+#game-over h2 {
+  font-size: 24px;
+  font-weight: 100;
+}
+
+#game-over .menu {
+  font-size: 14px;
+}
+
+#game-over .menu a{
+  cursor: pointer;
+}

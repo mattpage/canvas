@@ -10,6 +10,7 @@ import {
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 import Bullet, { BulletType } from "./Bullet";
+import "./style.css";
 
 const logger = console;
 
@@ -31,7 +32,6 @@ const createCollidesWithMap = friendly => {
 };
 
 const createAsteroids = (state, dimensions) => {
-  // create a bunch of asteroids
   while (state.entities.length < state.maxAsteroids) {
     const x = integerInRange(0, dimensions.width);
     const y = integerInRange(0, dimensions.height);
@@ -45,6 +45,16 @@ const createAsteroids = (state, dimensions) => {
   }
 };
 
+const createPlayerShip = (state, dim) => {
+  state.playerShip = Spaceship.create(
+    SpaceshipType.Player,
+    dim.width / 2,
+    dim.height / 2
+  );
+  state.playerShip.collidesWith = createCollidesWithMap(true);
+  state.entities.push(state.playerShip);
+};
+
 // Here setup the game state and create a bunch of stuff
 const initializer = (context, canvas, controls, state) => {
   logger.log("initializing game");
@@ -52,21 +62,23 @@ const initializer = (context, canvas, controls, state) => {
   // offscreen canvas for double buffering
   state.offscreen = Canvas.create();
   state.offscreenContext = state.offscreen.context("2d");
+
+  // fps renderer
   state.displayAvgFps = createAvgFpsRenderer();
 
   const dim = canvas.dimensions;
 
+  state.gameOver = window.document.getElementById("game-over");
+  state.gameOver.addEventListener("click", event => {
+    if (event && event.target.id === "restart") {
+      event.preventDefault();
+      event.stopPropagation();
+      // createAsteroids(state, dim);
+    }
+  });
+
   createAsteroids(state, dim);
-
-  // create the player spaceship
-  state.playerShip = Spaceship.create(
-    SpaceshipType.Player,
-    dim.width / 2,
-    dim.height / 2
-  );
-
-  state.playerShip.collidesWith = createCollidesWithMap(true);
-  state.entities.push(state.playerShip);
+  createPlayerShip(state, dim);
 
   // hookup the player keys
   controls.keyboard.captureKey(KEYS.ARROW_LEFT, keyInfo => {
@@ -125,6 +137,7 @@ const renderer = (context, canvas, controls, state) => {
   state.offscreenContext.fillStyle = "white";
   state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
+  // show FPS
   state.displayAvgFps(state.offscreenContext, dim.width - 110, 24);
 
   // update asteroid physics
@@ -155,12 +168,13 @@ const renderer = (context, canvas, controls, state) => {
 
   if (players < 1) {
     // game over
-    const msg = "GAME OVER";
-    const index = state.messages.indexOf(msg);
-    if (index === -1) {
-      state.messages.push(msg);
+    if (state.playerShip) {
+      state.playerShip = null;
+      // remove hidden class and the element will show itself
+      state.gameOver.classList.remove("hidden");
     }
   }
+
   if (other < 1) {
     // next level
     state.level += 1;
