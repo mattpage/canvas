@@ -109,8 +109,8 @@ const initializer = (context, canvas, controls, state) => {
       if (keyInfo.isDown) {
         const bullet = Bullet.create(
           BulletType.Diamond,
-          ship.x,
-          ship.y,
+          ship.x + Math.cos(ship.rotation) * 20,
+          ship.y + Math.sin(ship.rotation) * 20,
           0, // vx
           0, // vy
           ship.rotation,
