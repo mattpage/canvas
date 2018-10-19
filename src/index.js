@@ -6,6 +6,7 @@ export { default as Polygon } from "./Polygon";
 export { Physics, Entity, PolygonEntity } from "./Physics/index";
 export {
   createAvgFpsRenderer,
+  debounce,
   drawText,
   numberInRange,
   integerInRange,
