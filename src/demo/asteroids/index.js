@@ -4,7 +4,6 @@ import {
   KEYS,
   Physics,
   createAvgFpsRenderer,
-  drawText,
   integerInRange
 } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
