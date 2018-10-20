@@ -60,26 +60,12 @@ const createNewGame = (state, dim) => {
   state.keys.length = 0;
   state.level = 1;
   state.maxAsteroids = 20;
-  state.messages.length = 0;
   state.gameOver.hide();
   createAsteroids(state, dim);
   createPlayerShip(state, dim);
 };
 
-// Here setup the game state and create a bunch of stuff
-const initializer = (context, canvas, controls, state) => {
-  logger.log("initializing game");
-
-  // offscreen canvas for double buffering
-  state.offscreen = Canvas.create();
-  state.offscreenContext = state.offscreen.context("2d");
-
-  // fps renderer
-  state.displayAvgFps = createAvgFpsRenderer();
-
-  const dim = canvas.dimensions;
-
-  // setup the game over menu
+const createGameOverMenu = (state, dim) => {
   state.gameOver = window.document.getElementById("game-over");
   state.gameOver.addEventListener("click", event => {
     if (event && event.target.id === "new-game") {
@@ -96,7 +82,37 @@ const initializer = (context, canvas, controls, state) => {
     // add hidden class and the element will hide itself
     this.classList.add("hidden");
   }.bind(state.gameOver);
+};
 
+const createLevelBanner = state => {
+  state.levelBanner = window.document.getElementById("level");
+  state.levelBannerTitle = window.document.getElementById("level-title");
+  state.levelBanner.show = function showGameOver(text) {
+    state.levelBannerTitle.textContent = text;
+    // remove hidden class and the element will show itself
+    this.classList.remove("hidden");
+    setTimeout(() => {
+      // after two seconds, hide the element
+      this.classList.add("hidden");
+    }, 2000);
+  }.bind(state.levelBanner);
+};
+
+// Here setup the game state and create a bunch of stuff
+const initializer = (context, canvas, controls, state) => {
+  logger.log("initializing game");
+
+  // offscreen canvas for double buffering
+  state.offscreen = Canvas.create();
+  state.offscreenContext = state.offscreen.context("2d");
+
+  // fps renderer
+  state.displayAvgFps = createAvgFpsRenderer();
+
+  const dim = canvas.dimensions;
+
+  createGameOverMenu(state, dim);
+  createLevelBanner(state);
   createAsteroids(state, dim);
   createPlayerShip(state, dim);
 
@@ -209,27 +225,9 @@ const renderer = (context, canvas, controls, state) => {
     // move to the next level
     state.level += 1;
     state.maxAsteroids += 5;
-    const msg = `LEVEL ${state.level}`;
-    state.messages.push(msg);
+    state.levelBanner.show(`LEVEL ${state.level}`);
     createAsteroids(state, dim);
-    setTimeout(() => {
-      const index = state.messages.indexOf(msg);
-      if (index > -1) {
-        state.messages.splice(index, 1);
-      }
-    }, 2000);
   }
-
-  // draw any messages to the screen
-  state.messages.forEach((message, index) => {
-    drawText(
-      state.offscreenContext,
-      message,
-      dim.width / 2,
-      dim.height / 2 + index * 24,
-      { textAlign: "center" }
-    );
-  });
 
   // copy the offscreen canvas to the display canvas
   context.drawImage(state.offscreen.canvas, 0, 0);
@@ -247,7 +245,6 @@ const initialGameState = {
   keys: [],
   level: 1,
   maxAsteroids: 20,
-  messages: [],
   playerShip: null
 };
 

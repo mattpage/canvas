@@ -1,7 +1,8 @@
-body {
+.hidden {
+  display: none;
 }
 
-#game-over {
+#game-over, #level {
   position: absolute;
   top: 40%;
   left: 0;
@@ -10,16 +11,12 @@ body {
   font-family: 'courier';
 }
 
-#game-over.hidden {
-  display: none;
-}
-
 #game-over h2 {
   font-size: 24px;
   font-weight: 100;
 }
 
-#game-over .menu {
+#game-over .menu, #level-title {
   font-size: 14px;
 }
 
