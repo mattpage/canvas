@@ -55,6 +55,17 @@ const createPlayerShip = (state, dim) => {
   state.entities.push(state.playerShip);
 };
 
+const createNewGame = (state, dim) => {
+  state.entities.length = 0;
+  state.keys.length = 0;
+  state.level = 1;
+  state.maxAsteroids = 20;
+  state.messages.length = 0;
+  state.gameOver.hide();
+  createAsteroids(state, dim);
+  createPlayerShip(state, dim);
+};
+
 // Here setup the game state and create a bunch of stuff
 const initializer = (context, canvas, controls, state) => {
   logger.log("initializing game");
@@ -68,62 +79,34 @@ const initializer = (context, canvas, controls, state) => {
 
   const dim = canvas.dimensions;
 
+  // setup the game over menu
   state.gameOver = window.document.getElementById("game-over");
   state.gameOver.addEventListener("click", event => {
-    if (event && event.target.id === "restart") {
+    if (event && event.target.id === "new-game") {
       event.preventDefault();
       event.stopPropagation();
-      // createAsteroids(state, dim);
+      createNewGame(state, dim);
     }
   });
+  state.gameOver.show = function showGameOver() {
+    // remove hidden class and the element will show itself
+    this.classList.remove("hidden");
+  }.bind(state.gameOver);
+  state.gameOver.hide = function hideGameOver() {
+    // add hidden class and the element will hide itself
+    this.classList.add("hidden");
+  }.bind(state.gameOver);
 
   createAsteroids(state, dim);
   createPlayerShip(state, dim);
 
   // hookup the player keys
-  controls.keyboard.captureKey(KEYS.ARROW_LEFT, keyInfo => {
-    // rotate the ship left
-    const ship = state.playerShip;
-    if (ship) {
-      ship.torque = keyInfo.isDown ? -0.005 : 0;
+  controls.keyboard.captureKeys(
+    [KEYS.ARROW_LEFT, KEYS.ARROW_RIGHT, KEYS.ARROW_UP, KEYS.SPACEBAR],
+    keyInfo => {
+      state.keys.push(keyInfo);
     }
-  });
-  controls.keyboard.captureKey(KEYS.ARROW_RIGHT, keyInfo => {
-    // rotate the ship right
-    const ship = state.playerShip;
-    if (ship) {
-      ship.torque = keyInfo.isDown ? 0.005 : 0;
-    }
-  });
-  controls.keyboard.captureKey(KEYS.ARROW_UP, keyInfo => {
-    // accelerate the ship
-    const ship = state.playerShip;
-    if (ship) {
-      ship.ax = keyInfo.isDown ? Math.cos(ship.rotation) * 0.05 : 0;
-      ship.ay = keyInfo.isDown ? Math.sin(ship.rotation) * 0.05 : 0;
-    }
-  });
-  controls.keyboard.captureKey(KEYS.SPACEBAR, keyInfo => {
-    const ship = state.playerShip;
-    if (ship) {
-      if (keyInfo.isDown) {
-        const bullet = Bullet.create(
-          BulletType.Diamond,
-          ship.x + Math.cos(ship.rotation) * 20,
-          ship.y + Math.sin(ship.rotation) * 20,
-          0, // vx
-          0, // vy
-          ship.rotation,
-          1 // torque
-        );
-        bullet.ax = Math.cos(ship.rotation) * 0.5;
-        bullet.ay = Math.sin(ship.rotation) * 0.5;
-        bullet.collidesWith = createCollidesWithMap(true);
-        bullet.expires = 1000; // bullets disappear after 1sec
-        state.entities.push(bullet);
-      }
-    }
-  });
+  );
 
   logger.log("game initialized");
 };
@@ -140,6 +123,52 @@ const renderer = (context, canvas, controls, state) => {
   // show FPS
   state.displayAvgFps(state.offscreenContext, dim.width - 110, 24);
 
+  // handle player keys
+  const ship = state.playerShip;
+  if (ship) {
+    let keyInfo;
+    while (state.keys.length > 0) {
+      keyInfo = state.keys.pop();
+      switch (keyInfo.keyCode) {
+        case KEYS.ARROW_LEFT:
+          // rotate the ship left
+          ship.torque = keyInfo.isDown ? -0.005 : 0;
+          break;
+        case KEYS.ARROW_RIGHT:
+          // rotate the ship right
+          ship.torque = keyInfo.isDown ? 0.005 : 0;
+          break;
+        case KEYS.ARROW_UP:
+          // accelerate the ship
+          ship.ax = keyInfo.isDown ? Math.cos(ship.rotation) * 0.05 : 0;
+          ship.ay = keyInfo.isDown ? Math.sin(ship.rotation) * 0.05 : 0;
+          break;
+        case KEYS.SPACEBAR:
+          // fire bullets
+          if (keyInfo.isDown) {
+            const bullet = Bullet.create(
+              BulletType.Diamond,
+              ship.x + Math.cos(ship.rotation) * 20,
+              ship.y + Math.sin(ship.rotation) * 20,
+              0, // vx
+              0, // vy
+              ship.rotation,
+              1 // torque
+            );
+            bullet.ax = Math.cos(ship.rotation) * 0.5;
+            bullet.ay = Math.sin(ship.rotation) * 0.5;
+            bullet.collidesWith = createCollidesWithMap(true);
+            bullet.expires = 1000; // bullets disappear after 1sec
+            state.entities.push(bullet);
+          }
+          break;
+        default:
+          // ignore
+          break;
+      } // end switch
+    } // end while
+  }
+
   // update asteroid physics
   state.entities = Physics.update(
     state.entities,
@@ -152,10 +181,10 @@ const renderer = (context, canvas, controls, state) => {
     { wrap: true }
   );
 
-  // render all of the entities
   let other = 0;
   let players = 0;
 
+  // render all of the entities and calc the number of players, asteroids, etc
   state.entities.forEach(entity => {
     if (entity.type === SpaceshipType.Player) {
       players += 1;
@@ -166,17 +195,18 @@ const renderer = (context, canvas, controls, state) => {
     entity.render(state.offscreenContext);
   });
 
+  // if there are no more players
   if (players < 1) {
-    // game over
+    // the game is over
     if (state.playerShip) {
       state.playerShip = null;
-      // remove hidden class and the element will show itself
-      state.gameOver.classList.remove("hidden");
+      state.gameOver.show();
     }
   }
 
-  if (other < 1) {
-    // next level
+  // if the player is the only entity left
+  if (players > 0 && other < 1) {
+    // move to the next level
     state.level += 1;
     state.maxAsteroids += 5;
     const msg = `LEVEL ${state.level}`;
@@ -214,6 +244,7 @@ const game = Game.create("canvas");
 // our initial state that gets passed to initialize and render
 const initialGameState = {
   entities: [],
+  keys: [],
   level: 1,
   maxAsteroids: 20,
   messages: [],
