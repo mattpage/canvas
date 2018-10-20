@@ -1,11 +1,4 @@
-import {
-  Game,
-  Canvas,
-  KEYS,
-  Physics,
-  createAvgFpsRenderer,
-  integerInRange
-} from "../../index";
+import { Game, Canvas, KEYS, Physics, createAvgFpsRenderer } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 import Bullet, { BulletType } from "./Bullet";
@@ -30,57 +23,40 @@ const createCollidesWithMap = friendly => {
   return collidesWith;
 };
 
-const createAsteroids = (state, dimensions) => {
-  while (state.entities.length < state.maxAsteroids) {
-    const x = integerInRange(0, dimensions.width);
-    const y = integerInRange(0, dimensions.height);
-    const options = {
-      showOffset: false,
-      showRect: false
-    };
-    state.entities.push(
-      Asteroid.createRandom(x, y, AsteroidType.Large, options)
-    );
-  }
-};
-
 const createPlayerShip = (state, dim) => {
-  state.playerShip = Spaceship.create(
+  const playerShip = Spaceship.create(
     SpaceshipType.Player,
     dim.width / 2,
     dim.height / 2
   );
-  state.playerShip.collidesWith = createCollidesWithMap(true);
-  state.entities.push(state.playerShip);
-};
-
-const createNewGame = (state, dim) => {
-  state.entities.length = 0;
-  state.keys.length = 0;
-  state.level = 1;
-  state.maxAsteroids = 20;
-  state.gameOver.hide();
-  createAsteroids(state, dim);
-  createPlayerShip(state, dim);
+  playerShip.collidesWith = createCollidesWithMap(true);
+  return playerShip;
 };
 
 const createGameOverMenu = (state, dim) => {
-  state.gameOver = window.document.getElementById("game-over");
-  state.gameOver.addEventListener("click", event => {
+  state.gameOverMenu = window.document.getElementById("game-over");
+  state.gameOverMenu.addEventListener("click", event => {
     if (event && event.target.id === "new-game") {
       event.preventDefault();
       event.stopPropagation();
-      createNewGame(state, dim);
+      // create new game
+      state.keys.length = 0;
+      state.level = 1;
+      state.maxAsteroids = 20;
+      state.gameOver = false;
+      state.gameOverMenu.hide();
+      state.entities = Asteroid.createMultipleRandom(state.maxAsteroids, dim);
+      state.entities.push(createPlayerShip(state, dim));
     }
   });
-  state.gameOver.show = function showGameOver() {
+  state.gameOverMenu.show = function showGameOver() {
     // remove hidden class and the element will show itself
     this.classList.remove("hidden");
-  }.bind(state.gameOver);
-  state.gameOver.hide = function hideGameOver() {
+  }.bind(state.gameOverMenu);
+  state.gameOverMenu.hide = function hideGameOver() {
     // add hidden class and the element will hide itself
     this.classList.add("hidden");
-  }.bind(state.gameOver);
+  }.bind(state.gameOverMenu);
 };
 
 const createLevelBanner = state => {
@@ -112,8 +88,10 @@ const initializer = (context, canvas, controls, state) => {
 
   createGameOverMenu(state, dim);
   createLevelBanner(state);
-  createAsteroids(state, dim);
-  createPlayerShip(state, dim);
+  state.entities.push(
+    ...Asteroid.createMultipleRandom(state.maxAsteroids, dim),
+    createPlayerShip(state, dim)
+  );
 
   // hookup the player keys
   controls.keyboard.captureKeys(
@@ -139,7 +117,9 @@ const renderer = (context, canvas, controls, state) => {
   state.displayAvgFps(state.offscreenContext, dim.width - 110, 24);
 
   // handle player keys
-  const ship = state.playerShip;
+  const ship = state.entities.find(
+    entity => entity.type === SpaceshipType.Player
+  );
   if (ship) {
     let keyInfo;
     while (state.keys.length > 0) {
@@ -196,36 +176,53 @@ const renderer = (context, canvas, controls, state) => {
     { wrap: true }
   );
 
-  let other = 0;
-  let players = 0;
+  const meta = {
+    players: 0,
+    bullets: 0,
+    asteroids: 0
+  };
 
   // render all of the entities and calc the number of players, asteroids, etc
   state.entities.forEach(entity => {
-    if (entity.type === SpaceshipType.Player) {
-      players += 1;
-    } else {
-      other += 1;
+    switch (entity.type) {
+      case SpaceshipType.Player:
+        meta.players += 1;
+        break;
+      case BulletType.Enemy:
+      case BulletType.Player:
+        meta.bullets += 1;
+        break;
+      case AsteroidType.Large:
+      case AsteroidType.Medium:
+      case AsteroidType.Small:
+      case AsteroidType.Tiny:
+        meta.asteroids += 1;
+        break;
+      default:
+        logger.warn("unknown entity type", entity.type);
+        break;
     }
-
     entity.render(state.offscreenContext);
   });
 
   // if there are no more players
-  if (players < 1) {
+  if (meta.players < 1) {
     // the game is over
-    if (state.playerShip) {
-      state.playerShip = null;
-      state.gameOver.show();
+    if (!state.gameOver) {
+      state.gameOver = true;
+      state.gameOverMenu.show();
     }
   }
 
-  // if the player is the only entity left
-  if (players > 0 && other < 1) {
+  // if all of the asteroids are destroyedif all of the asteroids are destroyedif all of the asteroids are destroyedif all of the asteroids are destroyed
+  if (meta.players > 0 && meta.asteroids < 1) {
     // move to the next level
     state.level += 1;
     state.maxAsteroids += 5;
     state.levelBanner.show(`LEVEL ${state.level}`);
-    createAsteroids(state, dim);
+    state.entities.push(
+      ...Asteroid.createMultipleRandom(state.maxAsteroids, dim)
+    );
   }
 
   // copy the offscreen canvas to the display canvas
@@ -241,10 +238,10 @@ const game = Game.create("canvas");
 // our initial state that gets passed to initialize and render
 const initialGameState = {
   entities: [],
+  gameOver: false,
   keys: [],
   level: 1,
-  maxAsteroids: 20,
-  playerShip: null
+  maxAsteroids: 20
 };
 
 // start the game (call initializer and then renderer repeatedly)

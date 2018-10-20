@@ -186,6 +186,21 @@ export const ASTEROIDS = [
 ];
 
 class Asteroid extends PolygonEntity {
+  static createMultipleRandom(quantity, canvasDimensions) {
+    const asteroids = [];
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < quantity; i++) {
+      const x = integerInRange(0, canvasDimensions.width);
+      const y = integerInRange(0, canvasDimensions.height);
+      const options = {
+        showOffset: false,
+        showRect: false
+      };
+      asteroids.push(Asteroid.createRandom(x, y, AsteroidType.Large, options));
+    }
+    return asteroids;
+  }
+
   static createRandom(x, y, type, options = {}) {
     let asteroids = ASTEROIDS;
     if (type) {
