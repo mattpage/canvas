@@ -140,6 +140,7 @@ describe("Keyboard", () => {
 
       // check the callback args
       expect(callback.mock.calls[0][0].keyCode === KEYS.ARROW_UP).toBe(true);
+      expect(callback.mock.calls[0][0].isDown).toBe(true);
       expect(callback.mock.calls[0][1]).toBeInstanceOf(window.Event);
 
       callback.mockReset();
@@ -153,8 +154,41 @@ describe("Keyboard", () => {
 
       // check the callback args again
       expect(callback.mock.calls[0][0].keyCode === KEYS.ARROW_UP).toBe(true);
+      expect(callback.mock.calls[0][0].isDown).toBe(false);
       expect(callback.mock.calls[0][1]).toBeInstanceOf(window.Event);
     });
+  });
+
+  describe("captureKeys", () => {
+    const keyboard = new Keyboard();
+    const callback = jest.fn();
+
+    // capture up arrow and down arrow
+    keyboard.captureKeys([KEYS.ARROW_UP, KEYS.ARROW_DOWN], callback);
+
+    // simulate ARROW_UP keydown
+    let e = simulateKeyEvent("keydown", KEYS.ARROW_UP);
+
+    // expect some calls
+    expect(e.preventDefault).toHaveBeenCalled();
+    expect(callback).toHaveBeenCalled();
+
+    // check the callback args
+    expect(callback.mock.calls[0][0].keyCode === KEYS.ARROW_UP).toBe(true);
+    expect(callback.mock.calls[0][1]).toBeInstanceOf(window.Event);
+
+    callback.mockReset();
+
+    // simulate ARROW_DOWN keydown
+    e = simulateKeyEvent("keydown", KEYS.ARROW_DOWN);
+
+    // expect some calls again
+    expect(e.preventDefault).toHaveBeenCalled();
+    expect(callback).toHaveBeenCalled();
+
+    // check the callback args again
+    expect(callback.mock.calls[0][0].keyCode === KEYS.ARROW_DOWN).toBe(true);
+    expect(callback.mock.calls[0][1]).toBeInstanceOf(window.Event);
   });
 
   describe("releaseKey", () => {
@@ -166,6 +200,20 @@ describe("Keyboard", () => {
     callback.mockReset();
     keyboard.releaseKey(KEYS.ARROW_UP);
     simulateKeyEvent("keyup", KEYS.ARROW_UP);
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  describe("releaseKeys", () => {
+    const keyboard = new Keyboard();
+    const callback = jest.fn();
+    keyboard.captureKeys([KEYS.ARROW_UP, KEYS.SPACEBAR], callback);
+    simulateKeyEvent("keydown", KEYS.SPACEBAR);
+    expect(callback).toHaveBeenCalled();
+    callback.mockReset();
+    keyboard.releaseKeys([KEYS.ARROW_UP, KEYS.SPACEBAR]);
+    simulateKeyEvent("keydown", KEYS.SPACEBAR);
+    expect(callback).not.toHaveBeenCalled();
+    simulateKeyEvent("keydown", KEYS.ARROW_UP);
     expect(callback).not.toHaveBeenCalled();
   });
 

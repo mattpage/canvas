@@ -91,8 +91,20 @@ class Keyboard {
     this._capturedKeys[keyCode.toString()] = { callback };
   }
 
+  captureKeys(keyCodes, callback) {
+    keyCodes.forEach(keyCode => {
+      this._capturedKeys[keyCode.toString()] = { callback };
+    });
+  }
+
   releaseKey(keyCode) {
     delete this._capturedKeys[keyCode.toString()];
+  }
+
+  releaseKeys(keyCodes) {
+    keyCodes.forEach(keyCode => {
+      delete this._capturedKeys[keyCode.toString()];
+    });
   }
 
   isDown(keyCode) {
