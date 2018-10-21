@@ -74,7 +74,7 @@ const createLevelBanner = state => {
 };
 
 // Here setup the game state and create a bunch of stuff
-const initializer = (context, canvas, controls, state) => {
+const initializer = (context, canvas, interfaces, state) => {
   logger.log("initializing game");
 
   // offscreen canvas for double buffering
@@ -94,7 +94,7 @@ const initializer = (context, canvas, controls, state) => {
   );
 
   // hookup the player keys
-  controls.keyboard.captureKeys(
+  interfaces.keyboard.captureKeys(
     [KEYS.ARROW_LEFT, KEYS.ARROW_RIGHT, KEYS.ARROW_UP, KEYS.SPACEBAR],
     keyInfo => {
       state.keys.push(keyInfo);
@@ -106,7 +106,7 @@ const initializer = (context, canvas, controls, state) => {
 
 // This gets called every repeatedly (requestAnimationFrame)
 // Here's where the bulk of the game happens
-const renderer = (context, canvas, controls, state) => {
+const renderer = (context, canvas, interfaces, state) => {
   const dim = canvas.dimensions;
 
   // erase the offscreen canvas

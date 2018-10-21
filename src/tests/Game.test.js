@@ -21,20 +21,20 @@ describe("Game", () => {
     it("should construct a new canvas, keyboerd, and mouse", () => {
       const game = new Game("test");
       expect(game.canvas).toBeInstanceOf(Object);
-      expect(game.controls.keyboard).toBeInstanceOf(Object);
-      expect(game.controls.mouse).toBeInstanceOf(Object);
+      expect(game.interfaces.keyboard).toBeInstanceOf(Object);
+      expect(game.interfaces.mouse).toBeInstanceOf(Object);
     });
 
     it("should construct a  canvas without keyboard support", () => {
       const game = new Game("test", { contextType: "2d", keyboard: false });
       expect(game.canvas).toBeInstanceOf(Object);
-      expect(game.controls.keyboard).toBeUndefined();
+      expect(game.interfaces.keyboard).toBeUndefined();
     });
 
     it("should construct a new canvas without mouse support", () => {
       const game = new Game("test", { contextType: "2d", mouse: false });
       expect(game.canvas).toBeInstanceOf(Object);
-      expect(game.controls.mouse).toBeUndefined();
+      expect(game.interfaces.mouse).toBeUndefined();
     });
   });
 
@@ -64,7 +64,7 @@ describe("Game", () => {
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
-      expect(args[2]).toEqual(game.controls);
+      expect(args[2]).toEqual(game.interfaces);
       expect(args[3]).toBeInstanceOf(Array);
       expect(args[3]).toEqual([]);
       expect(window.requestAnimationFrame).not.toHaveBeenCalled();
@@ -83,7 +83,7 @@ describe("Game", () => {
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
-      expect(args[2]).toEqual(game.controls);
+      expect(args[2]).toEqual(game.interfaces);
       expect(args[3]).toBeInstanceOf(Array);
       expect(args[3]).toEqual([]);
     });
@@ -142,7 +142,7 @@ describe("Game", () => {
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
-      expect(args[2]).toEqual(game.controls);
+      expect(args[2]).toEqual(game.interfaces);
       expect(window.requestAnimationFrame).toHaveBeenCalled();
     });
   });
@@ -172,7 +172,7 @@ describe("Game", () => {
       expect(args[1]).toBeInstanceOf(Object);
       expect(args[1]).toEqual(game.canvas);
       expect(args[2]).toBeInstanceOf(Object);
-      expect(args[2]).toEqual(game.controls);
+      expect(args[2]).toEqual(game.interfaces);
     });
   });
 

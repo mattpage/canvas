@@ -1,11 +1,13 @@
+import Audio from "./Audio";
 import Canvas from "./Canvas";
-import Mouse from "./Mouse";
 import Keyboard from "./Keyboard";
+import Mouse from "./Mouse";
 
 class Game {
   static defaultOptions = {
     contextType: "2d",
     contextAttributes: undefined,
+    audio: true,
     keyboard: true,
     mouse: true
   };
@@ -17,13 +19,16 @@ class Game {
   constructor(selector, options = Game.defaultOptions) {
     this._rafId = null;
     this._canvas = new Canvas(selector);
-    this._controls = {};
+    this._interfaces = {};
 
+    if (options.audio) {
+      this.interfaces.audio = new Audio();
+    }
     if (options.keyboard) {
-      this.controls.keyboard = new Keyboard();
+      this.interfaces.keyboard = new Keyboard();
     }
     if (options.mouse) {
-      this.controls.mouse = new Mouse(this._canvas.element);
+      this.interfaces.mouse = new Mouse(this._canvas.element);
     }
     this.options = options;
   }
@@ -32,8 +37,8 @@ class Game {
     return this._canvas;
   }
 
-  get controls() {
-    return this._controls;
+  get interfaces() {
+    return this._interfaces;
   }
 
   start(renderer, initializer, ...args) {
@@ -51,10 +56,10 @@ class Game {
     const gameArgs = args.length === 1 ? args[0] : args;
 
     if (init) {
-      init(context, this.canvas, this.controls, gameArgs);
+      init(context, this.canvas, this.interfaces, gameArgs);
     }
     const animationLoop = () => {
-      if (render(context, this.canvas, this.controls, gameArgs)) {
+      if (render(context, this.canvas, this.interfaces, gameArgs)) {
         this.rafId = window.requestAnimationFrame(animationLoop);
       }
     };

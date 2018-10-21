@@ -3,9 +3,9 @@ import { Game, randomColor } from "../../index";
 const RECTANGLE_WIDTH = 100;
 const RECTANGLE_HEIGHT = 50;
 
-const initializer = (context, canvas, controls, state) => {
+const initializer = (context, canvas, interfaces, state) => {
   // when the mouse is clicked, add a pinned rectangle
-  controls.mouse.onClick = e => {
+  interfaces.mouse.onClick = e => {
     state.rectangles.push({
       x: e.position.x,
       y: e.position.y,
@@ -17,8 +17,8 @@ const initializer = (context, canvas, controls, state) => {
   };
 };
 
-const renderer = (context, canvas, controls, state) => {
-  const pos = controls.mouse.position;
+const renderer = (context, canvas, interfaces, state) => {
+  const pos = interfaces.mouse.position;
 
   // erase and remove all of the rectangles that aren't pinned
   state.rectangles = state.rectangles
