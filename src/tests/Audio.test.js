@@ -1,23 +1,57 @@
 import Audio from "../Audio";
 
+const setup = () => {
+  const mockAudio = {
+    addEventListener: jest.fn()
+  };
+  const mockCanPlayType = format => {
+    if (format.indexOf("ogg") > -1) {
+      return "probably";
+    }
+    if (format.indexOf("mpeg") > -1) {
+      return "maybe";
+    }
+    return "";
+  };
+  mockAudio.canPlayType = mockCanPlayType;
+  const mockCreateElement = jest.fn();
+  mockCreateElement.mockReturnValue(mockAudio);
+  window.document.createElement = mockCreateElement;
+};
+
 describe("Audio", () => {
-  beforeEach(() => {
-    /* eslint-disable-next-line no-multi-assign */
-    const ce = (window.document.createElement = jest.fn());
-    const mockAudio = {
-      addEventListener: jest.fn(),
-      canPlayType: jest.fn()
-    };
-    ce.mockReturnValue(mockAudio);
+  beforeEach(setup);
+
+  it("should construct", () => {
+    const audio = new Audio();
+    expect(audio).toBeInstanceOf(Audio);
   });
 
-  describe("create", () => {
+  describe("load", () => {
+    it("should have some tests", () => {
+      // TODO - write tests
+    });
+  });
+
+  describe("play", () => {
+    it("should have some tests", () => {
+      // TODO - write tests
+    });
+  });
+
+  describe("pause", () => {
+    it("should have some tests", () => {
+      // TODO - write tests
+    });
+  });
+
+  describe("Audio.create", () => {
     it("should return an Audio instance", () => {
       expect(Audio.create()).toBeInstanceOf(Audio);
     });
   });
 
-  describe("createElement", () => {
+  describe("Audio.createElement", () => {
     it('should call createElement with a "audio" param', () => {
       Audio.createElement();
       expect(window.document.createElement).toHaveBeenCalledWith("audio");
@@ -50,12 +84,21 @@ describe("Audio", () => {
     });
   });
 
-  describe("hasAudio", () => {
+  describe("Audio.hasAudio", () => {
     it("should return true only if audio has canPlayType func", () => {
       expect(Audio.hasAudio()).toBe(true);
       const audio = Audio.createElement();
       delete audio.canPlayType;
       expect(Audio.hasAudio()).toBe(false);
+    });
+  });
+
+  describe("Audio.supportedFormats", () => {
+    it("should return supportedFormats", () => {
+      const formats = Audio.supportedFormats();
+      expect(formats.ogg).toBe(true);
+      expect(formats.mp3).toBe(true);
+      expect(formats.wav).toBe(false);
     });
   });
 });
