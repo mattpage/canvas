@@ -3,6 +3,7 @@ const path = require("path");
 const BrowserSyncPlugin = require("browser-sync-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const webpackConfig = {
   mode: "development",
@@ -26,13 +27,19 @@ const webpackConfig = {
       },
       {
         test: /\.css$/,
+        include: path.resolve(__dirname, "src/demo/asteroids"),
+        use: [MiniCssExtractPlugin.loader, "css-loader"]
+      },
+      {
+        test: /\.css$/,
+        include: path.resolve(__dirname, "src/demo/basic"),
         use: [MiniCssExtractPlugin.loader, "css-loader"]
       }
     ]
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: "[name].css",
+      filename: "./demo/[name]/[name].css",
       chunkFilename: "[id].css"
     }),
     new BrowserSyncPlugin({
@@ -65,6 +72,16 @@ const demos = ["basic", "asteroids"];
 demos.forEach(demo => {
   webpackConfig.entry[demo] = `./src/demo/${demo}/index.js`;
   webpackConfig.plugins.push(
+    new CopyWebpackPlugin(
+      [
+        {
+          from: path.join(__dirname, `/src/demo/${demo}/assets`),
+          to: `./demo/${demo}/assets`,
+          toType: "dir"
+        }
+      ],
+      {}
+    ),
     new HtmlWebpackPlugin({
       inject: true,
       chunks: [demo],
