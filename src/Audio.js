@@ -55,7 +55,6 @@ class Audio {
   }
 
   handleCanPlay(source, e) {
-    console.log("canPlay", source, e);
     const channel = this._channels.find(chan => chan.source === source);
     if (channel) {
       channel.canPlay = true;
