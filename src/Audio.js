@@ -12,7 +12,7 @@ class Audio {
       audio.addEventListener("canplay", canPlayCallback, false);
     }
     if (volume) {
-      audio.volume = volume || 0.5;
+      audio.volume = volume;
     }
     if (loop) {
       audio.loop = loop;
@@ -69,19 +69,20 @@ class Audio {
 
   pause(channelIndex) {
     const channel = this._channels[channelIndex];
-    if (channel) {
+    const canPlay = Boolean(channel && channel.canPlay);
+    if (canPlay) {
       channel.audio.pause();
     }
+    return canPlay;
   }
 
   play(channelIndex) {
     const channel = this._channels[channelIndex];
-    if (channel) {
-      if (!channel.canPlay) {
-        throw new Error("Channel cannot play");
-      }
+    const canPlay = Boolean(channel && channel.canPlay);
+    if (canPlay) {
       channel.audio.play();
     }
+    return canPlay;
   }
 }
 

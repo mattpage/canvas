@@ -2,7 +2,9 @@ import Audio from "../Audio";
 
 const setup = () => {
   const mockAudio = {
-    addEventListener: jest.fn()
+    addEventListener: jest.fn(),
+    play: jest.fn(),
+    pause: jest.fn()
   };
   const mockCanPlayType = format => {
     if (format.indexOf("ogg") > -1) {
@@ -58,14 +60,44 @@ describe("Audio", () => {
   });
 
   describe("play", () => {
-    it("should have some tests", () => {
-      // TODO - write tests
+    it("should return false if the channel does not exist", () => {
+      const audio = Audio.create();
+      expect(audio.play(42)).toBe(false);
+    });
+    it("should return false if the channel exists but the audio is not loaded yet", () => {
+      const audio = Audio.create();
+      const channelIndex = audio.load("test");
+      expect(audio.play(channelIndex)).toBe(false);
+    });
+    it("should return true and call play if the channel exists and the audio is loaded", () => {
+      const audio = Audio.create();
+      const channelIndex = audio.load("test");
+      const channel = audio.channel(channelIndex);
+      const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
+      const event = {};
+      eventCallback(event);
+      expect(audio.play(channelIndex)).toBe(true);
     });
   });
 
   describe("pause", () => {
-    it("should have some tests", () => {
-      // TODO - write tests
+    it("should return false if the channel does not exist", () => {
+      const audio = Audio.create();
+      expect(audio.pause(42)).toBe(false);
+    });
+    it("should return false if the channel exists but the audio is not loaded yet", () => {
+      const audio = Audio.create();
+      const channelIndex = audio.load("test");
+      expect(audio.pause(channelIndex)).toBe(false);
+    });
+    it("should return true and call pause if the channel exists and the audio is loaded", () => {
+      const audio = Audio.create();
+      const channelIndex = audio.load("test");
+      const channel = audio.channel(channelIndex);
+      const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
+      const event = {};
+      eventCallback(event);
+      expect(audio.pause(channelIndex)).toBe(true);
     });
   });
 
@@ -109,6 +141,10 @@ describe("Audio", () => {
   });
 
   describe("Audio.hasAudio", () => {
+    it("should return false if it cannot create Audio element", () => {
+      window.document.createElement = jest.fn();
+      expect(Audio.hasAudio()).toBe(false);
+    });
     it("should return true only if audio has canPlayType func", () => {
       expect(Audio.hasAudio()).toBe(true);
       const audio = Audio.createElement();
@@ -123,6 +159,11 @@ describe("Audio", () => {
       expect(formats.ogg).toBe(true);
       expect(formats.mp3).toBe(true);
       expect(formats.wav).toBe(false);
+    });
+    it("should return an empty object if it doesn't support the canPlayType method", () => {
+      window.document.createElement = jest.fn();
+      const formats = Audio.supportedFormats();
+      expect(Object.keys(formats)).toHaveLength(0);
     });
   });
 });
