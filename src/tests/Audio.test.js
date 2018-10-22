@@ -28,8 +28,32 @@ describe("Audio", () => {
   });
 
   describe("load", () => {
-    it("should have some tests", () => {
-      // TODO - write tests
+    it("should return a new channel number for every loaded src", () => {
+      const audio = Audio.create();
+      expect(audio.load("fire.wav")).toEqual(0);
+      expect(audio.load("boom.mp3")).toEqual(1);
+      expect(audio.load("zap.ogg")).toEqual(2);
+    });
+    it("should be that a newly added channel exists in the channel collection", () => {
+      const audio = Audio.create();
+      const channelIndex = audio.load("test");
+      const channel = audio.channel(channelIndex);
+      expect(channel.audio.src).toEqual("test");
+      expect(channel.canPlay).toBe(false);
+    });
+    it("should call the callback param (if supplied), when the channel can be played", () => {
+      const audio = Audio.create();
+      const callback = jest.fn();
+      const channelIndex = audio.load("test", callback);
+      const channel = audio.channel(channelIndex);
+      expect(channel.audio.addEventListener).toHaveBeenCalled();
+      expect(channel.audio.addEventListener.mock.calls[0][0]).toEqual(
+        "canplay"
+      );
+      const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
+      const event = {};
+      eventCallback(event);
+      expect(callback).toHaveBeenCalledWith(channelIndex, channel, event);
     });
   });
 

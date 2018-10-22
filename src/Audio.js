@@ -42,23 +42,29 @@ class Audio {
 
   constructor() {
     this._channels = [];
-    this.handleCanPlay = this.handleCanPlay.bind(this);
   }
 
-  load(source) {
+  channel(channelIndex) {
+    return this._channels[channelIndex];
+  }
+
+  load(src, callback) {
     this._channels.push({
-      source,
-      audio: Audio.createElement(source, e => this.handleCanPlay(source, e)),
+      audio: Audio.createElement(src, e => {
+        const channelIndex = this._channels.findIndex(
+          chan => chan.audio.src === src
+        );
+        if (channelIndex > -1) {
+          const channel = this._channels[channelIndex];
+          channel.canPlay = true;
+          if (callback) {
+            callback(channelIndex, channel, e);
+          }
+        }
+      }),
       canPlay: false
     });
     return this._channels.length - 1;
-  }
-
-  handleCanPlay(source) {
-    const channel = this._channels.find(chan => chan.source === source);
-    if (channel) {
-      channel.canPlay = true;
-    }
   }
 
   pause(channelIndex) {
