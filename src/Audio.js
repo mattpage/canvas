@@ -48,20 +48,19 @@ class Audio {
     return this._channels[channelIndex];
   }
 
-  load(src, callback) {
+  load(src, callback, ...rest) {
+    const channelIndex = this._channels.length;
+    const canPlayCallback = e => {
+      const channel = this._channels[channelIndex];
+      channel.audio.removeEventListener("canplay", canPlayCallback, false);
+      channel.canPlay = true;
+      if (callback) {
+        callback(channelIndex, channel, e);
+      }
+    };
+
     this._channels.push({
-      audio: Audio.createElement(src, e => {
-        const channelIndex = this._channels.findIndex(
-          chan => chan.audio.src === src
-        );
-        if (channelIndex > -1) {
-          const channel = this._channels[channelIndex];
-          channel.canPlay = true;
-          if (callback) {
-            callback(channelIndex, channel, e);
-          }
-        }
-      }),
+      audio: Audio.createElement(src, canPlayCallback, ...rest),
       canPlay: false
     });
     return this._channels.length - 1;
@@ -69,20 +68,33 @@ class Audio {
 
   pause(channelIndex) {
     const channel = this._channels[channelIndex];
-    const canPlay = Boolean(channel && channel.canPlay);
-    if (canPlay) {
+    if (channel) {
       channel.audio.pause();
+      return channel.audio.paused;
     }
-    return canPlay;
+    return false;
+  }
+
+  playAny(channels) {
+    const len = channels.length;
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < len; i++) {
+      if (this.play(channels[i])) {
+        return true;
+      }
+    }
+    return false;
   }
 
   play(channelIndex) {
     const channel = this._channels[channelIndex];
-    const canPlay = Boolean(channel && channel.canPlay);
-    if (canPlay) {
-      channel.audio.play();
+    if (channel) {
+      if (channel.canPlay && (channel.audio.paused || channel.audio.ended)) {
+        channel.audio.play();
+        return true;
+      }
     }
-    return canPlay;
+    return false;
   }
 }
 

@@ -3,8 +3,14 @@ import Audio from "../Audio";
 const setup = () => {
   const mockAudio = {
     addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
     play: jest.fn(),
-    pause: jest.fn()
+    pause: jest.fn(),
+    paused: false,
+    ended: true
+  };
+  const mockPause = () => {
+    mockAudio.paused = true;
   };
   const mockCanPlayType = format => {
     if (format.indexOf("ogg") > -1) {
@@ -16,6 +22,7 @@ const setup = () => {
     return "";
   };
   mockAudio.canPlayType = mockCanPlayType;
+  mockAudio.pause = mockPause;
   const mockCreateElement = jest.fn();
   mockCreateElement.mockReturnValue(mockAudio);
   window.document.createElement = mockCreateElement;
@@ -56,6 +63,10 @@ describe("Audio", () => {
       const event = {};
       eventCallback(event);
       expect(callback).toHaveBeenCalledWith(channelIndex, channel, event);
+      expect(channel.audio.removeEventListener).toHaveBeenCalled();
+      expect(channel.audio.removeEventListener.mock.calls[0][0]).toEqual(
+        "canplay"
+      );
     });
   });
 
@@ -80,17 +91,16 @@ describe("Audio", () => {
     });
   });
 
+  describe("playAny", () => {
+    it("should have some tests", () => {});
+  });
+
   describe("pause", () => {
     it("should return false if the channel does not exist", () => {
       const audio = Audio.create();
       expect(audio.pause(42)).toBe(false);
     });
-    it("should return false if the channel exists but the audio is not loaded yet", () => {
-      const audio = Audio.create();
-      const channelIndex = audio.load("test");
-      expect(audio.pause(channelIndex)).toBe(false);
-    });
-    it("should return true and call pause if the channel exists and the audio is loaded", () => {
+    it("should return true and call pause if the channel exists", () => {
       const audio = Audio.create();
       const channelIndex = audio.load("test");
       const channel = audio.channel(channelIndex);

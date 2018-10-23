@@ -84,6 +84,13 @@ const initializer = (context, canvas, interfaces, state) => {
   // fps renderer
   state.displayAvgFps = createAvgFpsRenderer();
 
+  // load the audio channels
+  state.audioChannels = {
+    fire1: interfaces.audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
+    fire2: interfaces.audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
+    fire3: interfaces.audio.load("/demo/asteroids/assets/fire.wav", null, 0.25)
+  };
+
   const dim = canvas.dimensions;
 
   createGameOverMenu(state, dim);
@@ -155,6 +162,11 @@ const renderer = (context, canvas, interfaces, state) => {
             bullet.collidesWith = createCollidesWithMap(true);
             bullet.expires = 1000; // bullets disappear after 1sec
             state.entities.push(bullet);
+            interfaces.audio.playAny([
+              state.audioChannels.fire1,
+              state.audioChannels.fire2,
+              state.audioChannels.fire3
+            ]);
           }
           break;
         default:
