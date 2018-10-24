@@ -23,16 +23,7 @@ const createCollidesWithMap = friendly => {
   return collidesWith;
 };
 
-const createPlayerShip = (state, dim) => {
-  const playerShip = Spaceship.create(
-    SpaceshipType.Player,
-    dim.width / 2,
-    dim.height / 2
-  );
-  playerShip.collidesWith = createCollidesWithMap(true);
-  return playerShip;
-};
-
+// TODO - this should probably be a class of some sort
 const createGameOverMenu = (state, dim) => {
   state.gameOverMenu = window.document.getElementById("game-over");
   state.gameOverMenu.addEventListener("click", event => {
@@ -46,7 +37,14 @@ const createGameOverMenu = (state, dim) => {
       state.gameOver = false;
       state.gameOverMenu.hide();
       state.entities = Asteroid.createMultipleRandom(state.maxAsteroids, dim);
-      state.entities.push(createPlayerShip(state, dim));
+      state.entities.push(
+        Spaceship.create(
+          SpaceshipType.Player,
+          dim.width / 2,
+          dim.height / 2,
+          createCollidesWithMap(true)
+        )
+      );
     }
   });
   state.gameOverMenu.show = function showGameOver() {
@@ -59,6 +57,7 @@ const createGameOverMenu = (state, dim) => {
   }.bind(state.gameOverMenu);
 };
 
+// TODO - this can probably leverage the same class as GameOverMenu
 const createLevelBanner = state => {
   state.levelBanner = window.document.getElementById("level");
   state.levelBannerTitle = window.document.getElementById("level-title");
@@ -97,7 +96,12 @@ const initializer = (context, canvas, interfaces, state) => {
   createLevelBanner(state);
   state.entities.push(
     ...Asteroid.createMultipleRandom(state.maxAsteroids, dim),
-    createPlayerShip(state, dim)
+    Spaceship.create(
+      SpaceshipType.Player,
+      dim.width / 2,
+      dim.height / 2,
+      createCollidesWithMap(true)
+    )
   );
 
   // hookup the player keys

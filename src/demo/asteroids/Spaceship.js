@@ -19,10 +19,11 @@ export const SPACESHIPS = [
 ]
 
 class Spaceship extends PolygonEntity {
-  static create(type = SpaceshipType.Player, x = 0, y = 0) {
+  static create(type = SpaceshipType.Player, x = 0, y = 0, collidesWith = {}) {
     const ships = SPACESHIPS.filter(s => s.type === type);
     const ship = new Spaceship(ships[0].points, x, y);
     ship.type = type;
+    ship.collidesWith = collidesWith;
     return ship;
   }
 }
