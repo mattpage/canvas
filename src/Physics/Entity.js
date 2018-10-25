@@ -32,6 +32,7 @@ class Entity {
     this._ay = 0.0;
 
     this._collidesWith = {};
+    this._onCollision = null;
   }
 
   get collidesWith() {
@@ -40,6 +41,14 @@ class Entity {
 
   set collidesWith(mapOfTypes) {
     this._collidesWith = mapOfTypes;
+  }
+
+  get onCollision() {
+    return this._onCollision;
+  }
+
+  set onCollision(callback) {
+    this._onCollision = callback;
   }
 
   get type() {
@@ -158,12 +167,21 @@ class Entity {
     // Given an array of colliding entities, this method must return a new array of resulting entities (if any).
     // By default, this checks to see if any of the entity types can collide with this entity.
     // If so, this entity is destroyed.
-    const { collidesWith } = this;
-    const collisions = entities.reduce(
-      (acc, entity) => (collidesWith[entity.type] ? acc + 1 : 0),
-      0
-    );
-    return collisions > 0 ? [] : [this];
+    const { collidesWith, onCollision } = this;
+    const collisions = entities.reduce((acc, entity) => {
+      if (collidesWith[entity.type]) {
+        acc.push(entity);
+      }
+      return acc;
+    }, []);
+    if (collisions.length > 0) {
+      if (onCollision) {
+        onCollision(collisions);
+      }
+      return [];
+    }
+
+    return [this];
   }
 }
 
