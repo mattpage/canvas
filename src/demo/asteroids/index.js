@@ -73,7 +73,7 @@ const createLevelBanner = state => {
 };
 
 // Here setup the game state and create a bunch of stuff
-const initializer = (context, canvas, interfaces, state) => {
+const initializer = (context, canvas, { audio, keyboard }, state) => {
   logger.log("initializing game");
 
   // offscreen canvas for double buffering
@@ -85,27 +85,46 @@ const initializer = (context, canvas, interfaces, state) => {
 
   // load the audio channels
   state.audioChannels = {
-    fire1: interfaces.audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
-    fire2: interfaces.audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
-    fire3: interfaces.audio.load("/demo/asteroids/assets/fire.wav", null, 0.25)
+    fire1: audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
+    fire2: audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
+    fire3: audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
+    explode1: audio.load("/demo/asteroids/assets/explosion01.wav", null, 0.25),
+    explode2: audio.load("/demo/asteroids/assets/explosion02.wav", null, 0.25),
+    explode3: audio.load("/demo/asteroids/assets/explosion01.wav", null, 0.25)
   };
 
   const dim = canvas.dimensions;
 
   createGameOverMenu(state, dim);
   createLevelBanner(state);
-  state.entities.push(
-    ...Asteroid.createMultipleRandom(state.maxAsteroids, dim),
-    Spaceship.create(
-      SpaceshipType.Player,
-      dim.width / 2,
-      dim.height / 2,
-      createCollidesWithMap(true)
-    )
+
+  const handleCollision = () =>
+    audio.playAny([
+      state.audioChannels.explode1,
+      state.audioChannels.explode2,
+      state.audioChannels.explode3
+    ]);
+
+  // TODO - consider onCollision as param to createMultipleRandom
+  const asteroids = Asteroid.createMultipleRandom(state.maxAsteroids, dim);
+  asteroids.forEach(a => {
+    a.onCollision = handleCollision;
+  });
+
+  // TODO - consider onCollision as param to Spaceship.create
+  const spaceship = Spaceship.create(
+    SpaceshipType.Player,
+    dim.width / 2,
+    dim.height / 2,
+    createCollidesWithMap(true)
   );
+  spaceship.onCollision = handleCollision;
+
+  // add asteroids and spaceship
+  state.entities.push(...asteroids, spaceship);
 
   // hookup the player keys
-  interfaces.keyboard.captureKeys(
+  keyboard.captureKeys(
     [KEYS.ARROW_LEFT, KEYS.ARROW_RIGHT, KEYS.ARROW_UP, KEYS.SPACEBAR],
     keyInfo => {
       state.keys.push(keyInfo);
@@ -115,17 +134,19 @@ const initializer = (context, canvas, interfaces, state) => {
   logger.log("game initialized");
 };
 
-// This gets called every repeatedly (requestAnimationFrame)
+// This gets called repeatedly (requestAnimationFrame)
 // Here's where the bulk of the game happens
-const renderer = (context, canvas, interfaces, state) => {
+const renderer = (context, canvas, { audio }, state) => {
   const dim = canvas.dimensions;
 
+  const { audioChannels, displayAvgFps, keys, offscreenContext } = state;
+
   // erase the offscreen canvas
-  state.offscreenContext.fillStyle = "white";
-  state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
+  offscreenContext.fillStyle = "white";
+  offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   // show FPS
-  state.displayAvgFps(state.offscreenContext, dim.width - 110, 24);
+  displayAvgFps(offscreenContext, dim.width - 110, 24);
 
   // handle player keys
   const ship = state.entities.find(
@@ -133,8 +154,8 @@ const renderer = (context, canvas, interfaces, state) => {
   );
   if (ship) {
     let keyInfo;
-    while (state.keys.length > 0) {
-      keyInfo = state.keys.pop();
+    while (keys.length > 0) {
+      keyInfo = keys.pop();
       switch (keyInfo.keyCode) {
         case KEYS.ARROW_LEFT:
           // rotate the ship left
@@ -164,12 +185,19 @@ const renderer = (context, canvas, interfaces, state) => {
             bullet.ax = Math.cos(ship.rotation) * 0.5;
             bullet.ay = Math.sin(ship.rotation) * 0.5;
             bullet.collidesWith = createCollidesWithMap(true);
+            bullet.onCollision = () => {
+              audio.playAny([
+                audioChannels.explode1,
+                audioChannels.explode2,
+                audioChannels.explode3
+              ]);
+            };
             bullet.expires = 1000; // bullets disappear after 1sec
             state.entities.push(bullet);
-            interfaces.audio.playAny([
-              state.audioChannels.fire1,
-              state.audioChannels.fire2,
-              state.audioChannels.fire3
+            audio.playAny([
+              audioChannels.fire1,
+              audioChannels.fire2,
+              audioChannels.fire3
             ]);
           }
           break;
