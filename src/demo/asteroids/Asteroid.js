@@ -249,30 +249,39 @@ class Asteroid extends PolygonEntity {
 
   collision() {
     const result = [];
+    let collisions = 0;
 
     switch (this.type) {
       case AsteroidType.Tiny:
         // when a tiny asteroid collides, it is destroyed. don't replace it or render it
+        collisions += 1;
         break;
       case AsteroidType.Small:
         // when a small asteroid collides, it is replaced with two tiny asteroids
         result.push(...Asteroid.split(this, AsteroidType.Tiny, 10));
+        collisions += 1;
         break;
 
       case AsteroidType.Medium:
         // when a medium asteroid collides, it is replaced with two small asteroids
         result.push(...Asteroid.split(this, AsteroidType.Small, 20));
+        collisions += 1;
         break;
 
       case AsteroidType.Large:
         // when a large asteroid collides, it is replaced with two medium asteroids
         result.push(...Asteroid.split(this, AsteroidType.Medium, 40));
+        collisions += 1;
         break;
 
       default:
         logger.warn("unknown asteroid type", this.type);
         break;
     } // end switch
+
+    if (collisions > 0 && this.onCollision) {
+      this.onCollision();
+    }
     return result;
   }
 }
