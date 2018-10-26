@@ -9,6 +9,7 @@ import {
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 import Bullet, { BulletType } from "./Bullet";
+import Dialog from "./Dialog";
 import "./style.css";
 
 const logger = console;
@@ -30,55 +31,6 @@ const createCollidesWithMap = friendly => {
   return collidesWith;
 };
 
-// TODO - this should probably be a class of some sort
-const createGameOverMenu = (state, dim) => {
-  state.gameOverMenu = window.document.getElementById("game-over");
-  state.gameOverMenu.addEventListener("click", event => {
-    if (event && event.target.id === "new-game") {
-      event.preventDefault();
-      event.stopPropagation();
-      // create new game
-      state.keys.length = 0;
-      state.level = 1;
-      state.maxAsteroids = 20;
-      state.gameOver = false;
-      state.gameOverMenu.hide();
-      state.entities = Asteroid.createMultipleRandom(state.maxAsteroids, dim);
-      state.entities.push(
-        Spaceship.create(
-          SpaceshipType.Player,
-          dim.width / 2,
-          dim.height / 2,
-          createCollidesWithMap(true)
-        )
-      );
-    }
-  });
-  state.gameOverMenu.show = function showGameOver() {
-    // remove hidden class and the element will show itself
-    this.classList.remove("hidden");
-  }.bind(state.gameOverMenu);
-  state.gameOverMenu.hide = function hideGameOver() {
-    // add hidden class and the element will hide itself
-    this.classList.add("hidden");
-  }.bind(state.gameOverMenu);
-};
-
-// TODO - this can probably leverage the same class as GameOverMenu
-const createLevelBanner = state => {
-  state.levelBanner = window.document.getElementById("level");
-  state.levelBannerTitle = window.document.getElementById("level-title");
-  state.levelBanner.show = function showGameOver(text) {
-    state.levelBannerTitle.textContent = text;
-    // remove hidden class and the element will show itself
-    this.classList.remove("hidden");
-    setTimeout(() => {
-      // after two seconds, hide the element
-      this.classList.add("hidden");
-    }, 2000);
-  }.bind(state.levelBanner);
-};
-
 const createCollisionHandler = audioFx => () => {
   if (integerInRange(0, 1)) {
     audioFx.explode1.play();
@@ -87,7 +39,7 @@ const createCollisionHandler = audioFx => () => {
   }
 };
 
-// Here setup the game state and create a bunch of stuff
+// Setup the game state and create a bunch of stuff
 const initializer = (context, canvas, { audio, keyboard }, state) => {
   logger.log("initializing game");
 
@@ -108,8 +60,27 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
 
   const dim = canvas.dimensions;
 
-  createGameOverMenu(state, dim);
-  createLevelBanner(state);
+  state.gameOverMenu = new Dialog("game-over", event => {
+    if (event.target.id === "new-game") {
+      // create new game
+      state.keys.length = 0;
+      state.level = 1;
+      state.maxAsteroids = 20;
+      state.gameOver = false;
+      state.gameOverMenu.hide();
+      state.entities = Asteroid.createMultipleRandom(state.maxAsteroids, dim);
+      state.entities.push(
+        Spaceship.create(
+          SpaceshipType.Player,
+          dim.width / 2,
+          dim.height / 2,
+          createCollidesWithMap(true)
+        )
+      );
+    }
+  });
+
+  state.levelBanner = new Dialog("level");
 
   const handleCollision = createCollisionHandler(state.audioFx);
 
@@ -261,7 +232,8 @@ const renderer = (context, canvas, ...rest) => {
     // move to the next level
     state.level += 1;
     state.maxAsteroids += 5;
-    state.levelBanner.show(`LEVEL ${state.level}`);
+    state.levelBanner.setText("level-title", `LEVEL ${state.level}`);
+    state.levelBanner.show(2000);
     state.entities.push(
       ...Asteroid.createMultipleRandom(state.maxAsteroids, dim)
     );
@@ -274,17 +246,11 @@ const renderer = (context, canvas, ...rest) => {
   return true;
 };
 
-// create our Game object and use the canvas with specified id
-const game = Game.create("canvas");
-
-// our initial state that gets passed to initialize and render
-const initialGameState = {
+// create and start the game (call initializer with inital game state and then renderer repeatedly)
+Game.create("canvas").start(renderer, initializer, {
   entities: [],
   gameOver: false,
   keys: [],
   level: 1,
-  maxAsteroids: 20
-};
-
-// start the game (call initializer and then renderer repeatedly)
-game.start(renderer, initializer, initialGameState);
+  maxAsteroids: 1
+});
