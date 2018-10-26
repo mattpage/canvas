@@ -190,6 +190,7 @@ const renderer = (context, canvas, ...rest) => {
   );
 
   const meta = {
+    enemies: 0,
     players: 0,
     bullets: 0,
     asteroids: 0
@@ -200,6 +201,9 @@ const renderer = (context, canvas, ...rest) => {
     switch (entity.type) {
       case SpaceshipType.Player:
         meta.players += 1;
+        break;
+      case SpaceshipType.EnemySaucer:
+        meta.enemies += 1;
         break;
       case BulletType.Enemy:
       case BulletType.Player:
@@ -227,7 +231,7 @@ const renderer = (context, canvas, ...rest) => {
     }
   }
 
-  // if all of the asteroids are destroyedif all of the asteroids are destroyedif all of the asteroids are destroyedif all of the asteroids are destroyed
+  // if all of the asteroids are destroyed
   if (meta.players > 0 && meta.asteroids < 1) {
     // move to the next level
     state.level += 1;

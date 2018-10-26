@@ -1,6 +1,7 @@
 import { PolygonEntity } from "../../index";
 
 export const SpaceshipType = Object.freeze({
+  EnemySaucer: "EnemySaucer",
   Player: "PlayerShip"
 });
 
@@ -15,6 +16,23 @@ export const SPACESHIPS = [
       2.5, 0,
       0, -7.5,
     ],
+  },
+  {
+    type: SpaceshipType.EnemySaucer,
+    points: [
+      2.5, 5,
+      5, 2.5,
+      5, 0,
+      10, 0,
+      15, -5,
+      10, -10,
+      -10, -10,
+      -15, -5,
+      -10, 0,
+      -5, 0,
+      -5, 2.5,
+      -2.5, 5
+    ].map(num => num * -1),
   },
 ]
 
