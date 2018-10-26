@@ -91,6 +91,25 @@ describe("Audio", () => {
     });
   });
 
+  describe("playAll", () => {
+    it("should call play repeatedly", () => {
+      const audio = Audio.create();
+      audio.load("test1");
+      audio.load("test2");
+      audio.load("test3");
+      audio.channels.forEach(channel => {
+        channel.audio.play = jest.fn();
+        const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
+        const event = {};
+        eventCallback(event);
+      });
+      audio.playAll();
+      audio.channels.forEach(channel => {
+        expect(channel.audio.play).toHaveBeenCalled();
+      });
+    });
+  });
+
   describe("pause", () => {
     it("should return false if the channel audio is not loaded yet", () => {
       const audio = Audio.create();
@@ -105,6 +124,25 @@ describe("Audio", () => {
       const event = {};
       eventCallback(event);
       expect(playback.pause()).toBe(true);
+    });
+  });
+
+  describe("pauseAll", () => {
+    it("should call pause repeatedly", () => {
+      const audio = Audio.create();
+      audio.load("test1");
+      audio.load("test2");
+      audio.load("test3");
+      audio.channels.forEach(channel => {
+        channel.audio.pause = jest.fn();
+        const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
+        const event = {};
+        eventCallback(event);
+      });
+      audio.pauseAll();
+      audio.channels.forEach(channel => {
+        expect(channel.audio.pause).toHaveBeenCalled();
+      });
     });
   });
 
@@ -172,5 +210,26 @@ describe("Audio", () => {
       const formats = Audio.supportedFormats();
       expect(Object.keys(formats)).toHaveLength(0);
     });
+  });
+
+  describe("Audio.playChannel", () => {
+    it("should return false if the channel audio is not loaded yet", () => {
+      const audio = Audio.create();
+      audio.load("test");
+      expect(Audio.playChannel(audio.channels[0])).toBe(false);
+    });
+    it("should return true and call play if the channel audio is loaded", () => {
+      const audio = Audio.create();
+      audio.load("test");
+      const channel = audio.channels.find(chan => chan.audio.src === "test");
+      const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
+      const event = {};
+      eventCallback(event);
+      expect(Audio.playChannel(channel)).toBe(true);
+    });
+  });
+
+  describe("Audio.pauseChannel", () => {
+    it("should have some tests", () => {});
   });
 });
