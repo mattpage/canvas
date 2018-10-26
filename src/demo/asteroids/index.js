@@ -113,20 +113,19 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
 
   const handleCollision = createCollisionHandler(state.audioFx);
 
-  // TODO - consider onCollision as param to createMultipleRandom
-  const asteroids = Asteroid.createMultipleRandom(state.maxAsteroids, dim);
-  asteroids.forEach(a => {
-    a.onCollision = handleCollision;
-  });
+  const asteroids = Asteroid.createMultipleRandom(
+    state.maxAsteroids,
+    dim,
+    handleCollision
+  );
 
-  // TODO - consider onCollision as param to Spaceship.create
   const spaceship = Spaceship.create(
     SpaceshipType.Player,
     dim.width / 2,
     dim.height / 2,
-    createCollidesWithMap(true)
+    createCollidesWithMap(true),
+    handleCollision
   );
-  spaceship.onCollision = handleCollision;
 
   // add asteroids and spaceship
   state.entities.push(...asteroids, spaceship);

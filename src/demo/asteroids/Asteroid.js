@@ -186,7 +186,7 @@ export const ASTEROIDS = [
 ];
 
 class Asteroid extends PolygonEntity {
-  static createMultipleRandom(quantity, canvasDimensions) {
+  static createMultipleRandom(quantity, canvasDimensions, onCollision) {
     const asteroids = [];
     for (let i = 0; i < quantity; i++) {
       const x = integerInRange(0, canvasDimensions.width);
@@ -195,7 +195,9 @@ class Asteroid extends PolygonEntity {
         showOffset: false,
         showRect: false
       };
-      asteroids.push(Asteroid.createRandom(x, y, AsteroidType.Large, options));
+      const asteroid = Asteroid.createRandom(x, y, AsteroidType.Large, options);
+      asteroid.onCollision = onCollision;
+      asteroids.push(asteroid);
     }
     return asteroids;
   }
