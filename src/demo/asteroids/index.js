@@ -1,4 +1,11 @@
-import { Game, Canvas, KEYS, Physics, createAvgFpsRenderer } from "../../index";
+import {
+  Game,
+  Canvas,
+  KEYS,
+  Physics,
+  createAvgFpsRenderer,
+  integerInRange
+} from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 import Bullet, { BulletType } from "./Bullet";
@@ -72,6 +79,14 @@ const createLevelBanner = state => {
   }.bind(state.levelBanner);
 };
 
+const createCollisionHandler = audioFx => () => {
+  if (integerInRange(0, 1)) {
+    audioFx.explode1.play();
+  } else {
+    audioFx.explode2.play();
+  }
+};
+
 // Here setup the game state and create a bunch of stuff
 const initializer = (context, canvas, { audio, keyboard }, state) => {
   logger.log("initializing game");
@@ -83,14 +98,12 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   // fps renderer
   state.displayAvgFps = createAvgFpsRenderer();
 
-  // load the audio channels
-  state.audioChannels = {
-    fire1: audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
-    fire2: audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
-    fire3: audio.load("/demo/asteroids/assets/fire.wav", null, 0.25),
-    explode1: audio.load("/demo/asteroids/assets/explosion01.wav", null, 0.25),
-    explode2: audio.load("/demo/asteroids/assets/explosion02.wav", null, 0.25),
-    explode3: audio.load("/demo/asteroids/assets/explosion01.wav", null, 0.25)
+  // load the audio - 4 channels per file
+  /* prettier-ignore */
+  state.audioFx = {
+    fire: audio.load("/demo/asteroids/assets/fire.wav", null, 4, 0.25),
+    explode1: audio.load("/demo/asteroids/assets/explosion01.wav", null, 4, 0.25),
+    explode2: audio.load("/demo/asteroids/assets/explosion02.wav", null, 4, 0.25)
   };
 
   const dim = canvas.dimensions;
@@ -98,12 +111,7 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   createGameOverMenu(state, dim);
   createLevelBanner(state);
 
-  const handleCollision = () =>
-    audio.playAny([
-      state.audioChannels.explode1,
-      state.audioChannels.explode2,
-      state.audioChannels.explode3
-    ]);
+  const handleCollision = createCollisionHandler(state.audioFx);
 
   // TODO - consider onCollision as param to createMultipleRandom
   const asteroids = Asteroid.createMultipleRandom(state.maxAsteroids, dim);
@@ -136,10 +144,11 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
 
 // This gets called repeatedly (requestAnimationFrame)
 // Here's where the bulk of the game happens
-const renderer = (context, canvas, { audio }, state) => {
+const renderer = (context, canvas, ...rest) => {
+  const state = rest[1];
   const dim = canvas.dimensions;
 
-  const { audioChannels, displayAvgFps, keys, offscreenContext } = state;
+  const { audioFx, displayAvgFps, keys, offscreenContext } = state;
 
   // erase the offscreen canvas
   offscreenContext.fillStyle = "white";
@@ -185,20 +194,10 @@ const renderer = (context, canvas, { audio }, state) => {
             bullet.ax = Math.cos(ship.rotation) * 0.5;
             bullet.ay = Math.sin(ship.rotation) * 0.5;
             bullet.collidesWith = createCollidesWithMap(true);
-            bullet.onCollision = () => {
-              audio.playAny([
-                audioChannels.explode1,
-                audioChannels.explode2,
-                audioChannels.explode3
-              ]);
-            };
+            bullet.onCollision = createCollisionHandler(audioFx);
             bullet.expires = 1000; // bullets disappear after 1sec
             state.entities.push(bullet);
-            audio.playAny([
-              audioChannels.fire1,
-              audioChannels.fire2,
-              audioChannels.fire3
-            ]);
+            audioFx.fire.play();
           }
           break;
         default:

@@ -37,24 +37,28 @@ describe("Audio", () => {
   });
 
   describe("load", () => {
-    it("should return a new channel number for every loaded src", () => {
+    it("should return a playback interface for a loaded src", () => {
       const audio = Audio.create();
-      expect(audio.load("fire.wav")).toEqual(0);
-      expect(audio.load("boom.mp3")).toEqual(1);
-      expect(audio.load("zap.ogg")).toEqual(2);
+      const playback = audio.load("fire.wav");
+      expect(playback).toHaveProperty("play");
+      expect(playback.play).toBeInstanceOf(Function);
+      expect(playback).toHaveProperty("pause");
+      expect(playback.pause).toBeInstanceOf(Function);
     });
+
     it("should be that a newly added channel exists in the channel collection", () => {
       const audio = Audio.create();
-      const channelIndex = audio.load("test");
-      const channel = audio.channel(channelIndex);
+      audio.load("test");
+      const channel = audio.channels.find(chan => chan.audio.src === "test");
       expect(channel.audio.src).toEqual("test");
       expect(channel.canPlay).toBe(false);
     });
+
     it("should call the callback param (if supplied), when the channel can be played", () => {
       const audio = Audio.create();
       const callback = jest.fn();
-      const channelIndex = audio.load("test", callback);
-      const channel = audio.channel(channelIndex);
+      audio.load("test", callback);
+      const channel = audio.channels.find(chan => chan.audio.src === "test");
       expect(channel.audio.addEventListener).toHaveBeenCalled();
       expect(channel.audio.addEventListener.mock.calls[0][0]).toEqual(
         "canplay"
@@ -62,7 +66,7 @@ describe("Audio", () => {
       const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
       const event = {};
       eventCallback(event);
-      expect(callback).toHaveBeenCalledWith(channelIndex, channel, event);
+      expect(callback).toHaveBeenCalledWith(channel, event);
       expect(channel.audio.removeEventListener).toHaveBeenCalled();
       expect(channel.audio.removeEventListener.mock.calls[0][0]).toEqual(
         "canplay"
@@ -71,43 +75,36 @@ describe("Audio", () => {
   });
 
   describe("play", () => {
-    it("should return false if the channel does not exist", () => {
+    it("should return false if the channel audio is not loaded yet", () => {
       const audio = Audio.create();
-      expect(audio.play(42)).toBe(false);
+      const playback = audio.load("test");
+      expect(playback.play()).toBe(false);
     });
-    it("should return false if the channel exists but the audio is not loaded yet", () => {
+    it("should return true and call play if the channel audio is loaded", () => {
       const audio = Audio.create();
-      const channelIndex = audio.load("test");
-      expect(audio.play(channelIndex)).toBe(false);
-    });
-    it("should return true and call play if the channel exists and the audio is loaded", () => {
-      const audio = Audio.create();
-      const channelIndex = audio.load("test");
-      const channel = audio.channel(channelIndex);
+      const playback = audio.load("test");
+      const channel = audio.channels.find(chan => chan.audio.src === "test");
       const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
       const event = {};
       eventCallback(event);
-      expect(audio.play(channelIndex)).toBe(true);
+      expect(playback.play()).toBe(true);
     });
-  });
-
-  describe("playAny", () => {
-    it("should have some tests", () => {});
   });
 
   describe("pause", () => {
-    it("should return false if the channel does not exist", () => {
+    it("should return false if the channel audio is not loaded yet", () => {
       const audio = Audio.create();
-      expect(audio.pause(42)).toBe(false);
+      const playback = audio.load("test");
+      expect(playback.pause()).toBe(false);
     });
-    it("should return true and call pause if the channel exists", () => {
+    it("should return true and call pause if the channel audio is loaded", () => {
       const audio = Audio.create();
-      const channelIndex = audio.load("test");
-      const channel = audio.channel(channelIndex);
+      const playback = audio.load("test");
+      const channel = audio.channels.find(chan => chan.audio.src === "test");
       const eventCallback = channel.audio.addEventListener.mock.calls[0][1];
       const event = {};
       eventCallback(event);
-      expect(audio.pause(channelIndex)).toBe(true);
+      expect(playback.pause()).toBe(true);
     });
   });
 

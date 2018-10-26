@@ -20,6 +20,62 @@ class Audio {
     return audio;
   }
 
+  static playChannel(channel) {
+    if (
+      channel &&
+      channel.canPlay &&
+      (channel.audio.paused || channel.audio.ended)
+    ) {
+      channel.audio.play();
+      return true;
+    }
+    return false;
+  }
+
+  static pauseChannel(channel) {
+    if (channel && channel.canPlay && !channel.audio.paused) {
+      channel.audio.pause();
+      return true;
+    }
+    return false;
+  }
+
+  static createPlaybackInterface(channels) {
+    return {
+      play() {
+        // play the first audio channel that can be played
+        for (let i = 0; i < channels.length; ++i) {
+          if (Audio.playChannel(channels[i])) {
+            return true;
+          }
+        }
+        return false;
+      },
+
+      pause() {
+        // pause the first audio channel that is not paused
+        for (let i = 0; i < channels.length; ++i) {
+          if (Audio.pauseChannel(channels[i])) {
+            return true;
+          }
+        }
+        return false;
+      }
+    };
+  }
+
+  static createCanPlayCallback(channels, channelIndex, callback) {
+    const handler = e => {
+      const channel = channels[channelIndex];
+      channel.audio.removeEventListener("canplay", handler, false);
+      channel.canPlay = true;
+      if (callback) {
+        callback(channel, e);
+      }
+    };
+    return handler;
+  }
+
   static hasAudio() {
     const audio = Audio.createElement();
     return audio ? "canPlayType" in audio : false;
@@ -44,57 +100,36 @@ class Audio {
     this._channels = [];
   }
 
-  channel(channelIndex) {
-    return this._channels[channelIndex];
+  get channels() {
+    return this._channels;
   }
 
-  load(src, callback, ...rest) {
-    const channelIndex = this._channels.length;
-    const canPlayCallback = e => {
-      const channel = this._channels[channelIndex];
-      channel.audio.removeEventListener("canplay", canPlayCallback, false);
-      channel.canPlay = true;
-      if (callback) {
-        callback(channelIndex, channel, e);
-      }
-    };
-
-    this._channels.push({
-      audio: Audio.createElement(src, canPlayCallback, ...rest),
-      canPlay: false
-    });
-    return this._channels.length - 1;
+  pauseAll() {
+    this._channels.forEach(Audio.pauseChannel);
   }
 
-  pause(channelIndex) {
-    const channel = this._channels[channelIndex];
-    if (channel) {
-      channel.audio.pause();
-      return channel.audio.paused;
+  playAll() {
+    this._channels.forEach(Audio.playChannel);
+  }
+
+  load(src, callback, numChannels = 1, ...rest) {
+    const channels = [];
+
+    // create an audio element for each channel of audio
+    for (let i = 0; i < numChannels; ++i) {
+      channels.push({
+        audio: Audio.createElement(
+          src,
+          Audio.createCanPlayCallback(channels, i, callback),
+          ...rest
+        ),
+        canPlay: false
+      });
     }
-    return false;
-  }
 
-  playAny(channels) {
-    const len = channels.length;
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < len; i++) {
-      if (this.play(channels[i])) {
-        return true;
-      }
-    }
-    return false;
-  }
+    this._channels = this._channels.concat(channels);
 
-  play(channelIndex) {
-    const channel = this._channels[channelIndex];
-    if (channel) {
-      if (channel.canPlay && (channel.audio.paused || channel.audio.ended)) {
-        channel.audio.play();
-        return true;
-      }
-    }
-    return false;
+    return Audio.createPlaybackInterface(channels);
   }
 }
 
