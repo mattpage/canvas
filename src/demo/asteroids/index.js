@@ -224,10 +224,24 @@ const renderer = (context, canvas, ...rest) => {
 
   // if there are no more players
   if (meta.players < 1) {
-    // the game is over
     if (!state.gameOver) {
-      state.gameOver = true;
-      state.gameOverMenu.show();
+      if (state.lives < 1) {
+        // the game is over
+        state.gameOver = true;
+        state.gameOverMenu.show();
+      } else {
+        // player has lives remaining
+        // create another player ship
+        state.lives -= 1;
+        state.entities.push(
+          Spaceship.create(
+            SpaceshipType.Player,
+            dim.width / 2,
+            dim.height / 2,
+            createCollidesWithMap(true)
+          )
+        );
+      }
     }
   }
 
@@ -256,5 +270,6 @@ Game.create("canvas").start(renderer, initializer, {
   gameOver: false,
   keys: [],
   level: 1,
-  maxAsteroids: 1
+  lives: 3,
+  maxAsteroids: 20
 });
