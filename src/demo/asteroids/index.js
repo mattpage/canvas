@@ -258,10 +258,10 @@ const renderer = (context, canvas, ...rest) => {
     // move to the next level
     state.level += 1;
     state.maxAsteroids += 5;
-    state.levelBanner.setText("level-title", `LEVEL ${state.level}`);
+    Dialog.setText("level-title", `LEVEL ${state.level}`);
     state.levelBanner.show(2000);
     state.entities.push(
-      ...Asteroid.createMultipleRandom(state.maxAsteroids, dim)
+      ...createAsteroids(dim, state.maxAsteroids, state.audioFx)
     );
   }
 
