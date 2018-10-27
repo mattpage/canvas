@@ -51,6 +51,14 @@ class Spaceship extends PolygonEntity {
     ship.onCollision = onCollision;
     return ship;
   }
+
+  get shieldsEnabled() {
+    return this.polygon.options("showCircle");
+  }
+
+  set shieldsEnabled(enabled) {
+    this.polygon.options.showCircle = enabled;
+  }
 }
 
 export default Spaceship;
