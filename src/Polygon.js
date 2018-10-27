@@ -1,5 +1,9 @@
 class Polygon {
-  static defaultOptions = { showRect: false, showOffset: false };
+  static defaultOptions = {
+    showRect: false,
+    showOffset: false,
+    showCircle: false
+  };
 
   static create(...args) {
     return new Polygon(...args);
@@ -8,6 +12,47 @@ class Polygon {
   constructor(points = [], options = Polygon.defaultOptions) {
     this.points = points;
     this.options = options;
+  }
+
+  // convert points [0,1,1,2,2,3] to [[0,1],[1,2],[2,3]]
+  get arrayOfPointArrays() {
+    if (this._pointArrays) {
+      return this._pointArrays;
+    }
+    const pointArrays = [];
+    const points = this.points.slice(0);
+    let point = [];
+    while (points.length) {
+      if (point.length === 2) {
+        pointArrays.push(point);
+        point = [];
+      } else {
+        point.push(points.shift());
+      }
+    }
+    if (point.length > 0) {
+      pointArrays.push(point);
+    }
+    this._pointArrays = pointArrays;
+    return this._pointArrays;
+  }
+
+  get centroid() {
+    // TODO - refactor to not require conversion to array of arrays
+    const pointArrays = this.arrayOfPointArrays;
+    const pointsLen = pointArrays.length;
+    return pointArrays.reduce(
+      (center, point, index) => {
+        center[0] += point[0];
+        center[1] += point[1];
+        if (index === pointsLen - 1) {
+          center[0] /= pointsLen;
+          center[1] /= pointsLen;
+        }
+        return center;
+      },
+      [0, 0]
+    );
   }
 
   get rect() {
@@ -73,6 +118,25 @@ class Polygon {
     }
     context.closePath();
     context.stroke();
+
+    if (this.options.showCircle) {
+      context.beginPath();
+      // draw bounding circle
+      const rc = this.rect;
+      const width = Math.abs(rc.right - rc.left);
+      const height = Math.abs(rc.top - rc.bottom);
+      const center = this.centroid;
+      context.arc(
+        center[0],
+        center[1],
+        Math.max(width, height),
+        0,
+        Math.PI * 2,
+        true
+      );
+      context.closePath();
+      context.stroke();
+    }
 
     if (this.options.showRect) {
       // draw the bounding rect
