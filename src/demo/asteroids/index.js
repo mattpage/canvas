@@ -56,12 +56,21 @@ const createPlayerSpaceship = (dim, audioFx) => {
   return spaceship;
 };
 
-const createAsteroids = (dim, maxAsteroids, audioFx) =>
-  Asteroid.createMultipleRandom(
-    maxAsteroids,
-    dim,
-    createCollisionHandler(audioFx)
-  );
+const createAsteroids = (dim, maxAsteroids, audioFx) => {
+  const asteroids = [];
+  for (let i = 0; i < maxAsteroids; i++) {
+    const x = integerInRange(0, dim.width);
+    const y = integerInRange(0, dim.height);
+    const options = {
+      showOffset: false,
+      showRect: false
+    };
+    const asteroid = Asteroid.createRandom(x, y, AsteroidType.Large, options);
+    asteroid.onCollision = createCollisionHandler(audioFx);
+    asteroids.push(asteroid);
+  }
+  return asteroids;
+};
 
 // Setup the game state and create a bunch of stuff
 const initializer = (context, canvas, { audio, keyboard }, state) => {
