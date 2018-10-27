@@ -1,4 +1,5 @@
-import { PolygonEntity } from "../../index";
+import { PolygonEntity, integerInRange } from "../../index";
+import Debris from "./Debris";
 
 export const SpaceshipType = Object.freeze({
   EnemySaucer: "EnemySaucer",
@@ -52,12 +53,47 @@ class Spaceship extends PolygonEntity {
     return ship;
   }
 
+  shieldsUp(timeoutMs = 2000) {
+    this.shieldsEnabled = true;
+    setTimeout(() => {
+      this.shieldsEnabled = false;
+    }, timeoutMs);
+  }
+
   get shieldsEnabled() {
     return this.polygon.options("showCircle");
   }
 
   set shieldsEnabled(enabled) {
     this.polygon.options.showCircle = enabled;
+    if (enabled) {
+      this.oldCollidesWith = this.collidesWith;
+      this.collidesWith = {};
+    } else if (this.oldCollidesWith) {
+      this.collidesWith = this.oldCollidesWith;
+    }
+  }
+
+  collision(collisions) {
+    const results = super.collision(collisions);
+    if (results.length < 1) {
+      // this means the ship was destroyed
+      // here we insert some debris into the results array
+      const numDebris = integerInRange(4, 12);
+      for (let i = 0; i < numDebris; ++i) {
+        results.push(
+          Debris.create(
+            null,
+            this.x,
+            this.y,
+            this.vx,
+            this.vy,
+            this.onCollision
+          )
+        );
+      }
+    }
+    return results;
   }
 }
 

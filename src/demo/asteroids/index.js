@@ -9,6 +9,7 @@ import {
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 import Bullet, { BulletType } from "./Bullet";
+import { DebrisType } from "./Debris";
 import Dialog from "./Dialog";
 import "./style.css";
 
@@ -25,6 +26,11 @@ const createCollidesWithMap = friendly => {
 
   // add all of the asteroids
   Object.values(AsteroidType).forEach(t => {
+    collidesWith[t] = true;
+  });
+
+  // add all of the debris type
+  Object.values(DebrisType).forEach(t => {
     collidesWith[t] = true;
   });
 
@@ -45,14 +51,11 @@ const createPlayerSpaceship = (dim, audioFx) => {
     SpaceshipType.Player,
     dim.width / 2,
     dim.height / 2,
+    collidesWith,
     createCollisionHandler(audioFx)
   );
   // spaceship is indestructible for 2 seconds
-  spaceship.shieldsEnabled = true;
-  setTimeout(() => {
-    spaceship.shieldsEnabled = false;
-    spaceship.collidesWith = collidesWith;
-  }, 2000);
+  spaceship.shieldsUp(2000);
   return spaceship;
 };
 
@@ -205,6 +208,7 @@ const renderer = (context, canvas, ...rest) => {
   );
 
   const meta = {
+    debris: 0,
     enemies: 0,
     players: 0,
     bullets: 0,
@@ -231,9 +235,14 @@ const renderer = (context, canvas, ...rest) => {
         meta.asteroids += 1;
         break;
       default:
-        logger.warn("unknown entity type", entity.type);
+        if (entity.type in DebrisType) {
+          meta.debris += 1;
+        } else {
+          logger.warn("unknown entity type", entity.type);
+        }
         break;
     }
+
     entity.render(state.offscreenContext);
   });
 
@@ -256,8 +265,12 @@ const renderer = (context, canvas, ...rest) => {
   // if all of the asteroids are destroyed
   if (meta.players > 0 && meta.asteroids < 1) {
     // move to the next level
+    const playerShip = state.entities.find(
+      entity => entity.type === SpaceshipType.Player
+    );
+    playerShip.shieldsUp(2000);
     state.level += 1;
-    state.maxAsteroids += 5;
+    state.maxAsteroids += 10;
     Dialog.setText("level-title", `LEVEL ${state.level}`);
     state.levelBanner.show(2000);
     state.entities.push(
