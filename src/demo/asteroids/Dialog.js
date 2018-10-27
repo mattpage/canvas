@@ -1,4 +1,8 @@
 class Dialog {
+  static setText(id, text) {
+    window.document.getElementById(id).textContent = text;
+  }
+
   constructor(id, onClick) {
     this.handleClick = this.handleClick.bind(this);
     this.el = window.document.getElementById(id);
@@ -21,10 +25,6 @@ class Dialog {
 
   hide() {
     this.el.classList.add("hidden");
-  }
-
-  setText(id, text) {
-    window.document.getElementById(id).textContent = text;
   }
 
   show(timeoutMs = -1) {
