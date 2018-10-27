@@ -39,6 +39,30 @@ const createCollisionHandler = audioFx => () => {
   }
 };
 
+const createPlayerSpaceship = (dim, audioFx) => {
+  const collidesWith = createCollidesWithMap(true);
+  const spaceship = Spaceship.create(
+    SpaceshipType.Player,
+    dim.width / 2,
+    dim.height / 2,
+    createCollisionHandler(audioFx)
+  );
+  // spaceship is indestructible for 2 seconds
+  spaceship.shieldsEnabled = true;
+  setTimeout(() => {
+    spaceship.shieldsEnabled = false;
+    spaceship.collidesWith = collidesWith;
+  }, 2000);
+  return spaceship;
+};
+
+const createAsteroids = (dim, maxAsteroids, audioFx) =>
+  Asteroid.createMultipleRandom(
+    maxAsteroids,
+    dim,
+    createCollisionHandler(audioFx)
+  );
+
 // Setup the game state and create a bunch of stuff
 const initializer = (context, canvas, { audio, keyboard }, state) => {
   logger.log("initializing game");
@@ -68,38 +92,20 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
       state.maxAsteroids = 20;
       state.gameOver = false;
       state.gameOverMenu.hide();
-      state.entities = Asteroid.createMultipleRandom(state.maxAsteroids, dim);
       state.entities.push(
-        Spaceship.create(
-          SpaceshipType.Player,
-          dim.width / 2,
-          dim.height / 2,
-          createCollidesWithMap(true)
-        )
+        ...createAsteroids(dim, state.maxAsteroids, state.audioFx),
+        createPlayerSpaceship(dim, state.audioFx)
       );
     }
   });
 
   state.levelBanner = new Dialog("level");
 
-  const handleCollision = createCollisionHandler(state.audioFx);
-
-  const asteroids = Asteroid.createMultipleRandom(
-    state.maxAsteroids,
-    dim,
-    handleCollision
-  );
-
-  const spaceship = Spaceship.create(
-    SpaceshipType.Player,
-    dim.width / 2,
-    dim.height / 2,
-    createCollidesWithMap(true),
-    handleCollision
-  );
-
   // add asteroids and spaceship
-  state.entities.push(...asteroids, spaceship);
+  state.entities.push(
+    ...createAsteroids(dim, state.maxAsteroids, state.audioFx),
+    createPlayerSpaceship(dim, state.audioFx)
+  );
 
   // hookup the player keys
   keyboard.captureKeys(
@@ -233,14 +239,7 @@ const renderer = (context, canvas, ...rest) => {
         // player has lives remaining
         // create another player ship
         state.lives -= 1;
-        state.entities.push(
-          Spaceship.create(
-            SpaceshipType.Player,
-            dim.width / 2,
-            dim.height / 2,
-            createCollidesWithMap(true)
-          )
-        );
+        state.entities.push(createPlayerSpaceship(dim, state.audioFx));
       }
     }
   }
