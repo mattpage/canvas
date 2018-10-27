@@ -41,6 +41,15 @@ export const DEBRIS = [
       0.1, -5,
     ],
   },
+  {
+    type: DebrisType.NailClipping,
+    points: [
+      .3125, 0,
+      0, .3125,
+      -.3125, 0,
+      0, -.3125,
+    ],
+  }
 ]
 
 class Debris extends PolygonEntity {
