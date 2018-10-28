@@ -1,4 +1,4 @@
-class Dialog {
+class DisplayElement {
   constructor(selector) {
     this.el = window.document.querySelector(selector);
     this.handleTimeout = this.handleTimeout.bind(this);
@@ -26,4 +26,4 @@ class Dialog {
   }
 }
 
-export default Dialog;
+export default DisplayElement;

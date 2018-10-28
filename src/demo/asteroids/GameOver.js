@@ -1,6 +1,6 @@
-import Dialog from "./Dialog";
+import DisplayElement from "./DisplayElement";
 
-class GameOver extends Dialog {
+class GameOver extends DisplayElement {
   constructor(onNewGame = null) {
     super("#game-over");
     this.handleClick = this.handleClick.bind(this);

@@ -6,8 +6,7 @@ export { default as Keyboard, KEYS } from "./Keyboard";
 export { default as Polygon } from "./Polygon";
 export { Physics, Entity, PolygonEntity } from "./Physics/index";
 export {
-  createAvgFpsRenderer,
-  drawText,
+  createAvgFpsCalculator,
   numberInRange,
   integerInRange,
   randomColor

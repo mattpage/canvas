@@ -1,6 +1,6 @@
-import Dialog from "./Dialog";
+import DisplayElement from "./DisplayElement";
 
-class Banner extends Dialog {
+class Banner extends DisplayElement {
   constructor() {
     super("#banner");
     this.titleElement = this.element.querySelector("h2");

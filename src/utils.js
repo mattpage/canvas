@@ -157,28 +157,11 @@ export const integerInRange = (min, max) =>
 export const randomColor = () =>
   CSS_COLOR_NAMES[integerInRange(0, CSS_COLOR_NAMES.length - 1)];
 
-const defaultDrawTextOptions = {
-  font: "courier",
-  fontSize: "24",
-  color: "black",
-  textAlign: "left"
-};
-
-export const drawText = (context, text, x = 0, y = 24, options = {}) => {
-  const opts = { ...defaultDrawTextOptions, ...options };
-  context.save();
-  context.font = `${opts.fontSize}px ${opts.font}`;
-  context.fillStyle = opts.color;
-  context.textAlign = opts.textAlign;
-  context.fillText(text, x, y);
-  context.restore();
-};
-
-export const createAvgFpsRenderer = () => {
+export const createAvgFpsCalculator = () => {
   let lastCalledTime = Date.now();
   let fps = [];
 
-  return (context, x, y) => {
+  return () => {
     // calc and display framerate
     const now = Date.now();
     const delta = (now - lastCalledTime) / 1000;
@@ -190,6 +173,6 @@ export const createAvgFpsRenderer = () => {
     if (fps.length >= 100) {
       fps = fps.slice(50);
     }
-    drawText(context, `FPS: ${fpsAvg}`, x, y, { fontSize: "12" });
+    return fpsAvg;
   };
 };

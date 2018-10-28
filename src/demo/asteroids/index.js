@@ -3,7 +3,7 @@ import {
   Canvas,
   KEYS,
   Physics,
-  createAvgFpsRenderer,
+  createAvgFpsCalculator,
   integerInRange
 } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
@@ -12,6 +12,7 @@ import Bullet, { BulletType } from "./Bullet";
 import { DebrisType } from "./Debris";
 import GameOver from "./GameOver";
 import Banner from "./Banner";
+import GameStats from "./GameStats";
 import "./style.css";
 
 const logger = console;
@@ -147,7 +148,7 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   state.offscreenContext = state.offscreen.context("2d");
 
   // fps renderer
-  state.displayAvgFps = createAvgFpsRenderer();
+  state.calcAvgFps = createAvgFpsCalculator();
 
   // load the audio - 4 channels per file
   /* prettier-ignore */
@@ -170,6 +171,7 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   });
 
   state.banner = new Banner();
+  state.gameStats = new GameStats();
 
   // add asteroids and spaceship
   state.entities.push(
@@ -194,14 +196,9 @@ const renderer = (context, canvas, ...rest) => {
   const state = rest[1];
   const dim = canvas.dimensions;
 
-  const { displayAvgFps, offscreenContext } = state;
-
   // erase the offscreen canvas
-  offscreenContext.fillStyle = "white";
-  offscreenContext.fillRect(0, 0, dim.width, dim.height);
-
-  // show FPS
-  displayAvgFps(offscreenContext, dim.width - 110, 24);
+  state.offscreenContext.fillStyle = "white";
+  state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   // handle the player keyboard input
   // if the keys generate entities (fire=>bullets)
@@ -302,6 +299,9 @@ const renderer = (context, canvas, ...rest) => {
 
   // copy the offscreen canvas to the display canvas
   context.drawImage(state.offscreen.canvas, 0, 0);
+
+  meta.fps = state.calcAvgFps();
+  state.gameStats.update(meta);
 
   // return true to keep animating
   return true;
