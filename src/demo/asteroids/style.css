@@ -2,7 +2,7 @@
   display: none;
 }
 
-#game-over, #level {
+#game-over, #banner {
   position: absolute;
   top: 40%;
   left: 0;
@@ -16,7 +16,7 @@
   font-weight: 100;
 }
 
-#game-over .menu, #level-title {
+#game-over .menu, #banner h2 {
   font-size: 14px;
 }
 

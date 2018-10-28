@@ -10,7 +10,8 @@ import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
 import Bullet, { BulletType } from "./Bullet";
 import { DebrisType } from "./Debris";
-import Dialog from "./Dialog";
+import GameOver from "./GameOver";
+import Banner from "./Banner";
 import "./style.css";
 
 const logger = console;
@@ -75,80 +76,20 @@ const createAsteroids = (dim, maxAsteroids, audioFx) => {
   return asteroids;
 };
 
-// Setup the game state and create a bunch of stuff
-const initializer = (context, canvas, { audio, keyboard }, state) => {
-  logger.log("initializing game");
+const createGameState = (level = 1) => ({
+  entities: [],
+  gameOver: false,
+  keys: [],
+  level,
+  lives: 3,
+  maxAsteroids: 10 + level * 10
+});
 
-  // offscreen canvas for double buffering
-  state.offscreen = Canvas.create();
-  state.offscreenContext = state.offscreen.context("2d");
+const findShip = entities =>
+  entities.find(entity => entity.type === SpaceshipType.Player);
 
-  // fps renderer
-  state.displayAvgFps = createAvgFpsRenderer();
-
-  // load the audio - 4 channels per file
-  /* prettier-ignore */
-  state.audioFx = {
-    fire: audio.load("/demo/asteroids/assets/fire.wav", null, 4, 0.25),
-    explode1: audio.load("/demo/asteroids/assets/explosion01.wav", null, 4, 0.25),
-    explode2: audio.load("/demo/asteroids/assets/explosion02.wav", null, 4, 0.25)
-  };
-
-  const dim = canvas.dimensions;
-
-  state.gameOverMenu = new Dialog("game-over", event => {
-    if (event.target.id === "new-game") {
-      // create new game
-      state.keys.length = 0;
-      state.level = 1;
-      state.maxAsteroids = 20;
-      state.gameOver = false;
-      state.gameOverMenu.hide();
-      state.entities.push(
-        ...createAsteroids(dim, state.maxAsteroids, state.audioFx),
-        createPlayerSpaceship(dim, state.audioFx)
-      );
-    }
-  });
-
-  state.levelBanner = new Dialog("level");
-
-  // add asteroids and spaceship
-  state.entities.push(
-    ...createAsteroids(dim, state.maxAsteroids, state.audioFx),
-    createPlayerSpaceship(dim, state.audioFx)
-  );
-
-  // hookup the player keys
-  keyboard.captureKeys(
-    [KEYS.ARROW_LEFT, KEYS.ARROW_RIGHT, KEYS.ARROW_UP, KEYS.SPACEBAR],
-    keyInfo => {
-      state.keys.push(keyInfo);
-    }
-  );
-
-  logger.log("game initialized");
-};
-
-// This gets called repeatedly (requestAnimationFrame)
-// Here's where the bulk of the game happens
-const renderer = (context, canvas, ...rest) => {
-  const state = rest[1];
-  const dim = canvas.dimensions;
-
-  const { audioFx, displayAvgFps, keys, offscreenContext } = state;
-
-  // erase the offscreen canvas
-  offscreenContext.fillStyle = "white";
-  offscreenContext.fillRect(0, 0, dim.width, dim.height);
-
-  // show FPS
-  displayAvgFps(offscreenContext, dim.width - 110, 24);
-
-  // handle player keys
-  const ship = state.entities.find(
-    entity => entity.type === SpaceshipType.Player
-  );
+const handlePlayerKeys = (ship, { keys, audioFx }) => {
+  const newEntities = [];
   if (ship) {
     let keyInfo;
     while (keys.length > 0) {
@@ -184,7 +125,7 @@ const renderer = (context, canvas, ...rest) => {
             bullet.collidesWith = createCollidesWithMap(true);
             bullet.onCollision = createCollisionHandler(audioFx);
             bullet.expires = 1000; // bullets disappear after 1sec
-            state.entities.push(bullet);
+            newEntities.push(bullet);
             audioFx.fire.play();
           }
           break;
@@ -194,6 +135,79 @@ const renderer = (context, canvas, ...rest) => {
       } // end switch
     } // end while
   }
+  return newEntities;
+};
+
+// Setup the game state and create a bunch of stuff
+const initializer = (context, canvas, { audio, keyboard }, state) => {
+  logger.log("initializing game");
+
+  // offscreen canvas for double buffering
+  state.offscreen = Canvas.create();
+  state.offscreenContext = state.offscreen.context("2d");
+
+  // fps renderer
+  state.displayAvgFps = createAvgFpsRenderer();
+
+  // load the audio - 4 channels per file
+  /* prettier-ignore */
+  state.audioFx = {
+    fire: audio.load("/demo/asteroids/assets/fire.wav", null, 4, 0.25),
+    explode1: audio.load("/demo/asteroids/assets/explosion01.wav", null, 4, 0.25),
+    explode2: audio.load("/demo/asteroids/assets/explosion02.wav", null, 4, 0.25)
+  };
+
+  const dim = canvas.dimensions;
+
+  state.gameOverMenu = new GameOver(() => {
+    // create new game
+    Object.assign(state, createGameState());
+    state.entities.push(
+      ...createAsteroids(dim, state.maxAsteroids, state.audioFx),
+      createPlayerSpaceship(dim, state.audioFx)
+    );
+    state.gameOverMenu.hide();
+  });
+
+  state.banner = new Banner();
+
+  // add asteroids and spaceship
+  state.entities.push(
+    ...createAsteroids(dim, state.maxAsteroids, state.audioFx),
+    createPlayerSpaceship(dim, state.audioFx)
+  );
+
+  // hookup the player keys
+  keyboard.captureKeys(
+    [KEYS.ARROW_LEFT, KEYS.ARROW_RIGHT, KEYS.ARROW_UP, KEYS.SPACEBAR],
+    keyInfo => {
+      state.keys.push(keyInfo);
+    }
+  );
+
+  logger.log("game initialized");
+};
+
+// This gets called repeatedly (requestAnimationFrame)
+// Here's where the bulk of the game happens
+const renderer = (context, canvas, ...rest) => {
+  const state = rest[1];
+  const dim = canvas.dimensions;
+
+  const { displayAvgFps, offscreenContext } = state;
+
+  // erase the offscreen canvas
+  offscreenContext.fillStyle = "white";
+  offscreenContext.fillRect(0, 0, dim.width, dim.height);
+
+  // show FPS
+  displayAvgFps(offscreenContext, dim.width - 110, 24);
+
+  // handle the player keyboard input
+  // if the keys generate entities (fire=>bullets)
+  // add them to the entities collection
+  const newEntities = handlePlayerKeys(findShip(state.entities), state);
+  state.entities.push(...newEntities);
 
   // update asteroid physics
   state.entities = Physics.update(
@@ -247,6 +261,8 @@ const renderer = (context, canvas, ...rest) => {
   });
 
   // if there are no more players
+  // the game is over or the player has lost a life
+  // and we need to create a new ship
   if (meta.players < 1) {
     if (!state.gameOver) {
       if (state.lives < 1) {
@@ -256,24 +272,30 @@ const renderer = (context, canvas, ...rest) => {
       } else {
         // player has lives remaining
         // create another player ship
-        state.lives -= 1;
+        Object.assign(state, createGameState(state.level), {
+          entities: state.entities,
+          lives: state.lives - 1
+        });
         state.entities.push(createPlayerSpaceship(dim, state.audioFx));
+        meta.players += 1;
       }
     }
   }
 
-  // if all of the asteroids are destroyed
+  // if the player is still alive
+  // and all of the asteroids are destroyed
+  // move to the next level
   if (meta.players > 0 && meta.asteroids < 1) {
-    // move to the next level
     const playerShip = state.entities.find(
       entity => entity.type === SpaceshipType.Player
     );
     playerShip.shieldsUp(2000);
-    state.level += 1;
-    state.maxAsteroids += 10;
-    Dialog.setText("level-title", `LEVEL ${state.level}`);
-    state.levelBanner.show(2000);
+    Object.assign(state, createGameState(state.level + 1), {
+      lives: state.lives
+    });
+    state.banner.show(`LEVEL ${state.level}`, 2000);
     state.entities.push(
+      playerShip,
       ...createAsteroids(dim, state.maxAsteroids, state.audioFx)
     );
   }
@@ -286,11 +308,4 @@ const renderer = (context, canvas, ...rest) => {
 };
 
 // create and start the game (call initializer with inital game state and then renderer repeatedly)
-Game.create("canvas").start(renderer, initializer, {
-  entities: [],
-  gameOver: false,
-  keys: [],
-  level: 1,
-  lives: 3,
-  maxAsteroids: 20
-});
+Game.create("canvas").start(renderer, initializer, createGameState());
