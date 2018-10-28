@@ -39,11 +39,14 @@ const createCollidesWithMap = friendly => {
   return collidesWith;
 };
 
-const createCollisionHandler = audioFx => () => {
+const createCollisionHandler = (audioFx, callback) => () => {
   if (integerInRange(0, 1)) {
     audioFx.explode1.play();
   } else {
     audioFx.explode2.play();
+  }
+  if (callback) {
+    callback();
   }
 };
 
@@ -83,14 +86,17 @@ const createGameState = (level = 1) => ({
   keys: [],
   level,
   lives: 3,
-  maxAsteroids: 10 + level * 10
+  maxAsteroids: 10 + level * 10,
+  score: 0
 });
 
 const findShip = entities =>
   entities.find(entity => entity.type === SpaceshipType.Player);
 
-const handlePlayerKeys = (ship, { keys, audioFx }) => {
+const handlePlayerKeys = state => {
+  const { keys, audioFx } = state;
   const newEntities = [];
+  const ship = findShip(state.entities);
   if (ship) {
     let keyInfo;
     while (keys.length > 0) {
@@ -124,7 +130,10 @@ const handlePlayerKeys = (ship, { keys, audioFx }) => {
             bullet.ax = Math.cos(ship.rotation) * 0.5;
             bullet.ay = Math.sin(ship.rotation) * 0.5;
             bullet.collidesWith = createCollidesWithMap(true);
-            bullet.onCollision = createCollisionHandler(audioFx);
+            bullet.onCollision = createCollisionHandler(
+              audioFx,
+              () => (state.score += 10) // points per bullet hit
+            );
             bullet.expires = 1000; // bullets disappear after 1sec
             newEntities.push(bullet);
             audioFx.fire.play();
@@ -136,7 +145,7 @@ const handlePlayerKeys = (ship, { keys, audioFx }) => {
       } // end switch
     } // end while
   }
-  return newEntities;
+  state.entities.push(...newEntities);
 };
 
 // Setup the game state and create a bunch of stuff
@@ -201,10 +210,7 @@ const renderer = (context, canvas, ...rest) => {
   state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   // handle the player keyboard input
-  // if the keys generate entities (fire=>bullets)
-  // add them to the entities collection
-  const newEntities = handlePlayerKeys(findShip(state.entities), state);
-  state.entities.push(...newEntities);
+  handlePlayerKeys(state);
 
   // update asteroid physics
   state.entities = Physics.update(
@@ -271,7 +277,8 @@ const renderer = (context, canvas, ...rest) => {
         // create another player ship
         Object.assign(state, createGameState(state.level), {
           entities: state.entities,
-          lives: state.lives - 1
+          lives: state.lives - 1,
+          score: state.score
         });
         state.entities.push(createPlayerSpaceship(dim, state.audioFx));
         meta.players += 1;
@@ -288,7 +295,8 @@ const renderer = (context, canvas, ...rest) => {
     );
     playerShip.shieldsUp(2000);
     Object.assign(state, createGameState(state.level + 1), {
-      lives: state.lives
+      lives: state.lives,
+      score: state.score
     });
     state.banner.show(`LEVEL ${state.level}`, 2000);
     state.entities.push(
@@ -300,8 +308,13 @@ const renderer = (context, canvas, ...rest) => {
   // copy the offscreen canvas to the display canvas
   context.drawImage(state.offscreen.canvas, 0, 0);
 
-  meta.fps = state.calcAvgFps();
-  state.gameStats.update(meta);
+  state.gameStats.update({
+    ...meta,
+    fps: state.calcAvgFps(),
+    level: state.level,
+    lives: state.lives,
+    score: state.score
+  });
 
   // return true to keep animating
   return true;

@@ -3,6 +3,9 @@ import DisplayElement from "./DisplayElement";
 class GameStats extends DisplayElement {
   constructor() {
     super("#stats");
+    this.scoreElement = this.element.querySelector("#score");
+    this.livesElement = this.element.querySelector("#lives");
+    this.levelElement = this.element.querySelector("#level");
     this.shipsElement = this.element.querySelector("#ships");
     this.asteroidsElement = this.element.querySelector("#asteroids");
     this.bulletsElement = this.element.querySelector("#bullets");
@@ -11,6 +14,9 @@ class GameStats extends DisplayElement {
   }
 
   update(stats) {
+    this.scoreElement.textContent = stats.score;
+    this.livesElement.textContent = stats.lives;
+    this.levelElement.textContent = stats.level;
     const ships = stats.players + stats.enemies;
     this.shipsElement.textContent = ships;
     this.asteroidsElement.textContent = stats.asteroids;

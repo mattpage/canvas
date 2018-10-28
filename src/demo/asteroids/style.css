@@ -30,10 +30,11 @@ body {
 
 #stats {
   position: fixed;
-  bottom: 0;
+  top: 0px;
   right: 5px;
   font-size: 14px;
 }
+#stats dl,
 #stats dl dt, 
 #stats dl dd {
   display: inline;
@@ -45,4 +46,11 @@ body {
 }
 #stats dl dd {
   border: solid 1px #ddd;
+  padding: 2px;
+}
+#stats dl.primary {
+  margin-right: 1em;
+}
+#stats dl.primary dt{
+  font-weight: bold;
 }
