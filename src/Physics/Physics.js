@@ -61,6 +61,29 @@ class Physics {
     );   
   }
 
+  static bruteForceCollisionStrategy(entities, collisionMap) {
+    const updatedEntities = [];
+
+    entities.forEach(entity => {
+      let hasCollisions = false;
+      entities.forEach(otherEntity => {
+        if (entity !== otherEntity) {
+          if (Physics.collision(entity.rect, otherEntity.rect)) {
+            hasCollisions = true;
+            const collisions = collisionMap.get(entity) || [];
+            collisions.push(otherEntity);
+            collisionMap.set(entity, collisions);
+          }
+        }
+      });
+
+      if (!hasCollisions && !entity.expired) {
+        updatedEntities.push(entity);
+      }
+    });
+    return updatedEntities;
+  }
+
   static update(entities, bounds, options = { wrap: false }) {
     const now = Date.now();
 
@@ -99,23 +122,9 @@ class Physics {
 
     // collision detection - O(n^2) complexity
     const collisionMap = new Map();
-    entities.forEach(entity => {
-      let hasCollisions = false;
-      entities.forEach(otherEntity => {
-        if (entity !== otherEntity) {
-          if (Physics.collision(entity.rect, otherEntity.rect)) {
-            hasCollisions = true;
-            const collisions = collisionMap.get(entity) || [];
-            collisions.push(otherEntity);
-            collisionMap.set(entity, collisions);
-          }
-        }
-      });
-
-      if (!hasCollisions && !entity.expired) {
-        updatedEntities.push(entity);
-      }
-    });
+    updatedEntities.push(
+      ...Physics.bruteForceCollisionStrategy(entities, collisionMap)
+    );
 
     // resolve collisions
     collisionMap.forEach((collisions, entity) => {
