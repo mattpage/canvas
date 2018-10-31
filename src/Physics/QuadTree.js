@@ -47,7 +47,7 @@ class QuadTree {
 
   // The clear method clears the quadtree by recursively clearing all objects from all nodes.
   clear() {
-    this._objects.clear();
+    this._objects.length = 0;
     this._nodes.forEach(node => node.clear());
   }
 
@@ -128,18 +128,18 @@ class QuadTree {
     }
 
     // otherwise add it to this quadtree collection
-    objects.add(objectRect);
+    this.objects.push(objectRect);
 
     // if the the number of objects in this collection exceeds maxObjects
     // then split this collection into 4 nodes
-    if (objects.length() > maxObjects && level < maxLevels) {
+    if (objects.length > maxObjects && level < maxLevels) {
       if (nodes.length < 1) {
         this.split();
       }
 
       // and distribute the object into the different nodes
       let i = 0;
-      while (i < objects.length()) {
+      while (i < objects.length) {
         const index = this.findNode(objects[i]);
         if (index !== -1) {
           nodes[index].insert(...objects.splice(i, 1));
