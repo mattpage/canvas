@@ -5,7 +5,12 @@
 // https://gamedevelopment.tutsplus.com/tutorials/quick-tip-use-quadtrees-to-detect-likely-collisions-in-2d-space--gamedev-374
 //
 class QuadTree {
-  constructor(bounds, level = 0, maxObjects = 10, maxLevels = 5) {
+  constructor(
+    bounds = { x: 0, y: 0, width: 100, height: 100 },
+    level = 0,
+    maxObjects = 10,
+    maxLevels = 5
+  ) {
     this._bounds = bounds;
     this._level = level;
     this._maxLevels = maxLevels;
