@@ -153,13 +153,11 @@ class QuadTree {
   // retrieve all objects that fall within nodes that this rectangle fits into
   retrieve(objectRect, collection = []) {
     const index = this.findNode(objectRect);
-    if (index !== -1 && this.nodes.length > 0) {
+    if (index > -1 && index < this.nodes.length) {
       // drill down until we find the node containing the object
       this.nodes[index].retrieve(objectRect, collection);
     }
-
     collection.push(...this.objects);
-
     return collection;
   }
 }
