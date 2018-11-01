@@ -53,6 +53,13 @@ describe("QuadTree", () => {
     expect(qt.objects).toEqual([]);
     expect(qt.nodes).toHaveLength(4);
 
+    // quadrants are layed out counterclockwise
+    // ---------
+    // | 2 | 1 |
+    // ---------
+    // | 3 | 4 |
+    // ---------
+
     // upper right quadrant
     expect(qt.nodes[0]).toBeInstanceOf(QuadTree);
     expect(qt.nodes[0].bounds).toEqual({
@@ -161,6 +168,62 @@ describe("QuadTree", () => {
     });
   });
 
+  describe("clear", () => {
+    it("should clear all objects and all nodes", () => {
+      const bounds = { x: 0, y: 0, width: 100, height: 100 };
+      const qt = new QuadTree(bounds);
+      const newObjects = [
+        { x: 0, y: 0, width: 5, height: 5 },
+        { x: 25, y: 25, width: 5, height: 5 },
+        { x: 50, y: 25, width: 5, height: 5 },
+        { x: 75, y: 25, width: 5, height: 5 },
+        { x: 25, y: 75, width: 5, height: 5 },
+        { x: 45, y: 75, width: 5, height: 5 },
+        { x: 80, y: 80, width: 5, height: 5 },
+        { x: 90, y: 90, width: 5, height: 5 }
+      ];
+      newObjects.forEach(obj => qt.insert(obj));
+      qt.clear();
+      expect(qt.objects).toHaveLength(0);
+    });
+
+    it("should clear all objects and split nodes", () => {
+      const bounds = { x: 0, y: 0, width: 100, height: 100 };
+      const qt = new QuadTree(bounds);
+      const newObjects = [
+        { x: 0, y: 0, width: 5, height: 5 },
+        { x: 25, y: 25, width: 5, height: 5 },
+        { x: 50, y: 25, width: 5, height: 5 },
+        { x: 60, y: 35, width: 5, height: 5 },
+        { x: 75, y: 25, width: 5, height: 5 },
+        { x: 25, y: 75, width: 5, height: 5 },
+        { x: 45, y: 75, width: 5, height: 5 },
+        { x: 54, y: 70, width: 5, height: 5 },
+        { x: 80, y: 80, width: 5, height: 5 },
+        { x: 85, y: 82, width: 5, height: 5 },
+        { x: 90, y: 90, width: 5, height: 5 }
+      ];
+      newObjects.forEach(obj => qt.insert(obj));
+      qt.clear();
+      qt.nodes.forEach(node => expect(node.objects).toHaveLength(0));
+      expect(qt.objects).toHaveLength(0);
+    });
+  });
+
+  describe("split", () => {
+    it("should split a QuadTree into 4 sub-QuadTrees and populate the nodes propert", () => {
+      const bounds = { x: 0, y: 0, width: 100, height: 100 };
+      const qt = new QuadTree(bounds);
+      qt.split();
+      const width = 50;
+      const height = 50;
+      expect(qt.nodes[0].bounds).toEqual({ x: 50, y: 0, width, height });
+      expect(qt.nodes[1].bounds).toEqual({ x: 0, y: 0, width, height });
+      expect(qt.nodes[2].bounds).toEqual({ x: 0, y: 50, width, height });
+      expect(qt.nodes[3].bounds).toEqual({ x: 50, y: 50, width, height });
+    });
+  });
+
   describe("retrieve", () => {
     it("should return all objects if the QuadTree has not split", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
@@ -262,6 +325,33 @@ describe("QuadTree", () => {
       newObjects.forEach(obj => qt.insert(obj));
       const possible = qt.retrieve({ x: 55, y: 55, width: 5, height: 5 });
       expect(possible).toEqual(qt.nodes[3].objects);
+    });
+
+    it("should also return objects that overlap quadrants", () => {
+      const bounds = { x: 0, y: 0, width: 100, height: 100 };
+      const qt = new QuadTree(bounds);
+      const newObjects = [
+        { x: 0, y: 0, width: 5, height: 5 },
+        { x: 16, y: 10, width: 5, height: 5 },
+        { x: 25, y: 25, width: 5, height: 5 },
+        { x: 50, y: 25, width: 5, height: 5 },
+        { x: 35, y: 45, width: 5, height: 5 },
+        { x: 75, y: 25, width: 5, height: 5 },
+        { x: 25, y: 75, width: 5, height: 5 },
+        { x: 44, y: 75, width: 5, height: 5 },
+        { x: 80, y: 80, width: 5, height: 5 },
+        { x: 55, y: 40, width: 5, height: 5 },
+        { x: 90, y: 90, width: 5, height: 5 }
+      ];
+      newObjects.forEach(obj => qt.insert(obj));
+      const possible = qt.retrieve({ x: 25, y: 25, width: 5, height: 5 });
+      expect(possible).toEqual([
+        { x: 0, y: 0, width: 5, height: 5 },
+        { x: 16, y: 10, width: 5, height: 5 },
+        { x: 25, y: 25, width: 5, height: 5 },
+        { x: 50, y: 25, width: 5, height: 5 },
+        { x: 35, y: 45, width: 5, height: 5 }
+      ]);
     });
   });
 });
