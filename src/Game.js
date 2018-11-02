@@ -6,7 +6,7 @@ import Mouse from "./Mouse";
 class Game {
   static defaultOptions = {
     contextType: "2d",
-    contextAttributes: undefined,
+    contextAttributes: { alpha: false },
     audio: true,
     keyboard: true,
     mouse: true

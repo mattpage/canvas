@@ -157,7 +157,7 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
 
   // offscreen canvas for double buffering
   state.offscreen = Canvas.create();
-  state.offscreenContext = state.offscreen.context("2d", { alpha: false });
+  state.offscreenContext = state.offscreen.context();
 
   state.calcAvgFps = createAvgFpsCalculator();
   state.calcAvgTime = createAvgTimeCalculator();

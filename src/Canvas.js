@@ -31,7 +31,7 @@ class Canvas {
     return this.canvas;
   }
 
-  context(type = "2d", attrs) {
+  context(type = "2d", attrs = { alpha: false }) {
     return this.canvas.getContext(type, attrs);
   }
 
