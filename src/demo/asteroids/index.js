@@ -4,6 +4,7 @@ import {
   KEYS,
   Physics,
   createAvgFpsCalculator,
+  createAvgTimeCalculator,
   integerInRange
 } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
@@ -132,7 +133,9 @@ const handlePlayerKeys = state => {
             bullet.collidesWith = createCollidesWithMap(true);
             bullet.onCollision = createCollisionHandler(
               audioFx,
-              () => (state.score += 10) // points per bullet hit
+              () => {
+                state.score += 10;
+              } // points per bullet hit
             );
             bullet.expires = 1000; // bullets disappear after 1sec
             newEntities.push(bullet);
@@ -154,10 +157,10 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
 
   // offscreen canvas for double buffering
   state.offscreen = Canvas.create();
-  state.offscreenContext = state.offscreen.context("2d");
+  state.offscreenContext = state.offscreen.context("2d", { alpha: false });
 
-  // fps renderer
   state.calcAvgFps = createAvgFpsCalculator();
+  state.calcAvgTime = createAvgTimeCalculator();
 
   // load the audio - 4 channels per file
   /* prettier-ignore */
@@ -202,6 +205,7 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
 // This gets called repeatedly (requestAnimationFrame)
 // Here's where the bulk of the game happens
 const renderer = (context, canvas, ...rest) => {
+  const start = window.performance.now();
   const state = rest[1];
   const dim = canvas.dimensions;
 
@@ -221,7 +225,7 @@ const renderer = (context, canvas, ...rest) => {
       bottom: dim.height,
       right: dim.width
     },
-    { wrap: true }
+    { useSpatialPartitioning: false, wrap: true }
   );
 
   const meta = {
@@ -306,14 +310,25 @@ const renderer = (context, canvas, ...rest) => {
   }
 
   // copy the offscreen canvas to the display canvas
-  context.drawImage(state.offscreen.canvas, 0, 0);
+  context.drawImage(
+    state.offscreen.canvas,
+    0,
+    0,
+    dim.width,
+    dim.height,
+    0,
+    0,
+    dim.width,
+    dim.height
+  );
 
   state.gameStats.update({
     ...meta,
     fps: state.calcAvgFps(),
     level: state.level,
     lives: state.lives,
-    score: state.score
+    score: state.score,
+    render: state.calcAvgTime(start, window.performance.now()) // .toFixed(2)
   });
 
   // return true to keep animating

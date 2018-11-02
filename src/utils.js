@@ -176,3 +176,19 @@ export const createAvgFpsCalculator = () => {
     return fpsAvg;
   };
 };
+
+export const createAvgTimeCalculator = () => {
+  let times = [];
+
+  return (start, end) => {
+    const delta = end - start;
+    times.push(delta);
+    const avg = (
+      times.reduce((acc, value) => acc + value, 0) / times.length
+    ).toFixed(2);
+    if (times.length >= 100) {
+      times = times.slice(50);
+    }
+    return avg;
+  };
+};

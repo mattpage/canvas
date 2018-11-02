@@ -11,6 +11,7 @@ class GameStats extends DisplayElement {
     this.bulletsElement = this.element.querySelector("#bullets");
     this.debrisElement = this.element.querySelector("#debris");
     this.fpsElement = this.element.querySelector("#fps");
+    this.renderElement = this.element.querySelector("#render");
   }
 
   update(stats) {
@@ -23,6 +24,7 @@ class GameStats extends DisplayElement {
     this.bulletsElement.textContent = stats.bullets;
     this.debrisElement.textContent = stats.debris;
     this.fpsElement.textContent = stats.fps;
+    this.renderElement.textContent = stats.render;
   }
 }
 
