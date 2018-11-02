@@ -1,3 +1,5 @@
+import QuadTree from "./QuadTree";
+
 class Physics {
   static constrainEntity(entity, boundsRect, options = {}) {
     const halfWidth = entity.width / 2;
@@ -61,30 +63,69 @@ class Physics {
     );   
   }
 
-  static bruteForceCollisionStrategy(entities, collisionMap) {
-    const updatedEntities = [];
+  static createBruteForceCollisionStrategy() {
+    return (entities, collisionMap) => {
+      const updatedEntities = [];
 
-    entities.forEach(entity => {
-      let hasCollisions = false;
-      entities.forEach(otherEntity => {
-        if (entity !== otherEntity) {
-          if (Physics.collision(entity.rect, otherEntity.rect)) {
-            hasCollisions = true;
-            const collisions = collisionMap.get(entity) || [];
-            collisions.push(otherEntity);
-            collisionMap.set(entity, collisions);
+      entities.forEach(entity => {
+        let hasCollisions = false;
+        entities.forEach(otherEntity => {
+          if (entity !== otherEntity) {
+            if (Physics.collision(entity.rect, otherEntity.rect)) {
+              hasCollisions = true;
+              const collisions = collisionMap.get(entity) || [];
+              collisions.push(otherEntity);
+              collisionMap.set(entity, collisions);
+            }
           }
+        });
+
+        if (!hasCollisions && !entity.expired) {
+          updatedEntities.push(entity);
         }
       });
-
-      if (!hasCollisions && !entity.expired) {
-        updatedEntities.push(entity);
-      }
-    });
-    return updatedEntities;
+      return updatedEntities;
+    };
   }
 
-  static update(entities, bounds, options = { wrap: false }) {
+  static createSpatialPartitioningCollisionStrategy(dimensions) {
+    const qt = new QuadTree(dimensions);
+    return (entities, collisionMap) => {
+      qt.clear();
+
+      // add everything to the tree
+      entities.forEach(e => qt.insert(e));
+
+      const updatedEntities = [];
+
+      //  for every entity we retrieve and collision check only those entities that are near the entity
+      entities.forEach(entity => {
+        let hasCollisions = false;
+        const nearbyEntities = qt.retrieve(entity.rect);
+        nearbyEntities.forEach(nearEntity => {
+          if (entity !== nearEntity) {
+            if (Physics.collision(entity.rect, nearEntity.rect)) {
+              hasCollisions = true;
+              const collisions = collisionMap.get(entity) || [];
+              collisions.push(nearEntity);
+              collisionMap.set(entity, collisions);
+            }
+          }
+        });
+
+        if (!hasCollisions && !entity.expired) {
+          updatedEntities.push(entity);
+        }
+      });
+      return updatedEntities;
+    };
+  }
+
+  static update(
+    entities,
+    bounds,
+    options = { useSpatialPartitioning: false, wrap: false }
+  ) {
     const now = Date.now();
 
     const updatedEntities = [];
@@ -120,11 +161,13 @@ class Physics {
       Physics.constrainEntity(entity, bounds, options);
     });
 
+    const collisionStrategy = options.useSpatialPartitioning
+      ? Physics.createSpatialPartitioningCollisionStrategy(bounds)
+      : Physics.createBruteForceCollisionStrategy(bounds);
+
     // collision detection - O(n^2) complexity
     const collisionMap = new Map();
-    updatedEntities.push(
-      ...Physics.bruteForceCollisionStrategy(entities, collisionMap)
-    );
+    updatedEntities.push(...collisionStrategy(entities, collisionMap));
 
     // resolve collisions
     collisionMap.forEach((collisions, entity) => {
