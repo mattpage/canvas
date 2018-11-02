@@ -42,8 +42,10 @@ const createCollidesWithMap = friendly => {
 
 const createCollisionHandler = (audioFx, callback) => () => {
   if (integerInRange(0, 1)) {
-    audioFx.explode1.play();
-  } else {
+    if (audioFx) {
+      audioFx.explode1.play();
+    }
+  } else if (audioFx) {
     audioFx.explode2.play();
   }
   if (callback) {
@@ -81,12 +83,12 @@ const createAsteroids = (dim, maxAsteroids, audioFx) => {
   return asteroids;
 };
 
-const createGameState = (level = 1) => ({
+const createGameState = (level = 1, gameOver = false) => ({
   entities: [],
-  gameOver: false,
+  gameOver,
   keys: [],
   level,
-  lives: 3,
+  lives: gameOver ? 0 : 3,
   maxAsteroids: 10 + level * 10,
   score: 0
 });
@@ -185,11 +187,8 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   state.banner = new Banner();
   state.gameStats = new GameStats();
 
-  // add asteroids and spaceship
-  state.entities.push(
-    ...createAsteroids(dim, state.maxAsteroids, state.audioFx),
-    createPlayerSpaceship(dim, state.audioFx)
-  );
+  // add asteroids
+  state.entities.push(...createAsteroids(dim, state.maxAsteroids, null));
 
   // hookup the player keys
   keyboard.captureKeys(
@@ -275,7 +274,6 @@ const renderer = (context, canvas, ...rest) => {
       if (state.lives < 1) {
         // the game is over
         state.gameOver = true;
-        state.gameOverMenu.show();
       } else {
         // player has lives remaining
         // create another player ship
@@ -309,6 +307,10 @@ const renderer = (context, canvas, ...rest) => {
     );
   }
 
+  if (state.gameOver) {
+    state.gameOverMenu.show();
+  }
+
   // copy the offscreen canvas to the display canvas
   context.drawImage(
     state.offscreen.canvas,
@@ -328,7 +330,7 @@ const renderer = (context, canvas, ...rest) => {
     level: state.level,
     lives: state.lives,
     score: state.score,
-    render: state.calcAvgTime(start, window.performance.now()) // .toFixed(2)
+    render: state.calcAvgTime(start, window.performance.now())
   });
 
   // return true to keep animating
@@ -336,4 +338,4 @@ const renderer = (context, canvas, ...rest) => {
 };
 
 // create and start the game (call initializer with inital game state and then renderer repeatedly)
-Game.create("canvas").start(renderer, initializer, createGameState());
+Game.create("canvas").start(renderer, initializer, createGameState(1, true));
