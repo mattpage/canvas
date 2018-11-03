@@ -354,4 +354,32 @@ describe("QuadTree", () => {
       ]);
     });
   });
+
+  describe("remove", () => {
+    it("should remove items from the quadtree", () => {
+      const bounds = { x: 0, y: 0, width: 100, height: 100 };
+      const qt = new QuadTree(bounds);
+      const newObjects = [
+        { x: 0, y: 0, width: 5, height: 5 },
+        { x: 16, y: 10, width: 5, height: 5 },
+        { x: 25, y: 25, width: 5, height: 5 },
+        { x: 50, y: 25, width: 5, height: 5 },
+        { x: 35, y: 45, width: 5, height: 5 },
+        { x: 75, y: 25, width: 5, height: 5 },
+        { x: 25, y: 75, width: 5, height: 5 },
+        { x: 44, y: 75, width: 5, height: 5 },
+        { x: 80, y: 80, width: 5, height: 5 },
+        { x: 55, y: 40, width: 5, height: 5 },
+        { x: 90, y: 90, width: 5, height: 5 }
+      ];
+      newObjects.forEach(obj => qt.insert(obj));
+      const nodeIndex = qt.findNode(newObjects[0]);
+      expect(nodeIndex).toEqual(1);
+      expect(qt.nodes[1].objects).toHaveLength(3);
+      expect(qt.nodes[1].objects.includes(newObjects[0])).toBe(true);
+      qt.remove(newObjects[0]);
+      expect(qt.nodes[1].objects).toHaveLength(2);
+      expect(qt.nodes[1].objects.includes(newObjects[0])).toBe(false);
+    });
+  });
 });

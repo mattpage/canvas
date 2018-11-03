@@ -150,6 +150,30 @@ class QuadTree {
     }
   }
 
+  remove(objectRect) {
+    const { nodes } = this;
+    if (nodes.length > 0) {
+      const index = this.findNode(objectRect);
+      if (index !== -1) {
+        nodes[index].remove(objectRect);
+        return;
+      }
+    }
+
+    const pred = el =>
+      !(
+        el.x === objectRect.x &&
+        el.y === objectRect.y &&
+        el.width === objectRect.width &&
+        el.height === objectRect.height
+      );
+
+    const index = this.objects.indexOf(objectRect, pred);
+    if (index > -1) {
+      this._objects = this._objects.filter(pred);
+    }
+  }
+
   // retrieve all objects that fall within nodes that this rectangle fits into
   retrieve(objectRect, collection = []) {
     const index = this.findNode(objectRect);

@@ -208,6 +208,9 @@ const renderer = (context, canvas, ...rest) => {
   const state = rest[1];
   const dim = canvas.dimensions;
 
+  state.offscreenContext.imageSmoothingEnabled = false;
+  context.imageSmoothingEnabled = false;
+
   // erase the offscreen canvas
   state.offscreenContext.fillStyle = "white";
   state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
@@ -312,17 +315,7 @@ const renderer = (context, canvas, ...rest) => {
   }
 
   // copy the offscreen canvas to the display canvas
-  context.drawImage(
-    state.offscreen.canvas,
-    0,
-    0,
-    dim.width,
-    dim.height,
-    0,
-    0,
-    dim.width,
-    dim.height
-  );
+  context.drawImage(state.offscreen.canvas, 0, 0);
 
   state.gameStats.update({
     ...meta,
