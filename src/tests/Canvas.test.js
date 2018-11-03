@@ -62,7 +62,7 @@ describe("Canvas", () => {
       const args = mockCanvas.getContext.mock.calls[0];
       expect(args).toHaveLength(2);
       expect(args[0]).toEqual("2d");
-      expect(args[1]).toBeUndefined();
+      expect(args[1]).toEqual({ alpha: false });
     });
 
     it("should update canvas dimensions when resized", () => {
