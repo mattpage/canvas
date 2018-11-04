@@ -209,7 +209,6 @@ class QuadTree {
   // get an array of all items
   get items() {
     if (!this._cachedArray) {
-      console.log("new cached array");
       this._cachedArray = Array.from(this._map.values());
     }
     return this._cachedArray;
