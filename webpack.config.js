@@ -6,7 +6,6 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const webpackConfig = {
-  mode: "development",
   entry: {},
   output: {
     path: `${__dirname}/dist`,
@@ -48,9 +47,7 @@ const webpackConfig = {
       server: { baseDir: ["dist"] },
       files: ["./dist/*"]
     })
-  ],
-  watch: true,
-  devtool: "source-map"
+  ]
 };
 
 const defaultHtmlTemplate = "<canvas>Canvas not supported</canvas>";
@@ -92,4 +89,11 @@ demos.forEach(demo => {
   );
 });
 
-module.exports = webpackConfig;
+module.exports = (env, argv) => {
+  webpackConfig.mode = argv.mode || "production";
+  if (argv.mode === "development") {
+    webpackConfig.devtool = "source-map";
+    webpackConfig.watch = true;
+  }
+  return webpackConfig;
+};

@@ -6,7 +6,8 @@
   "scripts": {
     "coverage": "jest --coverage",
     "lint": "eslint -c .eslintrc.json ./src",
-    "start": "webpack --config webpack.config.js",
+    "start": "webpack --mode=development --config webpack.config.js",
+    "build": "webpack --mode=production --config webpack.config.js",
     "test": "jest --verbose false",
     "watch": "jest --watch --verbose false"
   },
