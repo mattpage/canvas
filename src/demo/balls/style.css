@@ -1,0 +1,39 @@
+body {
+  overflow: hidden;
+}
+
+#banner {
+  position: absolute;
+  top: 40%;
+  left: 0;
+  text-align: center;
+  width: 100%;
+  font-family: 'courier';
+}
+
+#stats {
+  position: fixed;
+  top: 0px;
+  right: 5px;
+  font-size: 14px;
+}
+#stats dl,
+#stats dl dt, 
+#stats dl dd {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+#stats dl dt {
+  padding-right: 0.25em;
+}
+#stats dl dd {
+  border: solid 1px #ddd;
+  padding: 2px;
+}
+#stats dl.primary {
+  margin-right: 1em;
+}
+#stats dl.primary dt{
+  font-weight: bold;
+}
