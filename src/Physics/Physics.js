@@ -1,4 +1,4 @@
-// import QuadTree from "./QuadTree";
+import QuadTree from "./QuadTree";
 
 class Physics {
   static constrainEntity(entity, boundsRect, options = {}) {
@@ -132,7 +132,7 @@ class Physics {
     let useSpatialPartitioning = false;
     if (Array.isArray(entities)) {
       useSpatialPartitioning = false;
-    } else if (entities.constructor.name === "QuadTree") {
+    } else if (entities instanceof QuadTree) {
       useSpatialPartitioning = true;
     } else {
       throw new Error("Unknown entities object");
