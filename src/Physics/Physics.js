@@ -65,7 +65,7 @@ class Physics {
 
   // collision detection - O(n^2) complexity
   static createBruteForceCollisionStrategy() {
-    return entities => {
+    return function bruteForceCollisionStrategy(entities) {
       const collisionMap = new Map();
       entities.forEach(entity => {
         if (entity.expired) {
@@ -88,26 +88,40 @@ class Physics {
   }
 
   static createSpatialPartitioningCollisionStrategy() {
-    return entities => {
+    return function spatialPartitioningCollisionStrategy(entities) {
       const collisionMap = new Map();
+
+      const { items } = entities;
+      const numItems = items.length;
+      let i;
+      let j;
+      let entity;
+      let nearbyEntity;
+      let collisions;
+      let nearbyEntities;
+      let numNearby;
+
       //  for every entity we retrieve and collision check only those entities that are near the entity
-      entities.forEach(entity => {
+      for (i = 0; i < numItems; ++i) {
+        entity = items[i];
         if (entity.expired) {
           // force a collision on expired entities
           collisionMap.set(entity, []);
         } else {
-          const nearbyEntities = entities.retrieve(entity.rect);
-          nearbyEntities.forEach(nearEntity => {
-            if (entity !== nearEntity) {
-              if (Physics.collision(entity.rect, nearEntity.rect)) {
-                const collisions = collisionMap.get(entity) || [];
-                collisions.push(nearEntity);
+          nearbyEntities = entities.retrieve(entity.rect);
+          numNearby = nearbyEntities.length;
+          for (j = 0; j < numNearby; ++j) {
+            nearbyEntity = nearbyEntities[j];
+            if (entity !== nearbyEntity) {
+              if (Physics.collision(entity.rect, nearbyEntity.rect)) {
+                collisions = collisionMap.get(entity) || [];
+                collisions.push(nearbyEntity);
                 collisionMap.set(entity, collisions);
               }
             }
-          });
+          } // end for
         }
-      });
+      } // end for
       return collisionMap;
     };
   }

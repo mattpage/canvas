@@ -26,6 +26,7 @@ class QuadTree {
     this._keys = [];
     const [map] = rest;
     this._map = map instanceof Map ? map : new Map();
+    this._cachedArray = null;
   }
 
   // Returns the rectangle representing the QuadTree bounds, in the form {x,y,width,height}
@@ -63,6 +64,7 @@ class QuadTree {
     this._keys.length = 0;
     this._nodes.forEach(node => node.clear());
     this._map.clear();
+    this._cachedArray = null;
   }
 
   // Splits the node into 4 subnodes
@@ -147,6 +149,8 @@ class QuadTree {
     // otherwise add it to this quadtree collection
     keys.push(item.key);
 
+    this._cachedArray = null;
+
     // if the the number of keys in this node exceeds maxItemsPerNode
     // then split this collection into 4 nodes
     if (keys.length > maxItemsPerNode && level < maxLevels) {
@@ -183,6 +187,7 @@ class QuadTree {
 
     this._map.delete(item.key);
     this._keys = keys.filter(key => key !== item.key);
+    this._cachedArray = null;
   }
 
   // retrieve all items that are within (or straddle) the node that this item fits into
@@ -199,7 +204,10 @@ class QuadTree {
 
   // get an array of all items
   get items() {
-    return Array.from(this._map.values());
+    if (!this._cachedArray) {
+      this._cachedArray = Array.from(this._map.values());
+    }
+    return this._cachedArray;
   }
 
   // array-like forEach. Iterates all items in QuadTree parent and child nodes
