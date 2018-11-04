@@ -198,11 +198,15 @@ class QuadTree {
   // This traverses QuadTree parent and child nodes.
   retrieve(item, collection = []) {
     const index = this.findNode(item);
-    if (index > -1 && index < this.nodes.length) {
+    if (index > -1 && index < this._nodes.length) {
       // drill down until we find the node containing the object
-      this.nodes[index].retrieve(item, collection);
+      this._nodes[index].retrieve(item, collection);
     }
-    collection.push(...this.keys.map(key => this._map.get(key)));
+
+    const numKeys = this._keys.length;
+    for (let i = 0; i < numKeys; ++i) {
+      collection.push(this._map.get(this._keys[i]));
+    }
     return collection;
   }
 
