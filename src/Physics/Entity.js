@@ -1,8 +1,14 @@
-import shortid from "shortid";
-
 class Entity {
   static create(...args) {
     return new Entity(...args);
+  }
+
+  static keyGen() {
+    if (!Entity.prototype._keySequence_) {
+      Entity.prototype._keySequence_ = Math.floor(Date.now() / 1000);
+    }
+    Entity.prototype._keySequence_ += 1;
+    return Entity.prototype._keySequence_;
   }
 
   constructor(
@@ -35,7 +41,7 @@ class Entity {
 
     this._collidesWith = {};
     this._onCollision = null;
-    this._key = shortid.generate();
+    this._key = Entity.keyGen();
   }
 
   get collidesWith() {
