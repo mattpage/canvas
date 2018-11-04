@@ -1,3 +1,5 @@
+import shortid from 'shortid';
+
 class Entity {
   static create(...args) {
     return new Entity(...args);
@@ -33,6 +35,7 @@ class Entity {
 
     this._collidesWith = {};
     this._onCollision = null;
+    this._key = shortid.generate();
   }
 
   get collidesWith() {
@@ -49,6 +52,10 @@ class Entity {
 
   set onCollision(callback) {
     this._onCollision = callback;
+  }
+
+  get key() {
+    return this._key;
   }
 
   get type() {
