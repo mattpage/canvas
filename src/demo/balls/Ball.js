@@ -17,7 +17,14 @@ class Ball extends Entity {
 
   render(context) {
     context.beginPath();
-    context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
+    context.arc(
+      this.x + this.radius,
+      this.y + this.radius,
+      this.radius,
+      0,
+      Math.PI * 2,
+      true
+    );
     context.closePath();
     context.fillStyle = this.color;
     context.fill();
