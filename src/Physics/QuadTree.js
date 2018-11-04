@@ -149,7 +149,9 @@ class QuadTree {
     // otherwise add it to this quadtree collection
     keys.push(item.key);
 
-    this._cachedArray = null;
+    if (this._cachedArray) {
+      this._cachedArray.push(item);
+    }
 
     // if the the number of keys in this node exceeds maxItemsPerNode
     // then split this collection into 4 nodes
@@ -187,7 +189,9 @@ class QuadTree {
 
     this._map.delete(item.key);
     this._keys = keys.filter(key => key !== item.key);
-    this._cachedArray = null;
+    if (this._cachedArray) {
+      this._cachedArray = this._cachedArray.filter(e => e.key !== item.key);
+    }
   }
 
   // retrieve all items that are within (or straddle) the node that this item fits into
@@ -205,6 +209,7 @@ class QuadTree {
   // get an array of all items
   get items() {
     if (!this._cachedArray) {
+      console.log("new cached array");
       this._cachedArray = Array.from(this._map.values());
     }
     return this._cachedArray;
