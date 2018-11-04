@@ -1,4 +1,4 @@
-import shortid from 'shortid';
+import shortid from "shortid";
 
 class Entity {
   static create(...args) {
