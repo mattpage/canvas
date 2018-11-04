@@ -4,8 +4,8 @@ class Physics {
   static constrainEntity(entity, boundsRect, options = {}) {
     const halfWidth = entity.width / 2;
     const halfHeight = entity.height / 2;
-    const { wrap } = options;
-    let { x, y } = entity;
+    const { deflect, wrap } = options;
+    let { x, y, vx, vy } = entity;
 
     if (wrap) {
       // off right edge
@@ -31,26 +31,40 @@ class Physics {
       // off right edge
       if (x + entity.width > boundsRect.right) {
         x = boundsRect.right - entity.width;
+        if (deflect) {
+          vx = -vx;
+        }
       }
 
       // off left edge
       if (x < boundsRect.left) {
         x = boundsRect.left;
+        if (deflect) {
+          vx = -vx;
+        }
       }
 
       // off bottom edge
       if (y + entity.height > boundsRect.bottom) {
         y = boundsRect.bottom - entity.height;
+        if (deflect) {
+          vy = -vy;
+        }
       }
 
       // off top edge
       if (y < boundsRect.top) {
         y = boundsRect.top;
+        if (deflect) {
+          vy = -vy;
+        }
       }
     }
 
     entity.x = x;
     entity.y = y;
+    entity.vx = vx;
+    entity.vy = vy;
   }
 
   /* prettier-ignore */
@@ -126,7 +140,7 @@ class Physics {
     };
   }
 
-  static update(entities, bounds, options = { wrap: false }) {
+  static update(entities, bounds, options = { deflect: false, wrap: false }) {
     const now = Date.now();
 
     let useSpatialPartitioning = false;
