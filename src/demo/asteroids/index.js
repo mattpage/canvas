@@ -151,7 +151,14 @@ const handlePlayerKeys = state => {
       } // end switch
     } // end while
   }
-  newEntities.forEach(e => state.entities.insert(e));
+
+  let i;
+  let entity;
+  const numEntities = newEntities.length;
+  for (i = 0; i < numEntities; ++i) {
+    entity = newEntities[i];
+    state.entities.insert(entity);
+  }
 };
 
 // Setup the game state and create a bunch of stuff
@@ -248,7 +255,12 @@ const renderer = (context, canvas, ...rest) => {
   };
 
   // render all of the entities and calc the number of players, asteroids, etc
-  state.entities.forEach(entity => {
+  let i;
+  let entity;
+  const entities = state.entities.items;
+  const numEntities = entities.length;
+  for (i = 0; i < numEntities; ++i) {
+    entity = entities[i];
     switch (entity.type) {
       case SpaceshipType.Player:
         meta.players += 1;
@@ -274,9 +286,8 @@ const renderer = (context, canvas, ...rest) => {
         }
         break;
     }
-
     entity.render(state.offscreenContext);
-  });
+  } // end for
 
   // if there are no more players
   // the game is over or the player has lost a life
@@ -312,7 +323,6 @@ const renderer = (context, canvas, ...rest) => {
       score: state.score
     });
     state.banner.show(`LEVEL ${state.level}`, 2000);
-    // state.entities.insert(playerShip);
     createAsteroids(dim, state.maxAsteroids, state.audioFx).forEach(e =>
       state.entities.insert(e)
     );
