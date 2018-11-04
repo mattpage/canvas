@@ -7,15 +7,15 @@ describe("QuadTree", () => {
     ).toBeInstanceOf(QuadTree);
   });
 
-  it("should return an empty collection of nodes and an empty collection of objects", () => {
+  it("should return an empty collection of nodes and an empty collection of items", () => {
     const qt = new QuadTree();
     expect(qt.nodes).toEqual([]);
-    expect(qt.objects).toEqual([]);
+    expect(qt.keys).toEqual([]);
   });
 
-  it("should return an empty node collection while inserted object count does not exceed maxObjects", () => {
+  it("should return an empty node collection while inserted item count does not exceed maxItemsPerNode", () => {
     const qt = new QuadTree();
-    const newObjects = [
+    const newItems = [
       { x: 0, y: 0, width: 5, height: 5 },
       { x: 20, y: 20, width: 5, height: 5 },
       { x: 30, y: 30, width: 5, height: 5 },
@@ -25,15 +25,18 @@ describe("QuadTree", () => {
       { x: 70, y: 70, width: 5, height: 5 },
       { x: 80, y: 80, width: 5, height: 5 },
       { x: 90, y: 90, width: 5, height: 5 }
-    ];
-    newObjects.forEach(obj => qt.insert(obj));
+    ].map((item, index) => {
+      item.key = index.toString();
+      return item;
+    });
+    newItems.forEach(obj => qt.insert(obj));
     expect(qt.nodes).toEqual([]);
-    expect(qt.objects).toEqual(newObjects);
+    expect(qt.keys).toHaveLength(newItems.length);
   });
 
-  it("should split, redistribute objects, and contain a collection of 4 nodes when the inserted object count exceeds maxObjects", () => {
+  it("should split, redistribute items, and contain a collection of 4 nodes when the inserted item count exceeds maxObjects", () => {
     const qt = new QuadTree();
-    const newObjects = [
+    const newItems = [
       { x: 0, y: 0, width: 5, height: 5 },
       { x: 10, y: 10, width: 5, height: 5 },
       { x: 20, y: 20, width: 5, height: 5 },
@@ -48,9 +51,12 @@ describe("QuadTree", () => {
       { x: 70, y: 70, width: 5, height: 5 },
       { x: 80, y: 80, width: 5, height: 5 },
       { x: 90, y: 90, width: 5, height: 5 }
-    ];
-    newObjects.forEach(obj => qt.insert(obj));
-    expect(qt.objects).toEqual([]);
+    ].map((item, index) => {
+      item.key = index.toString();
+      return item;
+    });
+    newItems.forEach(obj => qt.insert(obj));
+    expect(qt.keys).toEqual([]);
     expect(qt.nodes).toHaveLength(4);
 
     // quadrants are layed out counterclockwise
@@ -68,10 +74,7 @@ describe("QuadTree", () => {
       width: 50,
       height: 50
     });
-    expect(qt.nodes[0].objects).toEqual([
-      { x: 60, y: 0, width: 5, height: 5 },
-      { x: 70, y: 20, width: 5, height: 5 }
-    ]);
+    expect(qt.nodes[0].keys).toEqual(["6", "10"]);
 
     // upper left quadrant
     expect(qt.nodes[1]).toBeInstanceOf(QuadTree);
@@ -81,14 +84,7 @@ describe("QuadTree", () => {
       width: 50,
       height: 50
     });
-    expect(qt.nodes[1].objects).toEqual([
-      { x: 0, y: 0, width: 5, height: 5 },
-      { x: 10, y: 10, width: 5, height: 5 },
-      { x: 20, y: 20, width: 5, height: 5 },
-      { x: 30, y: 30, width: 5, height: 5 },
-      { x: 40, y: 40, width: 5, height: 5 },
-      { x: 44, y: 44, width: 5, height: 5 }
-    ]);
+    expect(qt.nodes[1].keys).toEqual(["0", "1", "2", "3", "4", "5"]);
 
     // lower left quadrant
     expect(qt.nodes[2]).toBeInstanceOf(QuadTree);
@@ -98,11 +94,7 @@ describe("QuadTree", () => {
       width: 50,
       height: 50
     });
-    expect(qt.nodes[2].objects).toEqual([
-      { x: 0, y: 60, width: 5, height: 5 },
-      { x: 10, y: 70, width: 5, height: 5 },
-      { x: 20, y: 80, width: 5, height: 5 }
-    ]);
+    expect(qt.nodes[2].keys).toEqual(["7", "8", "9"]);
 
     // lower right quadrant
     expect(qt.nodes[3]).toBeInstanceOf(QuadTree);
@@ -112,11 +104,7 @@ describe("QuadTree", () => {
       width: 50,
       height: 50
     });
-    expect(qt.nodes[3].objects).toEqual([
-      { x: 70, y: 70, width: 5, height: 5 },
-      { x: 80, y: 80, width: 5, height: 5 },
-      { x: 90, y: 90, width: 5, height: 5 }
-    ]);
+    expect(qt.nodes[3].keys).toEqual(["11", "12", "13"]);
   });
 
   describe("bounds", () => {
@@ -156,23 +144,23 @@ describe("QuadTree", () => {
     });
   });
 
-  describe("maxObjects", () => {
-    it("should return the default maxObjects of the quadtree", () => {
+  describe("maxItemsPerNode", () => {
+    it("should return the default maxItemsPerNode of the quadtree", () => {
       const qt = new QuadTree();
-      expect(qt.maxObjects).toEqual(10);
+      expect(qt.maxItemsPerNode).toEqual(10);
     });
-    it("should return the explicit maxObjects of the quadtree", () => {
+    it("should return the explicit maxItemsPerNode of the quadtree", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds, 0, 20);
-      expect(qt.maxObjects).toEqual(20);
+      expect(qt.maxItemsPerNode).toEqual(20);
     });
   });
 
   describe("clear", () => {
-    it("should clear all objects and all nodes", () => {
+    it("should clear all items and all nodes", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const newItems = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
         { x: 50, y: 25, width: 5, height: 5 },
@@ -181,16 +169,20 @@ describe("QuadTree", () => {
         { x: 45, y: 75, width: 5, height: 5 },
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      newItems.forEach(obj => qt.insert(obj));
       qt.clear();
-      expect(qt.objects).toHaveLength(0);
+      expect(qt.keys).toHaveLength(0);
+      expect(qt.size).toEqual(0);
     });
 
-    it("should clear all objects and split nodes", () => {
+    it("should clear all items and split nodes", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const newItems = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
         { x: 50, y: 25, width: 5, height: 5 },
@@ -202,16 +194,19 @@ describe("QuadTree", () => {
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 85, y: 82, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      newItems.forEach(obj => qt.insert(obj));
       qt.clear();
-      qt.nodes.forEach(node => expect(node.objects).toHaveLength(0));
-      expect(qt.objects).toHaveLength(0);
+      expect(qt.size).toEqual(0);
+      qt.nodes.forEach(node => expect(node.keys).toHaveLength(0));
     });
   });
 
   describe("split", () => {
-    it("should split a QuadTree into 4 sub-QuadTrees and populate the nodes propert", () => {
+    it("should split a QuadTree into 4 sub-QuadTrees and populate the nodes property", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
       qt.split();
@@ -225,10 +220,10 @@ describe("QuadTree", () => {
   });
 
   describe("retrieve", () => {
-    it("should return all objects if the QuadTree has not split", () => {
+    it("should return all items if the QuadTree has not split", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const items = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
         { x: 50, y: 25, width: 5, height: 5 },
@@ -237,16 +232,19 @@ describe("QuadTree", () => {
         { x: 45, y: 75, width: 5, height: 5 },
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      items.forEach(obj => qt.insert(obj));
       const possible = qt.retrieve({ x: 25, y: 25, width: 5, height: 5 });
-      expect(possible).toEqual(qt.objects);
+      expect(possible).toEqual(items);
     });
 
     it("should return top-left objects", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const newItems = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 16, y: 10, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
@@ -258,16 +256,24 @@ describe("QuadTree", () => {
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 55, y: 40, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      newItems.forEach(obj => qt.insert(obj));
       const possible = qt.retrieve({ x: 15, y: 15, width: 5, height: 5 });
-      expect(possible).toEqual(qt.nodes[1].objects);
+      expect(possible).toEqual([
+        newItems[0],
+        newItems[1],
+        newItems[2],
+        newItems[4]
+      ]);
     });
 
     it("should return top-right objects", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const newItems = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 16, y: 10, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
@@ -279,16 +285,19 @@ describe("QuadTree", () => {
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 55, y: 40, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      newItems.forEach(obj => qt.insert(obj));
       const possible = qt.retrieve({ x: 55, y: 15, width: 5, height: 5 });
-      expect(possible).toEqual(qt.nodes[0].objects);
+      expect(possible).toEqual([newItems[3], newItems[5], newItems[9]]);
     });
 
     it("should return bottom-left objects", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const newItems = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 16, y: 10, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
@@ -300,16 +309,19 @@ describe("QuadTree", () => {
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 55, y: 40, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      newItems.forEach(obj => qt.insert(obj));
       const possible = qt.retrieve({ x: 15, y: 55, width: 5, height: 5 });
-      expect(possible).toEqual(qt.nodes[2].objects);
+      expect(possible).toEqual([newItems[6], newItems[7]]);
     });
 
     it("should return bottom-right objects", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const newItems = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 16, y: 10, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
@@ -321,16 +333,19 @@ describe("QuadTree", () => {
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 55, y: 40, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      newItems.forEach(obj => qt.insert(obj));
       const possible = qt.retrieve({ x: 55, y: 55, width: 5, height: 5 });
-      expect(possible).toEqual(qt.nodes[3].objects);
+      expect(possible).toEqual([newItems[8], newItems[10]]);
     });
 
     it("should also return objects that overlap quadrants", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const newItems = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 16, y: 10, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
@@ -342,15 +357,18 @@ describe("QuadTree", () => {
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 55, y: 40, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      newItems.forEach(obj => qt.insert(obj));
       const possible = qt.retrieve({ x: 25, y: 25, width: 5, height: 5 });
       expect(possible).toEqual([
-        { x: 0, y: 0, width: 5, height: 5 },
-        { x: 16, y: 10, width: 5, height: 5 },
-        { x: 25, y: 25, width: 5, height: 5 },
-        { x: 50, y: 25, width: 5, height: 5 },
-        { x: 35, y: 45, width: 5, height: 5 }
+        newItems[0],
+        newItems[1],
+        newItems[2],
+        newItems[3],
+        newItems[4]
       ]);
     });
   });
@@ -359,7 +377,7 @@ describe("QuadTree", () => {
     it("should remove items from the quadtree", () => {
       const bounds = { x: 0, y: 0, width: 100, height: 100 };
       const qt = new QuadTree(bounds);
-      const newObjects = [
+      const newItems = [
         { x: 0, y: 0, width: 5, height: 5 },
         { x: 16, y: 10, width: 5, height: 5 },
         { x: 25, y: 25, width: 5, height: 5 },
@@ -371,15 +389,26 @@ describe("QuadTree", () => {
         { x: 80, y: 80, width: 5, height: 5 },
         { x: 55, y: 40, width: 5, height: 5 },
         { x: 90, y: 90, width: 5, height: 5 }
-      ];
-      newObjects.forEach(obj => qt.insert(obj));
-      const nodeIndex = qt.findNode(newObjects[0]);
+      ].map((item, index) => {
+        item.key = index.toString();
+        return item;
+      });
+      newItems.forEach(obj => qt.insert(obj));
+      const nodeIndex = qt.findNode(newItems[0]);
       expect(nodeIndex).toEqual(1);
-      expect(qt.nodes[1].objects).toHaveLength(3);
-      expect(qt.nodes[1].objects.includes(newObjects[0])).toBe(true);
-      qt.remove(newObjects[0]);
-      expect(qt.nodes[1].objects).toHaveLength(2);
-      expect(qt.nodes[1].objects.includes(newObjects[0])).toBe(false);
+      expect(qt.nodes[1].keys).toHaveLength(3);
+      expect(qt.nodes[1].keys.includes(newItems[0].key)).toBe(true);
+      qt.remove(newItems[0]);
+      expect(qt.nodes[1].keys).toHaveLength(2);
+      expect(qt.nodes[1].keys.includes(newItems[0].key)).toBe(false);
     });
+  });
+
+  describe("items", () => {
+    it("should have some tests", () => {});
+  });
+
+  describe("forEach", () => {
+    it("should have some tests", () => {});
   });
 });

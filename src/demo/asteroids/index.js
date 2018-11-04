@@ -1,11 +1,12 @@
 import {
   Game,
   Canvas,
-  KEYS,
-  Physics,
   createAvgFpsCalculator,
   createAvgTimeCalculator,
-  integerInRange
+  integerInRange,
+  KEYS,
+  Physics,
+  QuadTree
 } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
@@ -84,7 +85,7 @@ const createAsteroids = (dim, maxAsteroids, audioFx) => {
 };
 
 const createGameState = (level = 1, gameOver = false) => ({
-  entities: [],
+  entities: null,
   gameOver,
   keys: [],
   level,
@@ -94,7 +95,7 @@ const createGameState = (level = 1, gameOver = false) => ({
 });
 
 const findShip = entities =>
-  entities.find(entity => entity.type === SpaceshipType.Player);
+  entities.items.find(entity => entity.type === SpaceshipType.Player);
 
 const handlePlayerKeys = state => {
   const { keys, audioFx } = state;
@@ -150,7 +151,7 @@ const handlePlayerKeys = state => {
       } // end switch
     } // end while
   }
-  state.entities.push(...newEntities);
+  newEntities.forEach(e => state.entities.insert(e));
 };
 
 // Setup the game state and create a bunch of stuff
@@ -173,14 +174,20 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   };
 
   const dim = canvas.dimensions;
+  state.entities = new QuadTree(dim);
 
   state.gameOverMenu = new GameOver(() => {
     // create new game
-    Object.assign(state, createGameState());
-    state.entities.push(
-      ...createAsteroids(dim, state.maxAsteroids, state.audioFx),
-      createPlayerSpaceship(dim, state.audioFx)
+    Object.assign(state, createGameState(), { entities: state.entities });
+    state.entities.clear();
+
+    createAsteroids(dim, state.maxAsteroids, state.audioFx).forEach(
+      asteroid => {
+        state.entities.insert(asteroid);
+      }
     );
+
+    state.entities.insert(createPlayerSpaceship(dim, state.audioFx));
     state.gameOverMenu.hide();
   });
 
@@ -188,7 +195,9 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   state.gameStats = new GameStats();
 
   // add asteroids
-  state.entities.push(...createAsteroids(dim, state.maxAsteroids, null));
+  createAsteroids(dim, state.maxAsteroids, null).forEach(asteroid => {
+    state.entities.insert(asteroid);
+  });
 
   // hookup the player keys
   keyboard.captureKeys(
@@ -219,7 +228,7 @@ const renderer = (context, canvas, ...rest) => {
   handlePlayerKeys(state);
 
   // update asteroid physics
-  state.entities = Physics.update(
+  Physics.update(
     state.entities,
     {
       top: 0,
@@ -227,7 +236,7 @@ const renderer = (context, canvas, ...rest) => {
       bottom: dim.height,
       right: dim.width
     },
-    { useSpatialPartitioning: false, wrap: true }
+    { wrap: true }
   );
 
   const meta = {
@@ -285,7 +294,7 @@ const renderer = (context, canvas, ...rest) => {
           lives: state.lives - 1,
           score: state.score
         });
-        state.entities.push(createPlayerSpaceship(dim, state.audioFx));
+        state.entities.insert(createPlayerSpaceship(dim, state.audioFx));
         meta.players += 1;
       }
     }
@@ -295,18 +304,17 @@ const renderer = (context, canvas, ...rest) => {
   // and all of the asteroids are destroyed
   // move to the next level
   if (meta.players > 0 && meta.asteroids < 1) {
-    const playerShip = state.entities.find(
-      entity => entity.type === SpaceshipType.Player
-    );
+    const playerShip = findShip(state.entities);
     playerShip.shieldsUp(2000);
     Object.assign(state, createGameState(state.level + 1), {
+      entities: state.entities,
       lives: state.lives,
       score: state.score
     });
     state.banner.show(`LEVEL ${state.level}`, 2000);
-    state.entities.push(
-      playerShip,
-      ...createAsteroids(dim, state.maxAsteroids, state.audioFx)
+    // state.entities.insert(playerShip);
+    createAsteroids(dim, state.maxAsteroids, state.audioFx).forEach(e =>
+      state.entities.insert(e)
     );
   }
 
