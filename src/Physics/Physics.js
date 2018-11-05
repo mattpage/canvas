@@ -1,4 +1,5 @@
 import QuadTree from "./QuadTree";
+import { timestamp } from "../utils";
 
 class Physics {
   static constrainEntity(entity, boundsRect, options = {}) {
@@ -141,7 +142,7 @@ class Physics {
   }
 
   static update(entities, bounds, options = { deflect: false, wrap: false }) {
-    const now = Date.now();
+    const now = timestamp();
 
     let useSpatialPartitioning = false;
     if (Array.isArray(entities)) {

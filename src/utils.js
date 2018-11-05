@@ -157,13 +157,18 @@ export const integerInRange = (min, max) =>
 export const randomColor = () =>
   CSS_COLOR_NAMES[integerInRange(0, CSS_COLOR_NAMES.length - 1)];
 
+export const timestamp = () =>
+  window.performance && window.performance.now
+    ? window.performance.now()
+    : Date.now();
+
 export const createAvgFpsCalculator = () => {
-  let lastCalledTime = Date.now();
+  let lastCalledTime = timestamp();
   let fps = [];
 
   return () => {
     // calc and display framerate
-    const now = Date.now();
+    const now = timestamp();
     const delta = (now - lastCalledTime) / 1000;
     lastCalledTime = now;
     fps.push(1 / delta);
@@ -192,8 +197,3 @@ export const createAvgTimeCalculator = () => {
     return avg;
   };
 };
-
-export const timestamp = () =>
-  window.performance && window.performance.now
-    ? window.performance.now()
-    : Date.now();

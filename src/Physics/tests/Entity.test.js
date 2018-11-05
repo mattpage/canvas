@@ -1,4 +1,5 @@
 import Entity from "../Entity";
+import { timestamp } from "../../utils";
 
 describe("Entity", () => {
   it("should construct", () => {
@@ -53,7 +54,7 @@ describe("Entity", () => {
     const entity = new Entity();
     expect(entity.elapsed).toBeGreaterThan(0);
     expect(entity.elapsed).toBeLessThan(Number.MAX_VALUE);
-    const ms = Date.now();
+    const ms = timestamp();
     entity.elapsed = ms;
     expect(entity.elapsed).toEqual(ms);
   });

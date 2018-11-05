@@ -1,14 +1,17 @@
+import { timestamp } from "../utils";
+
 class Entity {
   static create(...args) {
     return new Entity(...args);
   }
 
   static keyGen() {
-    if (!Entity.prototype._keySequence_) {
-      Entity.prototype._keySequence_ = Math.floor(Date.now() / 1000);
+    const proto = Entity.prototype;
+    if (!proto._keySequence_) {
+      proto._keySequence_ = Math.floor(timestamp() / 1000);
     }
-    Entity.prototype._keySequence_ += 1;
-    return Entity.prototype._keySequence_;
+    proto._keySequence_ += 1;
+    return proto._keySequence_;
   }
 
   constructor(
@@ -28,7 +31,7 @@ class Entity {
     this._rotation = rotation;
     this._torque = torque;
 
-    this._elapsed = Date.now();
+    this._elapsed = timestamp();
     this._expires = null;
 
     // velocity

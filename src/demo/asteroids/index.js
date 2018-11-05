@@ -6,7 +6,8 @@ import {
   integerInRange,
   KEYS,
   Physics,
-  QuadTree
+  QuadTree,
+  timestamp
 } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
@@ -220,7 +221,7 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
 // This gets called repeatedly (requestAnimationFrame)
 // Here's where the bulk of the game happens
 const renderer = (context, canvas, ...rest) => {
-  const start = window.performance.now();
+  const start = timestamp();
   const state = rest[1];
   const dim = canvas.dimensions;
 
@@ -341,7 +342,7 @@ const renderer = (context, canvas, ...rest) => {
     level: state.level,
     lives: state.lives,
     score: state.score,
-    render: state.calcAvgTime(start, window.performance.now())
+    render: state.calcAvgTime(start, timestamp())
   });
 
   // return true to keep animating
