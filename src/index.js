@@ -10,5 +10,6 @@ export {
   createAvgTimeCalculator,
   numberInRange,
   integerInRange,
-  randomColor
+  randomColor,
+  timestamp
 } from "./utils";

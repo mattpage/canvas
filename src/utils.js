@@ -192,3 +192,8 @@ export const createAvgTimeCalculator = () => {
     return avg;
   };
 };
+
+export const timestamp = () =>
+  window.performance && window.performance.now
+    ? window.performance.now()
+    : Date.now();

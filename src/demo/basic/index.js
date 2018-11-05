@@ -4,6 +4,12 @@ const RECTANGLE_WIDTH = 100;
 const RECTANGLE_HEIGHT = 50;
 
 const initializer = (context, canvas, interfaces, state) => {
+  const dim = canvas.dimensions;
+
+  // erase everything
+  context.fillStyle = "white";
+  context.fillRect(0, 0, dim.width, dim.height);
+
   // when the mouse is clicked, add a pinned rectangle
   interfaces.mouse.onClick = e => {
     state.rectangles.push({
@@ -20,18 +26,14 @@ const initializer = (context, canvas, interfaces, state) => {
 const renderer = (context, canvas, interfaces, state) => {
   const pos = interfaces.mouse.position;
 
-  // erase and remove all of the rectangles that aren't pinned
+  // remove all of the rectangles that aren't pinned
   state.rectangles = state.rectangles
     .map(rect => {
       if (rect.pinned) {
         return rect;
       }
-      context.clearRect(
-        rect.x - 1,
-        rect.y - 1,
-        rect.width + 2,
-        rect.height + 2
-      );
+      context.fillStyle = "white";
+      context.fillRect(rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2);
       return null;
     })
     .filter(value => Boolean(value));
@@ -47,6 +49,7 @@ const renderer = (context, canvas, interfaces, state) => {
 
   // draw all the rectangles
   state.rectangles.forEach(rect => {
+    context.fillStyle = "black";
     context.fillText(
       `(${rect.x}, ${rect.y})`,
       rect.x + rect.width / 4,
