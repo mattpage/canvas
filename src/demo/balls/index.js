@@ -26,15 +26,8 @@ const initializer = (context, canvas, interfaces, state) => {
   logger.log("game initialized");
 };
 
-const renderer = (context, canvas, interfaces, state) => {
+const updater = (context, canvas, interfaces, state) => {
   const dim = canvas.dimensions;
-  state.offscreenContext.imageSmoothingEnabled = false;
-  context.imageSmoothingEnabled = false;
-
-  // erase the offscreen canvas
-  state.offscreenContext.fillStyle = "white";
-  state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
-
   // update ball physics
   Physics.update(
     state.balls,
@@ -46,6 +39,16 @@ const renderer = (context, canvas, interfaces, state) => {
     },
     { deflect: true, wrap: false }
   );
+};
+
+const renderer = (context, canvas, interfaces, state) => {
+  const dim = canvas.dimensions;
+  state.offscreenContext.imageSmoothingEnabled = false;
+  context.imageSmoothingEnabled = false;
+
+  // erase the offscreen canvas
+  state.offscreenContext.fillStyle = "white";
+  state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   // render the balls
   state.balls.forEach(ball => ball.render(state.offscreenContext));
@@ -65,4 +68,4 @@ const game = Game.create("canvas");
 const initialGameState = {
   balls: []
 };
-game.start(renderer, initializer, initialGameState);
+game.start(renderer, updater, initializer, initialGameState);

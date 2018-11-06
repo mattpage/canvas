@@ -69,4 +69,4 @@ const myGame = Game.create("canvas");
 const initialGameState = {
   rectangles: []
 };
-myGame.start(renderer, initializer, initialGameState);
+myGame.start(renderer, null, initializer, initialGameState);

@@ -218,19 +218,9 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   logger.log("game initialized");
 };
 
-// This gets called repeatedly (requestAnimationFrame)
-// Here's where the bulk of the game happens
-const renderer = (context, canvas, ...rest) => {
-  const start = timestamp();
+const updater = (context, canvas, ...rest) => {
   const state = rest[1];
   const dim = canvas.dimensions;
-
-  state.offscreenContext.imageSmoothingEnabled = false;
-  context.imageSmoothingEnabled = false;
-
-  // erase the offscreen canvas
-  state.offscreenContext.fillStyle = "white";
-  state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   // handle the player keyboard input
   handlePlayerKeys(state);
@@ -246,6 +236,19 @@ const renderer = (context, canvas, ...rest) => {
     },
     { wrap: true }
   );
+};
+
+const renderer = (context, canvas, ...rest) => {
+  const start = timestamp();
+  const state = rest[1];
+  const dim = canvas.dimensions;
+
+  state.offscreenContext.imageSmoothingEnabled = false;
+  context.imageSmoothingEnabled = false;
+
+  // erase the offscreen canvas
+  state.offscreenContext.fillStyle = "white";
+  state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   const meta = {
     debris: 0,
@@ -350,4 +353,9 @@ const renderer = (context, canvas, ...rest) => {
 };
 
 // create and start the game (call initializer with inital game state and then renderer repeatedly)
-Game.create("canvas").start(renderer, initializer, createGameState(1, true));
+Game.create("canvas").start(
+  renderer,
+  updater,
+  initializer,
+  createGameState(1, true)
+);

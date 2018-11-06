@@ -41,13 +41,14 @@ class Game {
     return this._interfaces;
   }
 
-  start(renderer, initializer, ...args) {
+  start(renderer, updater, initializer, ...args) {
     const context = this.canvas.context(
       this.options.contextType,
       this.options.contextAttributes
     );
 
     const init = initializer || this.initialize;
+    const update = updater || this.update;
     const render = renderer || this.render;
     if (!render) {
       throw new Error("Missing render callback or method");
@@ -59,6 +60,9 @@ class Game {
       init(context, this.canvas, this.interfaces, gameArgs);
     }
     const animationLoop = () => {
+      if (update) {
+        update(context, this.canvas, this.interfaces, gameArgs);
+      }
       if (render(context, this.canvas, this.interfaces, gameArgs)) {
         this.rafId = window.requestAnimationFrame(animationLoop);
       }

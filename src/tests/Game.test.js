@@ -70,11 +70,30 @@ describe("Game", () => {
       expect(window.requestAnimationFrame).not.toHaveBeenCalled();
     });
 
+    it("should call the updater", () => {
+      const game = new Game("test");
+      const renderer = jest.fn();
+      const updater = jest.fn();
+      game.start(renderer, updater);
+      expect(updater).toHaveBeenCalled();
+      expect(updater.mock.calls).toHaveLength(1);
+      const args = renderer.mock.calls[0];
+      expect(args).toHaveLength(4);
+      expect(args[0]).toBeInstanceOf(Object);
+      expect(args[1]).toBeInstanceOf(Object);
+      expect(args[1]).toEqual(game.canvas);
+      expect(args[2]).toBeInstanceOf(Object);
+      expect(args[2]).toEqual(game.interfaces);
+      expect(args[3]).toBeInstanceOf(Array);
+      expect(args[3]).toEqual([]);
+    });
+
     it("should call the initializer", () => {
       const game = new Game("test");
       const renderer = jest.fn();
+      const updater = jest.fn();
       const initializer = jest.fn();
-      game.start(renderer, initializer);
+      game.start(renderer, updater, initializer);
       expect(initializer).toHaveBeenCalled();
       expect(initializer.mock.calls).toHaveLength(1);
       const args = renderer.mock.calls[0];
@@ -144,6 +163,35 @@ describe("Game", () => {
       expect(args[2]).toBeInstanceOf(Object);
       expect(args[2]).toEqual(game.interfaces);
       expect(window.requestAnimationFrame).toHaveBeenCalled();
+    });
+  });
+
+  describe("update method", () => {
+    beforeEach(() => {
+      const qs = (window.document.querySelector = jest.fn());
+      qs.mockReturnValue({ getContext: () => ({}) });
+      window.requestAnimationFrame = jest.fn();
+    });
+
+    it("should call the update method", () => {
+      class MyGame extends Game {
+        constructor(id) {
+          super(id);
+          this.update = jest.fn();
+          this.render = jest.fn();
+        }
+      }
+      const game = new MyGame("test");
+      game.start();
+      expect(game.update).toHaveBeenCalled();
+      expect(game.update.mock.calls).toHaveLength(1);
+      const args = game.update.mock.calls[0];
+      expect(args).toHaveLength(4);
+      expect(args[0]).toBeInstanceOf(Object);
+      expect(args[1]).toBeInstanceOf(Object);
+      expect(args[1]).toEqual(game.canvas);
+      expect(args[2]).toBeInstanceOf(Object);
+      expect(args[2]).toEqual(game.interfaces);
     });
   });
 
