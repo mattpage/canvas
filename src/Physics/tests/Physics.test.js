@@ -5,7 +5,7 @@ describe("Physics", () => {
   describe("Physics", () => {
     describe("Physics.constrainEntity", () => {
       describe("with wrap option", () => {
-        it("should not constrain an entity that is with the bounding rectangle", () => {
+        it("should not constrain an entity that is within the bounding rectangle", () => {
           const entity = Entity.create(0, 0, 10, 10);
           const bounds = {
             top: 0,
@@ -77,7 +77,7 @@ describe("Physics", () => {
       });
 
       describe("without wrap option", () => {
-        it("should not constrain an entity that is with the bounding rectangle", () => {
+        it("should not constrain an entity that is within the bounding rectangle", () => {
           const entity = Entity.create(0, 0, 10, 10);
           const bounds = {
             top: 0,
@@ -145,6 +145,83 @@ describe("Physics", () => {
           Physics.constrainEntity(entity, bounds);
           expect(entity.x).toEqual(x);
           expect(entity.y).toEqual(100 - entity.height);
+        });
+      });
+
+      describe("with deflect option", () => {
+        it("should not deflect an entity that is within the bounding rectangle", () => {
+          const vx = 3;
+          const vy = 2.5;
+          const entity = Entity.create(0, 0, 10, 10, vx, vy);
+          const bounds = {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          };
+          Physics.constrainEntity(entity, bounds, { deflect: true });
+          expect(entity.vx).toEqual(vx);
+          expect(entity.vy).toEqual(vy);
+        });
+
+        it("should deflect an entity from the left side of the bounding rectangle", () => {
+          const vx = 3;
+          const vy = 2.5;
+          const entity = Entity.create(-10, 0, 10, 10, vx, vy);
+          const bounds = {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          };
+          Physics.constrainEntity(entity, bounds, { deflect: true });
+          expect(entity.vx).toEqual(-vx);
+          expect(entity.vy).toEqual(vy);
+        });
+
+        it("should deflect an entity from the top side of the bounding rectangle", () => {
+          const vx = 3;
+          const vy = 2.5;
+          const entity = Entity.create(0, -10, 10, 10, vx, vy);
+          const bounds = {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          };
+          Physics.constrainEntity(entity, bounds, { deflect: true });
+          expect(entity.vx).toEqual(vx);
+          expect(entity.vy).toEqual(-vy);
+        });
+
+        it("should deflect an entity from the right side of the bounding rectangle", () => {
+          const vx = 3;
+          const vy = 2.5;
+          const entity = Entity.create(110, 10, 10, 10, vx, vy);
+          const bounds = {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          };
+          Physics.constrainEntity(entity, bounds, { deflect: true });
+          expect(entity.vx).toEqual(-vx);
+          expect(entity.vy).toEqual(vy);
+        });
+
+        it("should deflect an entity from the bottom side of the bounding rectangle", () => {
+          const vx = 3;
+          const vy = 2.5;
+          const entity = Entity.create(10, 110, 10, 10, vx, vy);
+          const bounds = {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          };
+          Physics.constrainEntity(entity, bounds, { deflect: true });
+          expect(entity.vx).toEqual(vx);
+          expect(entity.vy).toEqual(-vy);
         });
       });
     });
