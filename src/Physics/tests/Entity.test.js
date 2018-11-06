@@ -1,5 +1,4 @@
 import Entity from "../Entity";
-import { timestamp } from "../../utils";
 
 describe("Entity", () => {
   it("should construct", () => {
@@ -48,15 +47,6 @@ describe("Entity", () => {
     expect(rc.top).toEqual(2);
     expect(rc.right).toEqual(101);
     expect(rc.bottom).toEqual(202);
-  });
-
-  it("should have elapsed timestamp", () => {
-    const entity = new Entity();
-    expect(entity.elapsed).toBeGreaterThan(0);
-    expect(entity.elapsed).toBeLessThan(Number.MAX_VALUE);
-    const ms = timestamp();
-    entity.elapsed = ms;
-    expect(entity.elapsed).toEqual(ms);
   });
 
   it("should be possible to get/set velocity", () => {
