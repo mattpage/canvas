@@ -26,10 +26,11 @@ const initializer = (context, canvas, interfaces, state) => {
   logger.log("game initialized");
 };
 
-const updater = (context, canvas, interfaces, state) => {
+const updater = (delta, context, canvas, interfaces, state) => {
   const dim = canvas.dimensions;
   // update ball physics
   Physics.update(
+    delta,
     state.balls,
     {
       top: 0,

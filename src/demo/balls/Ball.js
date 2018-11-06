@@ -2,14 +2,14 @@ import { Entity, numberInRange, randomColor } from "../../index";
 
 class Ball extends Entity {
   static createRandom(x = 0, y = 0) {
-    const vx = numberInRange(0.001, 10);
-    const temp = numberInRange(0.001, 10);
-    const vy = temp === vx ? vx + numberInRange(0.05, 10) : temp;
+    const vx = numberInRange(0.001, 2.5);
+    const temp = numberInRange(0.001, 1);
+    const vy = temp === vx ? vx + numberInRange(0.001, 1) : temp;
     const radius = numberInRange(5, 50);
     return new Ball(x, y, vx, vy, radius, randomColor());
   }
 
-  constructor(x = 0, y = 0, vx = 5, vy = 2, radius = 25, color = "blue") {
+  constructor(x = 0, y = 0, vx = 2.5, vy = 1, radius = 25, color = "blue") {
     super(x, y, radius * 2, radius * 2, vx, vy);
     this.radius = radius;
     this.color = color;

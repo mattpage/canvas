@@ -1,5 +1,18 @@
 import Game from "../Game";
+import Canvas from "../Canvas";
+import { isNumber, timestamp } from "../utils";
 /* eslint-disable no-multi-assign */
+
+function mockQuerySelector() {
+  const qs = (window.document.querySelector = jest.fn());
+  qs.mockReturnValue({ getContext: () => ({}) });
+}
+function mockRequestAnimationFrame() {
+  jest.spyOn(window, "requestAnimationFrame").mockImplementation(cb => {
+    cb(timestamp());
+    return 1;
+  });
+}
 
 describe("Game", () => {
   describe("invalid selector", () => {
@@ -42,7 +55,7 @@ describe("Game", () => {
     beforeEach(() => {
       const qs = (window.document.querySelector = jest.fn());
       qs.mockReturnValue({ getContext: () => ({}) });
-      window.requestAnimationFrame = jest.fn();
+      mockRequestAnimationFrame();
     });
 
     it("should throw an exception if no renderer is supplied", () => {
@@ -67,7 +80,6 @@ describe("Game", () => {
       expect(args[2]).toEqual(game.interfaces);
       expect(args[3]).toBeInstanceOf(Array);
       expect(args[3]).toEqual([]);
-      expect(window.requestAnimationFrame).not.toHaveBeenCalled();
     });
 
     it("should call the updater", () => {
@@ -76,16 +88,16 @@ describe("Game", () => {
       const updater = jest.fn();
       game.start(renderer, updater);
       expect(updater).toHaveBeenCalled();
-      expect(updater.mock.calls).toHaveLength(1);
-      const args = renderer.mock.calls[0];
-      expect(args).toHaveLength(4);
-      expect(args[0]).toBeInstanceOf(Object);
+      const args = updater.mock.calls[0];
+      expect(args).toHaveLength(5);
+      expect(isNumber(args[0])).toBe(true);
       expect(args[1]).toBeInstanceOf(Object);
-      expect(args[1]).toEqual(game.canvas);
-      expect(args[2]).toBeInstanceOf(Object);
-      expect(args[2]).toEqual(game.interfaces);
-      expect(args[3]).toBeInstanceOf(Array);
-      expect(args[3]).toEqual([]);
+      expect(args[2]).toBeInstanceOf(Canvas);
+      expect(args[2]).toEqual(game.canvas);
+      expect(args[3]).toBeInstanceOf(Object);
+      expect(args[3]).toEqual(game.interfaces);
+      expect(args[4]).toBeInstanceOf(Array);
+      expect(args[4]).toEqual([]);
     });
 
     it("should call the initializer", () => {
@@ -106,22 +118,12 @@ describe("Game", () => {
       expect(args[3]).toBeInstanceOf(Array);
       expect(args[3]).toEqual([]);
     });
-
-    it("should call requestAnimationFrame if the renderer returns true", () => {
-      const game = new Game("test");
-      const renderer = jest.fn();
-      renderer.mockReturnValue(true);
-      game.start(renderer);
-      expect(window.requestAnimationFrame).toHaveBeenCalled();
-    });
   });
 
   describe("stop", () => {
     beforeEach(() => {
-      const qs = (window.document.querySelector = jest.fn());
-      qs.mockReturnValue({ getContext: () => ({}) });
-      window.requestAnimationFrame = jest.fn();
-      window.requestAnimationFrame.mockReturnValue(1);
+      mockQuerySelector();
+      mockRequestAnimationFrame();
       window.cancelAnimationFrame = jest.fn();
     });
 
@@ -138,9 +140,8 @@ describe("Game", () => {
 
   describe("render method", () => {
     beforeEach(() => {
-      const qs = (window.document.querySelector = jest.fn());
-      qs.mockReturnValue({ getContext: () => ({}) });
-      window.requestAnimationFrame = jest.fn();
+      mockQuerySelector();
+      mockRequestAnimationFrame();
     });
 
     it("should call the render method", () => {
@@ -168,9 +169,8 @@ describe("Game", () => {
 
   describe("update method", () => {
     beforeEach(() => {
-      const qs = (window.document.querySelector = jest.fn());
-      qs.mockReturnValue({ getContext: () => ({}) });
-      window.requestAnimationFrame = jest.fn();
+      mockQuerySelector();
+      mockRequestAnimationFrame();
     });
 
     it("should call the update method", () => {
@@ -184,22 +184,23 @@ describe("Game", () => {
       const game = new MyGame("test");
       game.start();
       expect(game.update).toHaveBeenCalled();
-      expect(game.update.mock.calls).toHaveLength(1);
       const args = game.update.mock.calls[0];
-      expect(args).toHaveLength(4);
-      expect(args[0]).toBeInstanceOf(Object);
+      expect(args).toHaveLength(5);
+      expect(isNumber(args[0])).toBe(true);
       expect(args[1]).toBeInstanceOf(Object);
-      expect(args[1]).toEqual(game.canvas);
-      expect(args[2]).toBeInstanceOf(Object);
-      expect(args[2]).toEqual(game.interfaces);
+      expect(args[2]).toBeInstanceOf(Canvas);
+      expect(args[2]).toEqual(game.canvas);
+      expect(args[3]).toBeInstanceOf(Object);
+      expect(args[3]).toEqual(game.interfaces);
+      expect(args[4]).toBeInstanceOf(Array);
+      expect(args[4]).toEqual([]);
     });
   });
 
   describe("initialize method", () => {
     beforeEach(() => {
-      const qs = (window.document.querySelector = jest.fn());
-      qs.mockReturnValue({ getContext: () => ({}) });
-      window.requestAnimationFrame = jest.fn();
+      mockQuerySelector();
+      mockRequestAnimationFrame();
     });
 
     it("should call the initialize method", () => {
