@@ -171,29 +171,39 @@ describe("Physics", () => {
         entities[0].vy = 1;
         entities[1].vx = 10;
         entities[1].vy = 10;
-        Physics.update(entities, { top: 0, left: 0, right: 100, bottom: 100 });
-        expect(entities[0].x).toEqual(1);
-        expect(entities[0].y).toEqual(1);
-        expect(entities[1].x).toEqual(10);
-        expect(entities[1].y).toEqual(10);
-        Physics.update(entities, { top: 0, left: 0, right: 100, bottom: 100 });
-        expect(entities[0].x).toEqual(2);
-        expect(entities[0].y).toEqual(2);
-        expect(entities[1].x).toEqual(20);
-        expect(entities[1].y).toEqual(20);
+        Physics.update(60 / 1000, entities, {
+          top: 0,
+          left: 0,
+          right: 100,
+          bottom: 100
+        });
+        expect(entities[0].x).toEqual(0.06);
+        expect(entities[0].y).toEqual(0.06);
+        expect(entities[1].x).toEqual(0.6);
+        expect(entities[1].y).toEqual(0.6);
+        Physics.update(60 / 1000, entities, {
+          top: 0,
+          left: 0,
+          right: 100,
+          bottom: 100
+        });
+        expect(entities[0].x).toEqual(0.12);
+        expect(entities[0].y).toEqual(0.12);
+        expect(entities[1].x).toEqual(1.2);
+        expect(entities[1].y).toEqual(1.2);
       });
 
       it("should update the rotation of passed in entities", () => {
         const entities = [Entity.create(), Entity.create()];
         entities[0].torque = 1;
         jest.useFakeTimers();
-        Physics.update(entities, {
+        Physics.update(60 / 1000, entities, {
           top: 0,
           left: 0,
           right: 100,
           bottom: 100
         });
-        expect(entities[0].rotation).toBeGreaterThan(1);
+        expect(entities[0].rotation).toEqual(0.06);
         expect(entities[1].rotation).toEqual(0);
         jest.runAllTimers();
       });

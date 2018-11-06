@@ -60,8 +60,8 @@ class Debris extends PolygonEntity {
       type = keys[integerInRange(0, keys.length - 1)];
     }
     const debrisTypes = DEBRIS.filter(s => s.type === type);
-    const velX = numberInRange(0.001, 0.5);
-    const velY = numberInRange(0.001, 0.5);
+    const velX = numberInRange(0.001, 0.05);
+    const velY = numberInRange(0.001, 0.05);
     const deflection = integerInRange(1, 360);
     const velocity = Physics.splitVelocityVector(
       vx || velX,

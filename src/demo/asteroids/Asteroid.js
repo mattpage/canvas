@@ -192,8 +192,8 @@ class Asteroid extends PolygonEntity {
       asteroids = asteroids.filter(a => a.type === type);
     }
     const index = integerInRange(0, asteroids.length - 1);
-    const velX = numberInRange(0.001, 0.5);
-    const velY = numberInRange(0.001, 0.5);
+    const velX = numberInRange(0.001, 0.05);
+    const velY = numberInRange(0.001, 0.05);
     const rotation = numberInRange(1, 360);
     const torque = numberInRange(0.00001, 0.0005);
     return new Asteroid(

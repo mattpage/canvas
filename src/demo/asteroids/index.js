@@ -1,13 +1,11 @@
 import {
   Game,
   Canvas,
-  createAvgFpsCalculator,
-  createAvgTimeCalculator,
   integerInRange,
   KEYS,
   Physics,
   QuadTree,
-  timestamp
+  createAvgFpsCalculator
 } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
@@ -117,8 +115,8 @@ const handlePlayerKeys = state => {
           break;
         case KEYS.ARROW_UP:
           // accelerate the ship
-          ship.ax = keyInfo.isDown ? Math.cos(ship.rotation) * 0.05 : 0;
-          ship.ay = keyInfo.isDown ? Math.sin(ship.rotation) * 0.05 : 0;
+          ship.ax = keyInfo.isDown ? Math.cos(ship.rotation) * 0.005 : 0;
+          ship.ay = keyInfo.isDown ? Math.sin(ship.rotation) * 0.005 : 0;
           break;
         case KEYS.SPACEBAR:
           // fire bullets
@@ -132,8 +130,8 @@ const handlePlayerKeys = state => {
               ship.rotation,
               1 // torque
             );
-            bullet.ax = Math.cos(ship.rotation) * 0.5;
-            bullet.ay = Math.sin(ship.rotation) * 0.5;
+            bullet.ax = Math.cos(ship.rotation) * 0.05;
+            bullet.ay = Math.sin(ship.rotation) * 0.05;
             bullet.collidesWith = createCollidesWithMap(true);
             bullet.onCollision = createCollisionHandler(
               audioFx,
@@ -166,12 +164,11 @@ const handlePlayerKeys = state => {
 const initializer = (context, canvas, { audio, keyboard }, state) => {
   logger.log("initializing game");
 
+  state.calcAvgFps = createAvgFpsCalculator();
+
   // offscreen canvas for double buffering
   state.offscreen = Canvas.create();
   state.offscreenContext = state.offscreen.context();
-
-  state.calcAvgFps = createAvgFpsCalculator();
-  state.calcAvgTime = createAvgTimeCalculator();
 
   // load the audio - 4 channels per file
   /* prettier-ignore */
@@ -218,25 +215,16 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   logger.log("game initialized");
 };
 
-// This gets called repeatedly (requestAnimationFrame)
-// Here's where the bulk of the game happens
-const renderer = (context, canvas, ...rest) => {
-  const start = timestamp();
+const updater = (timeStep, context, canvas, ...rest) => {
   const state = rest[1];
   const dim = canvas.dimensions;
-
-  state.offscreenContext.imageSmoothingEnabled = false;
-  context.imageSmoothingEnabled = false;
-
-  // erase the offscreen canvas
-  state.offscreenContext.fillStyle = "white";
-  state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   // handle the player keyboard input
   handlePlayerKeys(state);
 
   // update asteroid physics
   Physics.update(
+    timeStep,
     state.entities,
     {
       top: 0,
@@ -246,6 +234,19 @@ const renderer = (context, canvas, ...rest) => {
     },
     { wrap: true }
   );
+};
+
+const renderer = (context, canvas, ...rest) => {
+  const state = rest[1];
+  const fps = state.calcAvgFps();
+  const dim = canvas.dimensions;
+
+  state.offscreenContext.imageSmoothingEnabled = false;
+  context.imageSmoothingEnabled = false;
+
+  // erase the offscreen canvas
+  state.offscreenContext.fillStyle = "white";
+  state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   const meta = {
     debris: 0,
@@ -338,11 +339,10 @@ const renderer = (context, canvas, ...rest) => {
 
   state.gameStats.update({
     ...meta,
-    fps: state.calcAvgFps(),
+    fps,
     level: state.level,
     lives: state.lives,
-    score: state.score,
-    render: state.calcAvgTime(start, timestamp())
+    score: state.score
   });
 
   // return true to keep animating
@@ -350,4 +350,9 @@ const renderer = (context, canvas, ...rest) => {
 };
 
 // create and start the game (call initializer with inital game state and then renderer repeatedly)
-Game.create("canvas").start(renderer, initializer, createGameState(1, true));
+Game.create("canvas").start(
+  renderer,
+  updater,
+  initializer,
+  createGameState(1, true)
+);

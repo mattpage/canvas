@@ -41,13 +41,14 @@ class Game {
     return this._interfaces;
   }
 
-  start(renderer, initializer, ...args) {
+  start(renderer, updater, initializer, ...args) {
     const context = this.canvas.context(
       this.options.contextType,
       this.options.contextAttributes
     );
 
     const init = initializer || this.initialize;
+    const update = updater || this.update;
     const render = renderer || this.render;
     if (!render) {
       throw new Error("Missing render callback or method");
@@ -58,12 +59,45 @@ class Game {
     if (init) {
       init(context, this.canvas, this.interfaces, gameArgs);
     }
-    const animationLoop = () => {
+
+    const maxFPS = 60;
+    const timestep = 1000 / maxFPS;
+    let delta = 0;
+    let lastFrameTimeMs = 0;
+
+    const animationLoop = now => {
+      if (lastFrameTimeMs > 0 && !this.rafId) {
+        // stopped
+        return;
+      }
+
+      // throttle the frame rate
+      if (now < lastFrameTimeMs + timestep) {
+        this.rafId = window.requestAnimationFrame(animationLoop);
+        return;
+      }
+
+      delta += now - lastFrameTimeMs;
+      lastFrameTimeMs = now;
+
+      if (update) {
+        let numUpdates = 0;
+        while (delta >= timestep) {
+          update(timestep, context, this.canvas, this.interfaces, gameArgs);
+          delta -= timestep;
+          numUpdates += 1;
+          if (numUpdates > 240) {
+            delta = 0;
+          }
+        }
+      }
       if (render(context, this.canvas, this.interfaces, gameArgs)) {
         this.rafId = window.requestAnimationFrame(animationLoop);
       }
     };
-    animationLoop();
+
+    // kick it off
+    this.rafId = window.requestAnimationFrame(animationLoop);
   }
 
   stop() {

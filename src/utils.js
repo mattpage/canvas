@@ -197,3 +197,5 @@ export const createAvgTimeCalculator = () => {
     return avg;
   };
 };
+
+export const isNumber = value => !Number.isNaN(parseFloat(value));

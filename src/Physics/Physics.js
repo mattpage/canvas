@@ -1,5 +1,4 @@
 import QuadTree from "./QuadTree";
-import { timestamp } from "../utils";
 
 class Physics {
   static constrainEntity(entity, boundsRect, options = {}) {
@@ -141,8 +140,13 @@ class Physics {
     };
   }
 
-  static update(entities, bounds, options = { deflect: false, wrap: false }) {
-    const now = timestamp();
+  static update(
+    timeStep,
+    entities,
+    bounds,
+    options = { deflect: false, wrap: false }
+  ) {
+    // const now = timestamp();
 
     let useSpatialPartitioning = false;
     if (Array.isArray(entities)) {
@@ -155,11 +159,8 @@ class Physics {
 
     // move and constrain
     entities.forEach(entity => {
-      const diff = now - entity.elapsed;
-      entity.elapsed = now;
-
       if (entity.expires) {
-        entity.expires -= diff;
+        entity.expires -= timeStep;
         if (entity.expires <= 0) {
           // this entity has expired and should be removed from the game
           entity.expired = true;
@@ -172,11 +173,11 @@ class Physics {
       entity.vy += entity.ay;
 
       // update position
-      entity.x += entity.vx;
-      entity.y += entity.vy;
+      entity.x += entity.vx * timeStep;
+      entity.y += entity.vy * timeStep;
 
       // if it has torque, rotate the entity
-      const r = diff * entity.torque;
+      const r = timeStep * entity.torque;
       if (r !== 0) {
         entity.rotation += r;
       }
