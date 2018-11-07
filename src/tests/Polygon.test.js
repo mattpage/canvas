@@ -1,6 +1,7 @@
 import Polygon from "../Polygon";
 
 const mockContext = () => ({
+  arc: jest.fn(),
   beginPath: jest.fn(),
   closePath: jest.fn(),
   lineTo: jest.fn(),
@@ -9,6 +10,7 @@ const mockContext = () => ({
   rotate: jest.fn(),
   save: jest.fn(),
   stroke: jest.fn(),
+  strokeRect: jest.fn(),
   translate: jest.fn()
 });
 
@@ -91,6 +93,21 @@ describe("Polygon", () => {
       expect(context.save).toHaveBeenCalled();
       expect(context.rotate).toHaveBeenCalledWith(2.0);
       expect(context.restore).toHaveBeenCalled();
+    });
+    it("should draw a bounding circle around the polygon", () => {
+      const poly = Polygon.create(testPoints, { showCircle: true });
+      const context = mockContext();
+      poly.render(context, null, 2.0);
+      expect(context.beginPath).toHaveBeenCalled();
+      expect(context.arc).toHaveBeenCalledWith(4, 5, 6, 0, Math.PI * 2, true);
+      expect(context.closePath).toHaveBeenCalled();
+      expect(context.stroke).toHaveBeenCalled();
+    });
+    it("should draw a bounding rectangle around the polygon", () => {
+      const poly = Polygon.create(testPoints, { showRect: true });
+      const context = mockContext();
+      poly.render(context, null, 2.0);
+      expect(context.strokeRect).toHaveBeenCalledWith(1, 2, 6, 6);
     });
   });
 });

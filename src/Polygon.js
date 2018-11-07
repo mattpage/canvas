@@ -1,7 +1,6 @@
 class Polygon {
   static defaultOptions = {
     showRect: false,
-    showOffset: false,
     showCircle: false
   };
 
@@ -151,12 +150,6 @@ class Polygon {
 
     if (offset || rotation) {
       context.restore();
-
-      if (this.options.showOffset) {
-        // draw the x,y coordinates
-        const { x, y } = offset;
-        context.strokeText(`(${x},${y})`, x, y);
-      }
     }
   }
 }
