@@ -1,5 +1,17 @@
 import Polygon from "../Polygon";
 
+const mockContext = () => ({
+  beginPath: jest.fn(),
+  closePath: jest.fn(),
+  lineTo: jest.fn(),
+  moveTo: jest.fn(),
+  restore: jest.fn(),
+  rotate: jest.fn(),
+  save: jest.fn(),
+  stroke: jest.fn(),
+  translate: jest.fn()
+});
+
 describe("Polygon", () => {
   const testPoints = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -49,6 +61,36 @@ describe("Polygon", () => {
   });
 
   describe("render", () => {
-    // TODO it should have some tests
+    it("should moveTo starting point", () => {
+      const poly = Polygon.create(testPoints);
+      const context = mockContext();
+      poly.render(context);
+      expect(context.moveTo).toHaveBeenCalledWith(1, 2);
+    });
+    it("should lineTo remaining points", () => {
+      const poly = Polygon.create(testPoints);
+      const context = mockContext();
+      poly.render(context);
+      expect(context.lineTo).toHaveBeenNthCalledWith(1, 3, 4);
+      expect(context.lineTo).toHaveBeenNthCalledWith(2, 5, 6);
+      expect(context.lineTo).toHaveBeenNthCalledWith(3, 7, 8);
+    });
+    it("should offset the polygon", () => {
+      const poly = Polygon.create(testPoints);
+      const context = mockContext();
+      const offset = { x: 50, y: 50 };
+      poly.render(context, offset);
+      expect(context.save).toHaveBeenCalled();
+      expect(context.translate).toHaveBeenCalledWith(offset.x, offset.y);
+      expect(context.restore).toHaveBeenCalled();
+    });
+    it("should rotate the polygon", () => {
+      const poly = Polygon.create(testPoints);
+      const context = mockContext();
+      poly.render(context, null, 2.0);
+      expect(context.save).toHaveBeenCalled();
+      expect(context.rotate).toHaveBeenCalledWith(2.0);
+      expect(context.restore).toHaveBeenCalled();
+    });
   });
 });
