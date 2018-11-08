@@ -1,8 +1,9 @@
 import {
-  numberInRange,
+  createAvgFpsCalculator,
+  CSS_COLOR_NAMES,
   integerInRange,
-  randomColor,
-  CSS_COLOR_NAMES
+  numberInRange,
+  randomColor
 } from "../utils";
 
 function isInteger(n) {
@@ -32,6 +33,34 @@ describe("utils", () => {
     it("should return a random color", () => {
       const color = randomColor();
       expect(CSS_COLOR_NAMES.includes(color));
+    });
+  });
+
+  describe("createAvgFpsCalculator", () => {
+    it("should return the avg for a series of calls", () => {
+      let call = 1;
+      window.performance.now = jest
+        .spyOn(window.performance, "now")
+        .mockImplementation(() => 1000 * call++);
+      jest.useFakeTimers();
+      let fpsCalculator;
+      let elapsed = 0;
+      let timerId = window.setInterval(() => {
+        if (fpsCalculator) {
+          fpsCalculator();
+        } else {
+          fpsCalculator = createAvgFpsCalculator();
+        }
+        elapsed += 1;
+        if (elapsed > 2) {
+          window.clearInterval(timerId);
+          timerId = null;
+        }
+      }, 1000);
+      jest.runAllTimers();
+      const fps = fpsCalculator();
+      expect(window.performance.now).toHaveBeenCalledTimes(4);
+      expect(fps).toEqual(1);
     });
   });
 });
