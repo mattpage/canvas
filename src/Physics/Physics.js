@@ -206,8 +206,10 @@ class Physics {
         collisionResults.forEach(result => {
           if (result === entity) {
             removeEntity = false;
-          } else {
+          } else if (useSpatialPartitioning) {
             entities.insert(result);
+          } else {
+            entities.push(result);
           }
         });
       }
@@ -215,7 +217,11 @@ class Physics {
       // did the entity itself survive?
       // if not, remove it
       if (removeEntity) {
-        entities.remove(entity);
+        if (useSpatialPartitioning) {
+          entities.remove(entity);
+        } else {
+          entities.splice(entities.indexOf(entity), 1);
+        }
       }
     });
   }
