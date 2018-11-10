@@ -1,5 +1,6 @@
 import Physics from "../Physics";
 import Entity from "../Entity";
+import QuadTree from "../QuadTree";
 
 describe("Physics", () => {
   describe("Physics", () => {
@@ -241,48 +242,128 @@ describe("Physics", () => {
     });
 
     describe("Physics.update", () => {
-      it("should update the position of passed in entities", () => {
-        const entities = [Entity.create(), Entity.create()];
-        // give them some velocity
-        entities[0].vx = 1;
-        entities[0].vy = 1;
-        entities[1].vx = 10;
-        entities[1].vy = 10;
-        Physics.update(60 / 1000, entities, {
-          top: 0,
-          left: 0,
-          right: 100,
-          bottom: 100
+      describe("with Entities array - brute force collision strategy", () => {
+        it("should update the position of passed in entities", () => {
+          const entities = [Entity.create(), Entity.create()];
+          // give them some velocity
+          entities[0].vx = 1;
+          entities[0].vy = 1;
+          entities[1].vx = 10;
+          entities[1].vy = 10;
+          Physics.update(60 / 1000, entities, {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          });
+          expect(entities[0].x).toEqual(0.06);
+          expect(entities[0].y).toEqual(0.06);
+          expect(entities[1].x).toEqual(0.6);
+          expect(entities[1].y).toEqual(0.6);
+          Physics.update(60 / 1000, entities, {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          });
+          expect(entities[0].x).toEqual(0.12);
+          expect(entities[0].y).toEqual(0.12);
+          expect(entities[1].x).toEqual(1.2);
+          expect(entities[1].y).toEqual(1.2);
         });
-        expect(entities[0].x).toEqual(0.06);
-        expect(entities[0].y).toEqual(0.06);
-        expect(entities[1].x).toEqual(0.6);
-        expect(entities[1].y).toEqual(0.6);
-        Physics.update(60 / 1000, entities, {
-          top: 0,
-          left: 0,
-          right: 100,
-          bottom: 100
+
+        it("should update the rotation of passed in entities", () => {
+          const entities = [Entity.create(), Entity.create()];
+          entities[0].torque = 1;
+          Physics.update(60 / 1000, entities, {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          });
+          expect(entities[0].rotation).toEqual(0.06);
+          expect(entities[1].rotation).toEqual(0);
         });
-        expect(entities[0].x).toEqual(0.12);
-        expect(entities[0].y).toEqual(0.12);
-        expect(entities[1].x).toEqual(1.2);
-        expect(entities[1].y).toEqual(1.2);
+
+        it("should remove an expired entity", () => {
+          const entities = [Entity.create(), Entity.create()];
+          const entity = Entity.create();
+          entity.expires = 0.01;
+
+          entities.push(entity);
+          const len = entities.length;
+
+          Physics.update(60 / 1000, entities, {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          });
+
+          expect(entities.length).toEqual(len - 1);
+        });
       });
 
-      it("should update the rotation of passed in entities", () => {
-        const entities = [Entity.create(), Entity.create()];
-        entities[0].torque = 1;
-        jest.useFakeTimers();
-        Physics.update(60 / 1000, entities, {
-          top: 0,
-          left: 0,
-          right: 100,
-          bottom: 100
+      describe("with Entities QuadTree - spatial partitioning strategy", () => {
+        it("should update the position of passed in entities", () => {
+          const qt = new QuadTree({ width: 100, height: 100 });
+          qt.insert(Entity.create(0, 0, 10, 10, 1, 1));
+          qt.insert(Entity.create(0, 0, 10, 10, 10, 10));
+          Physics.update(60 / 1000, qt, {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          });
+          expect(qt.items[0].x).toEqual(0.06);
+          expect(qt.items[0].y).toEqual(0.06);
+          expect(qt.items[1].x).toEqual(0.6);
+          expect(qt.items[1].y).toEqual(0.6);
+
+          Physics.update(60 / 1000, qt, {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          });
+          expect(qt.items[0].x).toEqual(0.12);
+          expect(qt.items[0].y).toEqual(0.12);
+          expect(qt.items[1].x).toEqual(1.2);
+          expect(qt.items[1].y).toEqual(1.2);
         });
-        expect(entities[0].rotation).toEqual(0.06);
-        expect(entities[1].rotation).toEqual(0);
-        jest.runAllTimers();
+
+        it("should update the rotation of passed in entities", () => {
+          const qt = new QuadTree({ width: 100, height: 100 });
+          qt.insert(Entity.create(0, 0, 10, 10, 1, 1, 0.06));
+          qt.insert(Entity.create(0, 0, 10, 10, 10, 10));
+          Physics.update(60 / 1000, qt, {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          });
+          expect(qt.items[0].rotation).toEqual(0.06);
+          expect(qt.items[1].rotation).toEqual(0);
+        });
+
+        it("should remove an expired entity", () => {
+          const qt = new QuadTree({ width: 100, height: 100 });
+          qt.insert(Entity.create(0, 0, 10, 10, 1, 1, 0.06));
+          qt.insert(Entity.create(0, 0, 10, 10, 10, 10));
+          qt.insert(Entity.create(0, 0, 10, 10, 10, 10));
+          qt.items[2].expires = 0.01;
+
+          const len = qt.size;
+
+          Physics.update(60 / 1000, qt, {
+            top: 0,
+            left: 0,
+            right: 100,
+            bottom: 100
+          });
+
+          expect(qt.size).toEqual(len - 1);
+        });
       });
     });
   });
