@@ -147,13 +147,7 @@ const handlePlayerKeys = state => {
     } // end while
   }
 
-  let i;
-  let entity;
-  const numEntities = newEntities.length;
-  for (i = 0; i < numEntities; ++i) {
-    entity = newEntities[i];
-    state.entities.insert(entity);
-  }
+  state.entities.insertAll(newEntities);
 };
 
 // Setup the game state and create a bunch of stuff
@@ -181,13 +175,9 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
     // create new game
     Object.assign(state, createGameState(), { entities: state.entities });
     state.entities.clear();
-
-    createAsteroids(dim, state.maxAsteroids, state.audioFx).forEach(
-      asteroid => {
-        state.entities.insert(asteroid);
-      }
+    state.entities.insertAll(
+      createAsteroids(dim, state.maxAsteroids, state.audioFx)
     );
-
     state.entities.insert(createPlayerSpaceship(dim, state.audioFx));
     state.gameOverMenu.hide();
   });
@@ -196,9 +186,7 @@ const initializer = (context, canvas, { audio, keyboard }, state) => {
   state.gameStats = new GameStats();
 
   // add asteroids
-  createAsteroids(dim, state.maxAsteroids, null).forEach(asteroid => {
-    state.entities.insert(asteroid);
-  });
+  state.entities.insertAll(createAsteroids(dim, state.maxAsteroids, null));
 
   // hookup the player keys
   keyboard.captureKeys(
@@ -321,8 +309,8 @@ const renderer = (context, canvas, ...rest) => {
       score: state.score
     });
     state.banner.show(`LEVEL ${state.level}`, 2000);
-    createAsteroids(dim, state.maxAsteroids, state.audioFx).forEach(e =>
-      state.entities.insert(e)
+    state.entities.insertAll(
+      createAsteroids(dim, state.maxAsteroids, state.audioFx)
     );
   }
 
