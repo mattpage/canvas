@@ -130,6 +130,13 @@ class QuadTree {
     return index;
   }
 
+  insertAll(items) {
+    const len = items.length;
+    for (let i = 0; i < len; ++i) {
+      this.insert(items[i]);
+    }
+  }
+
   // Insert an item into the quadtree.
   insert(item) {
     const { keys, level, maxLevels, maxItemsPerNode, nodes } = this;
@@ -172,6 +179,13 @@ class QuadTree {
           return key;
         })
         .filter(k => Boolean(k));
+    }
+  }
+
+  removeAll(items) {
+    const len = items.length;
+    for (let i = 0; i < len; ++i) {
+      this.remove(items[i]);
     }
   }
 
