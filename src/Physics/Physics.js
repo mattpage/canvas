@@ -81,22 +81,30 @@ class Physics {
   static createBruteForceCollisionStrategy() {
     return function bruteForceCollisionStrategy(entities) {
       const collisionMap = new Map();
-      entities.forEach(entity => {
+      let i;
+      let j;
+      let entity;
+      let otherEntity;
+      let collisions;
+      const len = entities.length;
+      for (i = 0; i < len; ++i) {
+        entity = entities[i];
         if (entity.expired) {
           // force a collision on expired entities
           collisionMap.set(entity, []);
         } else {
-          entities.forEach(otherEntity => {
-            if (entity !== otherEntity) {
+          for (j = 0; j < len; ++j) {
+            if (i !== j) {
+              otherEntity = entities[j];
               if (Physics.collision(entity.rect, otherEntity.rect)) {
-                const collisions = collisionMap.get(entity) || [];
+                collisions = collisionMap.get(entity) || [];
                 collisions.push(otherEntity);
                 collisionMap.set(entity, collisions);
               }
             }
-          });
+          }
         }
-      });
+      }
       return collisionMap;
     };
   }
@@ -125,8 +133,8 @@ class Physics {
           nearbyEntities = entities.retrieve(entity.rect);
           numNearby = nearbyEntities.length;
           for (j = 0; j < numNearby; ++j) {
-            nearbyEntity = nearbyEntities[j];
-            if (entity !== nearbyEntity) {
+            if (i !== j) {
+              nearbyEntity = nearbyEntities[j];
               if (Physics.collision(entity.rect, nearbyEntity.rect)) {
                 collisions = collisionMap.get(entity) || [];
                 collisions.push(nearbyEntity);
