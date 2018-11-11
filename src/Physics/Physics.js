@@ -80,6 +80,9 @@ class Physics {
   // collision detection - O(n^2) complexity
   static createBruteForceCollisionStrategy() {
     return function bruteForceCollisionStrategy(entities) {
+      if (!Array.isArray(entities)) {
+        throw new Error("Expected entities param to be an Array");
+      }
       const collisionMap = new Map();
       let i;
       let j;
@@ -111,6 +114,9 @@ class Physics {
 
   static createSpatialPartitioningCollisionStrategy() {
     return function spatialPartitioningCollisionStrategy(entities) {
+      if (!(entities instanceof QuadTree)) {
+        throw new Error("Expected entities param to be instance of QuadTree");
+      }
       const collisionMap = new Map();
 
       const { items } = entities;
@@ -148,14 +154,54 @@ class Physics {
     };
   }
 
+  static move(timeStep, entities, bounds, options) {
+    if (!Array.isArray(entities)) {
+      throw new Error("Expected entities param to be an Array");
+    }
+    const len = entities.length;
+    let i;
+    let entity;
+    let r;
+
+    // move and constrain
+    for (i = 0; i < len; ++i) {
+      entity = entities[i];
+      if (entity && !entity.expired) {
+        if (entity.expires) {
+          entity.expires -= timeStep;
+          if (entity.expires <= 0) {
+            // this entity has expired and should be removed from the game
+            entity.expired = true;
+            // eslint-disable-next-line no-continue
+            continue;
+          }
+        }
+
+        // update velocity
+        entity.vx += entity.ax;
+        entity.vy += entity.ay;
+
+        // update position
+        entity.x += entity.vx * timeStep;
+        entity.y += entity.vy * timeStep;
+
+        // if it has torque, rotate the entity
+        r = timeStep * entity.torque;
+        if (r !== 0) {
+          entity.rotation += r;
+        }
+        // ensure the entity is within the world bounds
+        Physics.constrainEntity(entity, bounds, options);
+      }
+    }
+  }
+
   static update(
     timeStep,
     entities,
     bounds,
     options = { deflect: false, wrap: false }
   ) {
-    // const now = timestamp();
-
     let useSpatialPartitioning = false;
     if (Array.isArray(entities)) {
       useSpatialPartitioning = false;
@@ -165,33 +211,9 @@ class Physics {
       throw new Error("Unknown entities object");
     }
 
+    const items = useSpatialPartitioning ? entities.items : entities;
     // move and constrain
-    entities.forEach(entity => {
-      if (entity.expires) {
-        entity.expires -= timeStep;
-        if (entity.expires <= 0) {
-          // this entity has expired and should be removed from the game
-          entity.expired = true;
-          return;
-        }
-      }
-
-      // update velocity
-      entity.vx += entity.ax;
-      entity.vy += entity.ay;
-
-      // update position
-      entity.x += entity.vx * timeStep;
-      entity.y += entity.vy * timeStep;
-
-      // if it has torque, rotate the entity
-      const r = timeStep * entity.torque;
-      if (r !== 0) {
-        entity.rotation += r;
-      }
-      // ensure the entity is within the world bounds
-      Physics.constrainEntity(entity, bounds, options);
-    });
+    Physics.move(timeStep, items, bounds, options);
 
     const collisionStrategy = useSpatialPartitioning
       ? Physics.createSpatialPartitioningCollisionStrategy(bounds)
