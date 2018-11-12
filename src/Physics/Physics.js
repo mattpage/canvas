@@ -1,11 +1,22 @@
 import QuadTree from "./QuadTree";
 
 class Physics {
-  static constrainEntity(entity, boundsRect, options = {}) {
+  static constrainEntity(
+    entity,
+    boundsRect,
+    options = {
+      constrain: true,
+      deflect: false,
+      wrap: false
+    }
+  ) {
     const halfWidth = entity.width / 2;
     const halfHeight = entity.height / 2;
-    const { deflect, wrap } = options;
+    const { constrain, deflect, wrap } = options;
     let { x, y, vx, vy } = entity;
+    let oob = false;
+
+    const hasConstraints = deflect || wrap || constrain;
 
     if (wrap) {
       // off right edge
@@ -30,33 +41,49 @@ class Physics {
     } else {
       // off right edge
       if (x + entity.width > boundsRect.right) {
-        x = boundsRect.right - entity.width;
-        if (deflect) {
-          vx = -vx;
+        if (hasConstraints) {
+          x = boundsRect.right - entity.width;
+          if (deflect) {
+            vx = -vx;
+          }
+        } else {
+          oob = true;
         }
       }
 
       // off left edge
       if (x < boundsRect.left) {
-        x = boundsRect.left;
-        if (deflect) {
-          vx = -vx;
+        if (hasConstraints) {
+          x = boundsRect.left;
+          if (deflect) {
+            vx = -vx;
+          }
+        } else {
+          oob = true;
         }
       }
 
       // off bottom edge
       if (y + entity.height > boundsRect.bottom) {
-        y = boundsRect.bottom - entity.height;
-        if (deflect) {
-          vy = -vy;
+        if (hasConstraints) {
+          y = boundsRect.bottom - entity.height;
+          if (deflect) {
+            vy = -vy;
+          }
+        } else {
+          oob = true;
         }
       }
 
       // off top edge
       if (y < boundsRect.top) {
-        y = boundsRect.top;
-        if (deflect) {
-          vy = -vy;
+        if (hasConstraints) {
+          y = boundsRect.top;
+          if (deflect) {
+            vy = -vy;
+          }
+        } else {
+          oob = true;
         }
       }
     }
@@ -65,6 +92,9 @@ class Physics {
     entity.y = y;
     entity.vx = vx;
     entity.vy = vy;
+    if (oob) {
+      entity.expired = true;
+    }
   }
 
   /* prettier-ignore */
@@ -80,9 +110,6 @@ class Physics {
   // collision detection - O(n^2) complexity
   static createBruteForceCollisionStrategy() {
     return function bruteForceCollisionStrategy(entities) {
-      if (!Array.isArray(entities)) {
-        throw new Error("Expected entities param to be an Array");
-      }
       const collisionMap = new Map();
       let i;
       let j;
@@ -114,9 +141,6 @@ class Physics {
 
   static createSpatialPartitioningCollisionStrategy() {
     return function spatialPartitioningCollisionStrategy(entities) {
-      if (!(entities instanceof QuadTree)) {
-        throw new Error("Expected entities param to be instance of QuadTree");
-      }
       const collisionMap = new Map();
 
       const { items } = entities;
@@ -155,9 +179,6 @@ class Physics {
   }
 
   static move(timeStep, entities, bounds, options) {
-    if (!Array.isArray(entities)) {
-      throw new Error("Expected entities param to be an Array");
-    }
     const len = entities.length;
     let i;
     let entity;
@@ -166,7 +187,9 @@ class Physics {
     // move and constrain
     for (i = 0; i < len; ++i) {
       entity = entities[i];
+
       if (entity && !entity.expired) {
+        // some entities expire after a perido of time
         if (entity.expires) {
           entity.expires -= timeStep;
           if (entity.expires <= 0) {
@@ -200,7 +223,7 @@ class Physics {
     timeStep,
     entities,
     bounds,
-    options = { deflect: false, wrap: false }
+    options = { constrain: true, deflect: false, wrap: false }
   ) {
     let useSpatialPartitioning = false;
     if (Array.isArray(entities)) {
