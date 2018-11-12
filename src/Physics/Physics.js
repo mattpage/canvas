@@ -14,7 +14,7 @@ class Physics {
     const halfHeight = entity.height / 2;
     const { constrain, deflect, wrap } = options;
     let { x, y, vx, vy } = entity;
-    let oob = false;
+    let outOfBounds = false;
 
     const hasConstraints = deflect || wrap || constrain;
 
@@ -47,7 +47,7 @@ class Physics {
             vx = -vx;
           }
         } else {
-          oob = true;
+          outOfBounds = true;
         }
       }
 
@@ -59,7 +59,7 @@ class Physics {
             vx = -vx;
           }
         } else {
-          oob = true;
+          outOfBounds = true;
         }
       }
 
@@ -71,7 +71,7 @@ class Physics {
             vy = -vy;
           }
         } else {
-          oob = true;
+          outOfBounds = true;
         }
       }
 
@@ -83,7 +83,7 @@ class Physics {
             vy = -vy;
           }
         } else {
-          oob = true;
+          outOfBounds = true;
         }
       }
     }
@@ -92,7 +92,7 @@ class Physics {
     entity.y = y;
     entity.vx = vx;
     entity.vy = vy;
-    if (oob) {
+    if (outOfBounds) {
       entity.expired = true;
     }
   }
