@@ -39,7 +39,8 @@ const updater = (delta, context, canvas, interfaces, state) => {
   state.particles.update(delta, bounds, 4, {
     constrain: false,
     wrap: false,
-    deflect: false
+    deflect: false,
+    gravity: 0.3
   });
 };
 

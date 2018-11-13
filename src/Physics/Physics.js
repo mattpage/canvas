@@ -183,6 +183,7 @@ class Physics {
     let i;
     let entity;
     let r;
+    const gravity = options.gravity || 0;
 
     // move and constrain
     for (i = 0; i < len; ++i) {
@@ -206,7 +207,7 @@ class Physics {
 
         // update position
         entity.x += entity.vx * timeStep;
-        entity.y += entity.vy * timeStep;
+        entity.y += entity.vy * timeStep + gravity;
 
         // if it has torque, rotate the entity
         r = timeStep * entity.torque;
@@ -223,7 +224,7 @@ class Physics {
     timeStep,
     entities,
     bounds,
-    options = { constrain: true, deflect: false, wrap: false }
+    options = { constrain: true, deflect: false, gravity: 0, wrap: false }
   ) {
     let useSpatialPartitioning = false;
     if (Array.isArray(entities)) {
