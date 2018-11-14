@@ -1,5 +1,3 @@
-import QuadTree from "./QuadTree";
-
 class Physics {
   static constrainEntity(
     entity,
@@ -139,45 +137,6 @@ class Physics {
     };
   }
 
-  static createSpatialPartitioningCollisionStrategy() {
-    return function spatialPartitioningCollisionStrategy(entities) {
-      const collisionMap = new Map();
-
-      const { items } = entities;
-      const numItems = items.length;
-      let i;
-      let j;
-      let entity;
-      let nearbyEntity;
-      let collisions;
-      let nearbyEntities;
-      let numNearby;
-
-      //  for every entity we retrieve and collision check only those entities that are near the entity
-      for (i = 0; i < numItems; ++i) {
-        entity = items[i];
-        if (entity.expired) {
-          // force a collision on expired entities
-          collisionMap.set(entity, []);
-        } else {
-          nearbyEntities = entities.retrieve(entity.rect);
-          numNearby = nearbyEntities.length;
-          for (j = 0; j < numNearby; ++j) {
-            if (i !== j) {
-              nearbyEntity = nearbyEntities[j];
-              if (Physics.collision(entity.rect, nearbyEntity.rect)) {
-                collisions = collisionMap.get(entity) || [];
-                collisions.push(nearbyEntity);
-                collisionMap.set(entity, collisions);
-              }
-            }
-          } // end for
-        }
-      } // end for
-      return collisionMap;
-    };
-  }
-
   static move(timeStep, entities, bounds, options) {
     const len = entities.length;
     let i;
@@ -226,22 +185,10 @@ class Physics {
     bounds,
     options = { constrain: true, deflect: false, gravity: 0, wrap: false }
   ) {
-    let useSpatialPartitioning = false;
-    if (Array.isArray(entities)) {
-      useSpatialPartitioning = false;
-    } else if (entities instanceof QuadTree) {
-      useSpatialPartitioning = true;
-    } else {
-      throw new Error("Unknown entities object");
-    }
-
-    const items = useSpatialPartitioning ? entities.items : entities;
     // move and constrain
-    Physics.move(timeStep, items, bounds, options);
+    Physics.move(timeStep, entities, bounds, options);
 
-    const collisionStrategy = useSpatialPartitioning
-      ? Physics.createSpatialPartitioningCollisionStrategy(bounds)
-      : Physics.createBruteForceCollisionStrategy(bounds);
+    const collisionStrategy = Physics.createBruteForceCollisionStrategy(bounds);
 
     // collision detection
     const collisionMap = collisionStrategy(entities);
@@ -260,8 +207,6 @@ class Physics {
         collisionResults.forEach(result => {
           if (result === entity) {
             removeEntity = false;
-          } else if (useSpatialPartitioning) {
-            entities.insert(result);
           } else {
             entities.push(result);
           }
@@ -271,11 +216,7 @@ class Physics {
       // did the entity itself survive?
       // if not, remove it
       if (removeEntity) {
-        if (useSpatialPartitioning) {
-          entities.remove(entity);
-        } else {
-          entities.splice(entities.indexOf(entity), 1);
-        }
+        entities.splice(entities.indexOf(entity), 1);
       }
     });
   }

@@ -5,7 +5,7 @@ My scratchbuilt game framework, some basic physics, and some interesting demos.
 * Useful Canvas and Game abstractions
 * Multi-channel audio support
 * Mouse and Keyboard support
-* Physics - constraints, collision detection, spatial partitioning 
+* Physics - constraints, collision detection, etc
 
 ## Demos
 * Basic - Draws multiple color rectangles on the screen. Demonstrates mouse interaction. 
