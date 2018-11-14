@@ -12,7 +12,11 @@ describe("PolygonEntity", () => {
     const entity = new PolygonEntity();
     expect(entity).toBeInstanceOf(PolygonEntity);
   });
-  describe("render", () => {
-    // TODO it should have some tests
+
+  it("should delegate rendering to the inner polygon", () => {
+    const entity = new PolygonEntity();
+    entity.polygon.render = jest.fn();
+    entity.render({});
+    expect(entity.polygon.render).toHaveBeenCalled();
   });
 });
