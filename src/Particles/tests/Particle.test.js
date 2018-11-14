@@ -44,6 +44,33 @@ describe("Particle", () => {
     expect(particle.ay).toEqual(4.2);
   });
 
+  it("should render if not expired", () => {
+    const mockContext = () => ({
+      fillRect: jest.fn()
+    });
+    const particle = Particle.create();
+    const context = mockContext();
+    particle.render(context);
+    expect(context.fillStyle).toEqual(particle.style.color);
+    expect(context.fillRect).toHaveBeenCalledWith(
+      particle.x,
+      particle.y,
+      particle.width,
+      particle.height
+    );
+  });
+
+  it("should not render if expired", () => {
+    const mockContext = () => ({
+      fillRect: jest.fn()
+    });
+    const particle = Particle.create();
+    particle.expired = true;
+    const context = mockContext();
+    particle.render(context);
+    expect(context.fillRect).not.toHaveBeenCalled();
+  });
+
   describe("Particle.create", () => {
     it("should create", () => {
       const particle = Particle.create();
