@@ -11,6 +11,10 @@ class Particles {
     return this._emitters;
   }
 
+  get particles() {
+    return this._particles;
+  }
+
   get count() {
     return this._particles.length;
   }
