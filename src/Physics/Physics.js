@@ -149,7 +149,7 @@ class Physics {
       entity = entities[i];
 
       if (entity && !entity.expired) {
-        // some entities expire after a perido of time
+        // some entities expire after a period of time
         if (entity.expires) {
           entity.expires -= timeStep;
           if (entity.expires <= 0) {
