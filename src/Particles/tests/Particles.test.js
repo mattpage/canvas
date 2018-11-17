@@ -91,5 +91,25 @@ describe("Particles", () => {
       particles.render(context);
       expect(mockParticle.render).toHaveBeenCalledWith(context);
     });
+    it("should not call render on particles that are expired and instead increment expiredParticles count", () => {
+      const particles = new Particles();
+      const mockParticle = {
+        expired: true,
+        render: jest.fn()
+      };
+      particles.particles.push(mockParticle);
+      expect(particles._expiredParticles).toEqual(0);
+      const context = {};
+      particles.render(context);
+      expect(mockParticle.render).not.toHaveBeenCalledWith(context);
+      expect(particles._expiredParticles).toEqual(1);
+    });
+    it("should skip particles that are already expired (null)", () => {
+      const particles = new Particles();
+      particles.particles.push(null);
+      const context = {};
+      particles.render(context);
+      expect(particles.count).toEqual(1);
+    });
   });
 });
