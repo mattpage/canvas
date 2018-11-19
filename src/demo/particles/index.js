@@ -23,7 +23,9 @@ const initializer = (context, canvas, interfaces, state) => {
   const dim = canvas.dimensions;
   const halfHeight = dim.height / 2;
   const halfWidth = dim.width / 2;
-  state.particles = new Particles(new Emitter(halfWidth, halfHeight));
+  state.particles = new Particles(
+    new Emitter(halfWidth, halfHeight + halfHeight / 2)
+  );
 
   logger.log("game initialized");
 };
@@ -36,7 +38,8 @@ const updater = (delta, context, canvas, interfaces, state) => {
     bottom: dim.height,
     right: dim.width
   };
-  state.particles.update(delta, bounds, 4, {
+  const rate = state.particles.count < 1000 ? 4 : 0;
+  state.particles.update(delta, bounds, rate, {
     constrain: false,
     wrap: false,
     deflect: false,
@@ -68,7 +71,4 @@ const renderer = (context, canvas, interfaces, state) => {
 };
 
 const game = Game.create("canvas");
-const initialGameState = {
-  balls: []
-};
-game.start(renderer, updater, initializer, initialGameState);
+game.start(renderer, updater, initializer, {});

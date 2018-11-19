@@ -14,8 +14,8 @@ class Emitter {
       ((this.angle + this.spread - Math.random() * this.spread * 2) * Math.PI) /
       180;
     const vx = Math.cos(radAngle) * numberInRange(0.001, 0.05);
-    const vy = Math.sin(radAngle) * numberInRange(0.001, 0.05);
-    return new Particle(this.x, this.y, 1, 1, vx, vy);
+    const vy = Math.sin(radAngle) * numberInRange(0.025, 0.25);
+    return new Particle(this.x, this.y, 5, 5, vx, vy);
   }
 }
 
