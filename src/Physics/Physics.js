@@ -162,11 +162,11 @@ class Physics {
 
         // update velocity
         entity.vx += entity.ax;
-        entity.vy += entity.ay;
+        entity.vy += entity.ay + gravity;
 
         // update position
         entity.x += entity.vx * timeStep;
-        entity.y += entity.vy * timeStep + gravity;
+        entity.y += entity.vy * timeStep;
 
         // if it has torque, rotate the entity
         r = timeStep * entity.torque;

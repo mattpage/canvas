@@ -43,7 +43,7 @@ const updater = (delta, context, canvas, interfaces, state) => {
     constrain: false,
     wrap: false,
     deflect: false,
-    gravity: 0.3
+    gravity: 0.03
   });
 };
 
