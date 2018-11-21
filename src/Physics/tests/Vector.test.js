@@ -40,10 +40,19 @@ describe("Vector", () => {
       expect(v.x).toEqual(2);
       expect(v.y).toEqual(3);
     });
+    it("should do nothing if you try to divide a vector by zero", () => {
+      const v = new Vector(4, 6);
+      v.divide(0);
+      expect(v.x).toEqual(4);
+      expect(v.y).toEqual(6);
+    });
   });
 
   describe("magnitude", () => {
-    it("should have some tests", () => {});
+    it("should calculate the magnitude of the vector", () => {
+      const v = new Vector(3, 4);
+      expect(v.magnitude).toEqual(5);
+    });
   });
 
   describe("normalize", () => {

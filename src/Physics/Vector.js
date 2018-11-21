@@ -35,7 +35,7 @@ class Vector {
   }
 
   // the length of the vector AKA the hypotenuse of the triangle
-  magnitude() {
+  get magnitude() {
     // pythagorean theorem
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
