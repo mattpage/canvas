@@ -56,6 +56,13 @@ describe("Vector", () => {
   });
 
   describe("normalize", () => {
-    it("should have some tests", () => {});
+    it("should reduce the magnitude of this vector to 1", () => {
+      const v = new Vector(3, 4);
+      const { x, y, magnitude } = v;
+      v.normalize();
+      expect(v.magnitude).toEqual(1);
+      expect(v.x).toEqual(x / magnitude);
+      expect(v.y).toEqual(y / magnitude);
+    });
   });
 });

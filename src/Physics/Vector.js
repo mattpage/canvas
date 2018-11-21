@@ -42,7 +42,7 @@ class Vector {
 
   // reduce this vector's length to 1 (unit vector) without changing its direction
   normalize() {
-    this.divide(this.magnitude());
+    this.divide(this.magnitude);
   }
 }
 
