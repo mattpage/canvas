@@ -5,15 +5,29 @@ class Vector {
   }
 
   // add a vector to this vector
-  add(v) {
-    this.x += v.x;
-    this.y += v.y;
+  add(...args) {
+    const numArgs = args.length;
+    if (numArgs === 1) {
+      const v = args[0];
+      this.x += v.x;
+      this.y += v.y;
+    } else if (numArgs === 2) {
+      this.x += args[0];
+      this.y += args[1];
+    }
   }
 
   // subtract a vector from this vector
-  subtract(v) {
-    this.x -= v.x;
-    this.y -= v.y;
+  subtract(...args) {
+    const numArgs = args.length;
+    if (numArgs === 1) {
+      const v = args[0];
+      this.x -= v.x;
+      this.y -= v.y;
+    } else if (numArgs === 2) {
+      this.x -= args[0];
+      this.y -= args[1];
+    }
   }
 
   // increase the length (magnitude) of a vector
