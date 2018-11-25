@@ -6,6 +6,12 @@ describe("Vector", () => {
     expect(v).toBeInstanceOf(Vector);
   });
 
+  it("should have reasonable default values", () => {
+    const v = new Vector();
+    expect(v.x).toEqual(0);
+    expect(v.y).toEqual(0);
+  });
+
   describe("add", () => {
     it("should add a vector to vector", () => {
       const v = new Vector(1, 2);
