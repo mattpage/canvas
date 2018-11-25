@@ -6,16 +6,14 @@ class PolygonEntity extends Entity {
     return new PolygonEntity(...args);
   }
 
-  constructor(points, x, y, vx = 0, vy = 0, rotation = 0, torque = 0) {
+  constructor(points, location, velocity, rotation = 0, torque = 0) {
     const polygon = Polygon.create(points, {});
     const rc = polygon.rect;
     super(
-      x,
-      y,
+      location,
       rc.right - rc.left,
       rc.bottom - rc.top,
-      vx,
-      vy,
+      velocity,
       rotation,
       torque
     );
@@ -23,7 +21,11 @@ class PolygonEntity extends Entity {
   }
 
   render(context) {
-    this.polygon.render(context, { x: this.x, y: this.y }, super.rotation);
+    this.polygon.render(
+      context,
+      { x: this.location.x, y: this.location.y },
+      super.rotation
+    );
   }
 }
 
