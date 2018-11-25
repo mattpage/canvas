@@ -1,18 +1,8 @@
-import { timestamp } from "../utils";
 import Vector from "./Vector";
 
 class Entity {
   static create(...args) {
     return new Entity(...args);
-  }
-
-  static keyGen() {
-    const proto = Entity.prototype;
-    if (!proto._keySequence_) {
-      proto._keySequence_ = Math.floor(timestamp() / 1000);
-    }
-    proto._keySequence_ += 1;
-    return proto._keySequence_;
   }
 
   constructor(
@@ -21,10 +11,7 @@ class Entity {
     height = 0,
     velocity,
     rotation = 0,
-    torque = 0,
-    options = {
-      createKey: true
-    }
+    torque = 0
   ) {
     this._location = location || new Vector(0, 0);
     this._velocity = velocity || new Vector(0, 0);
@@ -36,9 +23,6 @@ class Entity {
     this._expires = null;
     this._collidesWith = {};
     this._onCollision = null;
-    if (options && options.createKey) {
-      this._key = Entity.keyGen();
-    }
   }
 
   get collidesWith() {
@@ -55,10 +39,6 @@ class Entity {
 
   set onCollision(callback) {
     this._onCollision = callback;
-  }
-
-  get key() {
-    return this._key;
   }
 
   get type() {
