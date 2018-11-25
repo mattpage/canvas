@@ -1,6 +1,7 @@
 import Particles from "../Particles";
 import Emitter from "../Emitter";
 import Particle from "../Particle";
+import { Vector } from "../../index";
 
 describe("Particles", () => {
   it("should construct", () => {
@@ -14,7 +15,7 @@ describe("Particles", () => {
   });
 
   it("should not have an empty collection of Emitters", () => {
-    const particles = new Particles(new Emitter(0, 0));
+    const particles = new Particles(new Emitter(new Vector(0, 0)));
     expect(Array.isArray(particles.emitters)).toBe(true);
     expect(particles.emitters).toHaveLength(1);
   });
@@ -46,7 +47,7 @@ describe("Particles", () => {
     });
 
     it("should move particles", () => {
-      const particles = new Particles(new Emitter(50, 50));
+      const particles = new Particles(new Emitter(new Vector(50, 50)));
       expect(particles.count).toBe(0);
       const options = { constrain: false, wrap: false, deflect: false };
       particles.update(
@@ -59,7 +60,14 @@ describe("Particles", () => {
       const cached = [];
       particles.particles.forEach((p, index) => {
         p.id = index;
-        cached.push(new Particle(p.x, p.y, p.width, p.height, p.vx, p.vy));
+        cached.push(
+          new Particle(
+            new Vector(p.location.x, p.location.y),
+            p.width,
+            p.height,
+            new Vector(p.velocity.x, p.velocity.y)
+          )
+        );
       });
 
       particles.update(
@@ -73,8 +81,12 @@ describe("Particles", () => {
       for (let i = 0; i < 4; ++i) {
         const particle = particles.particles[i];
         expect(particle.id === i);
-        expect(particles.particles[i].x).not.toEqual(cached[i].x);
-        expect(particles.particles[i].y).not.toEqual(cached[i].y);
+        expect(particles.particles[i].location.x).not.toEqual(
+          cached[i].location.x
+        );
+        expect(particles.particles[i].location.y).not.toEqual(
+          cached[i].location.y
+        );
       }
     });
   });
