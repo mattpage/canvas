@@ -1,4 +1,12 @@
 class Vector {
+  static copy(v) {
+    return Vector.create(v.x, v.y);
+  }
+
+  static create(...args) {
+    return new Vector(...args);
+  }
+
   constructor(x = 0, y = 0) {
     this.x = x;
     this.y = y;

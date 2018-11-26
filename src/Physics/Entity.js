@@ -20,6 +20,7 @@ class Entity {
     this._height = height;
     this._rotation = rotation;
     this._torque = torque;
+    this._expired = false;
     this._expires = null;
     this._collidesWith = {};
     this._onCollision = null;
@@ -47,6 +48,14 @@ class Entity {
 
   set type(t) {
     this._type = t;
+  }
+
+  get expired() {
+    return this._expired;
+  }
+
+  set expired(isExpired) {
+    this._expired = isExpired;
   }
 
   get expires() {
