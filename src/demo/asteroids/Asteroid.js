@@ -1,8 +1,8 @@
 import {
-  Physics,
   PolygonEntity,
   numberInRange,
-  integerInRange
+  integerInRange,
+  Vector
 } from "../../index";
 
 const logger = console;
@@ -186,23 +186,23 @@ export const ASTEROIDS = [
 ];
 
 class Asteroid extends PolygonEntity {
-  static createRandom(x, y, type, options = {}) {
+  static createRandom(location, type, options = {}) {
     let asteroids = ASTEROIDS;
     if (type) {
       asteroids = asteroids.filter(a => a.type === type);
     }
     const index = integerInRange(0, asteroids.length - 1);
-    const velX = numberInRange(0.001, 0.05);
-    const velY = numberInRange(0.001, 0.05);
+    const velocity = Vector.create(
+      numberInRange(0.001, 0.05),
+      numberInRange(0.001, 0.05)
+    );
     const rotation = numberInRange(1, 360);
     const torque = numberInRange(0.00001, 0.0005);
     return new Asteroid(
       asteroids[index].points,
       asteroids[index].type,
-      x,
-      y,
-      velX,
-      velY,
+      location,
+      velocity,
       rotation,
       torque,
       options
@@ -210,25 +210,21 @@ class Asteroid extends PolygonEntity {
   }
 
   static split(asteroid, newSize, offset) {
-    const a1 = Asteroid.createRandom(asteroid.x, asteroid.y, newSize);
+    const a1 = Asteroid.createRandom(asteroid.location.clone(), newSize);
     const a2 = Asteroid.createRandom(
-      asteroid.x + offset,
-      asteroid.y + offset,
+      Vector.create(asteroid.location.x + offset, asteroid.location.y + offset),
       newSize
     );
 
-    const vectors = Physics.splitVelocityVector(asteroid.vx, asteroid.vy);
-    a1.vx = vectors[0].vx;
-    a1.vy = vectors[0].vy;
-    a2.vx = vectors[1].vx;
-    a2.vy = vectors[1].vy;
+    const vectors = asteroid.velocity.split();
+    /* eslint-disable prefer-destructuring */
+    a1.velocity = vectors[0];
+    a2.velocity = vectors[1];
     return [a1, a2];
   }
 
-  constructor(points, type, x, y, velX, velY, rotation, torque) {
-    super(points, x, y, velX, velY, rotation, torque);
-    this.velX = velX;
-    this.velX = velX;
+  constructor(points, type, location, velocity, rotation, torque) {
+    super(points, location, velocity, rotation, torque);
     this.type = type;
   }
 

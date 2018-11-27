@@ -1,10 +1,13 @@
 import Particle from "./Particle";
-import { numberInRange } from "../index";
+import { numberInRange, Vector } from "../index";
 
 class Emitter {
-  constructor(x, y, angle = 270, spread = 30) {
-    this.x = x;
-    this.y = y;
+  static create(...args) {
+    return new Emitter(...args);
+  }
+
+  constructor(location, angle = 270, spread = 30) {
+    this.location = location;
     this.angle = angle;
     this.spread = spread;
   }
@@ -15,7 +18,12 @@ class Emitter {
       180;
     const vx = Math.cos(radAngle) * numberInRange(-0.75, 0.75);
     const vy = Math.sin(radAngle) * numberInRange(0.75, 1.5);
-    return new Particle(this.x, this.y, 5, 5, vx, vy);
+    return Particle.create(
+      Vector.copy(this.location),
+      5,
+      5,
+      Vector.create(vx, vy)
+    );
   }
 }
 

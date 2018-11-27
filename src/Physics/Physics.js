@@ -11,7 +11,11 @@ class Physics {
     const halfWidth = entity.width / 2;
     const halfHeight = entity.height / 2;
     const { constrain, deflect, wrap } = options;
-    let { x, y, vx, vy } = entity;
+    const { location, velocity } = entity;
+    let { x, y } = location;
+    let vx = velocity.x;
+    let vy = velocity.y;
+
     let outOfBounds = false;
 
     const hasConstraints = deflect || wrap || constrain;
@@ -86,10 +90,10 @@ class Physics {
       }
     }
 
-    entity.x = x;
-    entity.y = y;
-    entity.vx = vx;
-    entity.vy = vy;
+    entity.location.x = x;
+    entity.location.y = y;
+    entity.velocity.x = vx;
+    entity.velocity.y = vy;
     if (outOfBounds) {
       entity.expired = true;
     }
@@ -161,12 +165,14 @@ class Physics {
         }
 
         // update velocity
-        entity.vx += entity.ax;
-        entity.vy += entity.ay + gravity;
+        entity.velocity.add(entity.acceleration);
+        entity.velocity.y += gravity;
 
         // update position
-        entity.x += entity.vx * timeStep;
-        entity.y += entity.vy * timeStep;
+        entity.location.add(
+          entity.velocity.x * timeStep,
+          entity.velocity.y * timeStep
+        );
 
         // if it has torque, rotate the entity
         r = timeStep * entity.torque;
@@ -219,33 +225,6 @@ class Physics {
         entities.splice(entities.indexOf(entity), 1);
       }
     });
-  }
-
-  static splitVelocityVector(vx, vy, deflectionDegrees = 30) {
-    // directional recoil
-    const kx = vx < 0 ? -1 : 1;
-    const ky = vy < 0 ? -1 : 1;
-
-    // velocity vector
-    const vector = Math.sqrt(vx * vx + vy * vy);
-
-    // angle of velocity vector
-    const theta = Math.atan(vy / vx);
-
-    // deflect +- deflectionDegrees
-    const alpha1 = (deflectionDegrees * Math.PI) / 180;
-    const alpha2 = -alpha1;
-
-    return [
-      {
-        vx: vector * Math.cos(alpha1 + theta) * kx,
-        vy: vector * Math.sin(alpha1 + theta) * ky
-      },
-      {
-        vx: vector * Math.cos(alpha2 + theta) * kx,
-        vy: vector * Math.sin(alpha2 + theta) * ky
-      }
-    ];
   }
 }
 

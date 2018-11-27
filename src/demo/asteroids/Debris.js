@@ -1,8 +1,8 @@
 import {
-  Physics,
   PolygonEntity,
   numberInRange,
-  integerInRange
+  integerInRange,
+  Vector
 } from "../../index";
 
 export const DebrisType = Object.freeze({
@@ -53,29 +53,26 @@ export const DEBRIS = [
 ]
 
 class Debris extends PolygonEntity {
-  static create(t = null, x = 0, y = 0, vx = 0, vy = 0, onCollision = null) {
+  static create(t = null, loc = null, vel = null, onCollision = null) {
     let type = t;
     if (!type) {
       const keys = Object.keys(DebrisType);
       type = keys[integerInRange(0, keys.length - 1)];
     }
+
+    const location = loc || Vector.create();
+    const velocity =
+      vel ||
+      Vector.create(numberInRange(0.001, 0.05), numberInRange(0.001, 0.05));
+
     const debrisTypes = DEBRIS.filter(s => s.type === type);
-    const velX = numberInRange(0.001, 0.05);
-    const velY = numberInRange(0.001, 0.05);
     const deflection = integerInRange(1, 360);
-    const velocity = Physics.splitVelocityVector(
-      vx || velX,
-      vy || velY,
-      deflection
-    );
     const rotation = numberInRange(1, 360);
     const torque = numberInRange(0.00001, 0.0005);
     const debris = new Debris(
       debrisTypes[0].points,
-      x,
-      y,
-      velocity[0].vx,
-      velocity[0].vy,
+      location,
+      velocity.split(deflection).shift(),
       rotation,
       torque
     );

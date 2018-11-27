@@ -44,9 +44,9 @@ export const BULLETS = [
 ]
 
 class Bullet extends PolygonEntity {
-  static create(type = BulletType.Player, x = 0, y = 0, ...args) {
+  static create(type = BulletType.Player, ...args) {
     const bullets = BULLETS.filter(s => s.type === type);
-    const bullet = new Bullet(bullets[0].points, x, y, ...args);
+    const bullet = new Bullet(bullets[0].points, ...args);
     bullet.type = type;
     return bullet;
   }

@@ -4,7 +4,8 @@ import {
   integerInRange,
   KEYS,
   Physics,
-  createAvgFpsCalculator
+  createAvgFpsCalculator,
+  Vector
 } from "../../index";
 import Asteroid, { AsteroidType } from "./Asteroid";
 import Spaceship, { SpaceshipType } from "./Spaceship";
@@ -56,8 +57,7 @@ const createPlayerSpaceship = (dim, audioFx) => {
   const collidesWith = createCollidesWithMap(true);
   const spaceship = Spaceship.create(
     SpaceshipType.Player,
-    dim.width / 2,
-    dim.height / 2,
+    Vector.create(dim.width / 2, dim.height / 2),
     collidesWith,
     createCollisionHandler(audioFx)
   );
@@ -69,9 +69,11 @@ const createPlayerSpaceship = (dim, audioFx) => {
 const createAsteroids = (dim, maxAsteroids, audioFx) => {
   const asteroids = [];
   for (let i = 0; i < maxAsteroids; i++) {
-    const x = integerInRange(0, dim.width);
-    const y = integerInRange(0, dim.height);
-    const asteroid = Asteroid.createRandom(x, y, AsteroidType.Large);
+    const location = Vector.create(
+      integerInRange(0, dim.width),
+      integerInRange(0, dim.height)
+    );
+    const asteroid = Asteroid.createRandom(location, AsteroidType.Large);
     asteroid.onCollision = createCollisionHandler(audioFx);
     asteroids.push(asteroid);
   }
@@ -109,23 +111,30 @@ const handlePlayerKeys = state => {
           break;
         case KEYS.ARROW_UP:
           // accelerate the ship
-          ship.ax = keyInfo.isDown ? Math.cos(ship.rotation) * 0.005 : 0;
-          ship.ay = keyInfo.isDown ? Math.sin(ship.rotation) * 0.005 : 0;
+          ship.acceleration.x = keyInfo.isDown
+            ? Math.cos(ship.rotation) * 0.005
+            : 0;
+          ship.acceleration.y = keyInfo.isDown
+            ? Math.sin(ship.rotation) * 0.005
+            : 0;
           break;
         case KEYS.SPACEBAR:
           // fire bullets
           if (keyInfo.isDown) {
             const bullet = Bullet.create(
               BulletType.Diamond,
-              ship.x + Math.cos(ship.rotation) * 20,
-              ship.y + Math.sin(ship.rotation) * 20,
-              0, // vx
-              0, // vy
+              Vector.create(
+                ship.location.x + Math.cos(ship.rotation) * 20,
+                ship.location.y + Math.sin(ship.rotation) * 20
+              ),
+              Vector.create(0, 0),
               ship.rotation,
               1 // torque
             );
-            bullet.ax = Math.cos(ship.rotation) * 0.05;
-            bullet.ay = Math.sin(ship.rotation) * 0.05;
+            bullet.acceleration = Vector.create(
+              Math.cos(ship.rotation) * 0.05,
+              Math.sin(ship.rotation) * 0.05
+            );
             bullet.collidesWith = createCollidesWithMap(true);
             bullet.onCollision = createCollisionHandler(
               audioFx,

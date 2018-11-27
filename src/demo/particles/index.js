@@ -3,7 +3,8 @@ import {
   Game,
   Particles,
   Emitter,
-  createAvgFpsCalculator
+  createAvgFpsCalculator,
+  Vector
 } from "../../index";
 import "./style.css";
 
@@ -23,9 +24,8 @@ const initializer = (context, canvas, interfaces, state) => {
   const dim = canvas.dimensions;
   const halfHeight = dim.height / 2;
   const halfWidth = dim.width / 2;
-  state.particles = new Particles(
-    new Emitter(halfWidth, halfHeight + halfHeight / 2)
-  );
+  const location = Vector.create(halfWidth, halfHeight + halfHeight / 2);
+  state.particles = Particles.create(Emitter.create(location));
 
   logger.log("game initialized");
 };

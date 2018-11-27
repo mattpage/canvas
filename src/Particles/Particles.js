@@ -1,6 +1,10 @@
 import { Physics } from "../Physics";
 
 class Particles {
+  static create(...args) {
+    return new Particles(...args);
+  }
+
   constructor(emitters = []) {
     this._particles = [];
     this._emitters = Array.isArray(emitters) ? [...emitters] : [emitters];
@@ -23,11 +27,13 @@ class Particles {
     let i;
     let j;
     const len = this._emitters.length;
+    let particle;
 
     // emit some particles at the specified rate
     for (i = 0; i < rate; ++i) {
       for (j = 0; j < len; ++j) {
-        this._particles.push(this._emitters[j].emit());
+        particle = this._emitters[j].emit();
+        this._particles.push(particle);
       }
     }
 

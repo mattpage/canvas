@@ -1,49 +1,29 @@
-import { timestamp } from "../utils";
+import Vector from "./Vector";
 
 class Entity {
   static create(...args) {
     return new Entity(...args);
   }
 
-  static keyGen() {
-    const proto = Entity.prototype;
-    if (!proto._keySequence_) {
-      proto._keySequence_ = Math.floor(timestamp() / 1000);
-    }
-    proto._keySequence_ += 1;
-    return proto._keySequence_;
-  }
-
   constructor(
-    x = 0,
-    y = 0,
+    location,
     width = 0,
     height = 0,
-    vx = 0,
-    vy = 0,
+    velocity,
     rotation = 0,
     torque = 0
   ) {
-    this._x = x;
-    this._y = y;
+    this._location = location || new Vector(0, 0);
+    this._velocity = velocity || new Vector(0, 0);
+    this._acceleration = new Vector(0.0, 0.0);
     this._width = width;
     this._height = height;
     this._rotation = rotation;
     this._torque = torque;
-
+    this._expired = false;
     this._expires = null;
-
-    // velocity
-    this._vx = vx;
-    this._vy = vy;
-
-    // acceleration
-    this._ax = 0.0;
-    this._ay = 0.0;
-
     this._collidesWith = {};
     this._onCollision = null;
-    this._key = Entity.keyGen();
   }
 
   get collidesWith() {
@@ -62,16 +42,20 @@ class Entity {
     this._onCollision = callback;
   }
 
-  get key() {
-    return this._key;
-  }
-
   get type() {
     return this._type;
   }
 
   set type(t) {
     this._type = t;
+  }
+
+  get expired() {
+    return this._expired;
+  }
+
+  set expired(isExpired) {
+    this._expired = isExpired;
   }
 
   get expires() {
@@ -104,52 +88,28 @@ class Entity {
     this._torque = t;
   }
 
-  get x() {
-    return this._x;
+  get location() {
+    return this._location;
   }
 
-  set x(x) {
-    this._x = x;
+  set location(vector) {
+    this._location = vector;
   }
 
-  get y() {
-    return this._y;
+  get velocity() {
+    return this._velocity;
   }
 
-  set y(y) {
-    this._y = y;
+  set velocity(vector) {
+    this._velocity = vector;
   }
 
-  get vx() {
-    return this._vx;
+  get acceleration() {
+    return this._acceleration;
   }
 
-  set vx(vx) {
-    this._vx = vx;
-  }
-
-  get vy() {
-    return this._vy;
-  }
-
-  set vy(vy) {
-    this._vy = vy;
-  }
-
-  get ax() {
-    return this._ax;
-  }
-
-  set ax(ax) {
-    this._ax = ax;
-  }
-
-  get ay() {
-    return this._ay;
-  }
-
-  set ay(ay) {
-    this._ay = ay;
+  set acceleration(vector) {
+    this._acceleration = vector;
   }
 
   get width() {
@@ -161,15 +121,15 @@ class Entity {
   }
 
   get rect() {
+    const { location, width, height } = this;
     return {
-      top: this.y,
-      left: this.x,
-      right: this.x + this.width,
-      bottom: this.y + this.height
+      top: location.y,
+      left: location.x,
+      right: location.x + width,
+      bottom: location.y + height
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
   collision(entities) {
     // Given an array of colliding entities, this method must return a new array of resulting entities (if any).
     // By default, this checks to see if any of the entity types can collide with this entity.

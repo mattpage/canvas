@@ -1,16 +1,21 @@
-import { Entity, numberInRange, randomColor } from "../../index";
+import { Entity, numberInRange, randomColor, Vector } from "../../index";
 
 class Ball extends Entity {
-  static createRandom(x = 0, y = 0) {
+  static createRandom() {
     const vx = numberInRange(0.001, 2.5);
     const temp = numberInRange(0.001, 1);
     const vy = temp === vx ? vx + numberInRange(0.001, 1) : temp;
     const radius = numberInRange(5, 50);
-    return new Ball(x, y, vx, vy, radius, randomColor());
+    return new Ball(
+      new Vector(0, 0),
+      new Vector(vx, vy),
+      radius,
+      randomColor()
+    );
   }
 
-  constructor(x = 0, y = 0, vx = 2.5, vy = 1, radius = 25, color = "blue") {
-    super(x, y, radius * 2, radius * 2, vx, vy);
+  constructor(location, velocity, radius = 25, color = "blue") {
+    super(location, radius * 2, radius * 2, velocity);
     this.radius = radius;
     this.color = color;
   }
@@ -18,8 +23,8 @@ class Ball extends Entity {
   render(context) {
     context.beginPath();
     context.arc(
-      this.x + this.radius,
-      this.y + this.radius,
+      this.location.x + this.radius,
+      this.location.y + this.radius,
       this.radius,
       0,
       Math.PI * 2,

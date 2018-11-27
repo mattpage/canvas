@@ -40,13 +40,12 @@ export const SPACESHIPS = [
 class Spaceship extends PolygonEntity {
   static create(
     type = SpaceshipType.Player,
-    x = 0,
-    y = 0,
+    location,
     collidesWith = {},
     onCollision = null
   ) {
     const ships = SPACESHIPS.filter(s => s.type === type);
-    const ship = new Spaceship(ships[0].points, x, y);
+    const ship = new Spaceship(ships[0].points, location);
     ship.type = type;
     ship.collidesWith = collidesWith;
     ship.onCollision = onCollision;
@@ -84,10 +83,8 @@ class Spaceship extends PolygonEntity {
         results.push(
           Debris.create(
             null,
-            this.x,
-            this.y,
-            this.vx,
-            this.vy,
+            this.location.clone(),
+            this.velocity.clone(),
             this.onCollision
           )
         );
