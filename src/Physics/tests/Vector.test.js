@@ -71,4 +71,11 @@ describe("Vector", () => {
       expect(v.y).toEqual(y / magnitude);
     });
   });
+
+  describe("Vector.create", () => {
+    it("should create", () => {
+      const v = Vector.create();
+      expect(v).toBeInstanceOf(Vector);
+    });
+  });
 });

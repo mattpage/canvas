@@ -1,3 +1,6 @@
+/*
+ * 2D Vector
+*/
 class Vector {
   static copy(v) {
     return Vector.create(v.x, v.y);

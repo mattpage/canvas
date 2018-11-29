@@ -7,8 +7,8 @@ class Ball extends Entity {
     const vy = temp === vx ? vx + numberInRange(0.001, 1) : temp;
     const radius = numberInRange(5, 50);
     return new Ball(
-      new Vector(0, 0),
-      new Vector(vx, vy),
+      Vector.create(0, 0),
+      Vector.create(vx, vy),
       radius,
       randomColor()
     );
