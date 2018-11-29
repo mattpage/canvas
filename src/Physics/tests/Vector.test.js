@@ -19,6 +19,12 @@ describe("Vector", () => {
       expect(v.x).toEqual(4);
       expect(v.y).toEqual(6);
     });
+    it("should add numbers to a vector", () => {
+      const v = new Vector(1, 2);
+      v.add(3, 4);
+      expect(v.x).toEqual(4);
+      expect(v.y).toEqual(6);
+    });
   });
 
   describe("subtract", () => {
@@ -27,6 +33,12 @@ describe("Vector", () => {
       v.subtract(new Vector(1, 2));
       expect(v.x).toEqual(2);
       expect(v.y).toEqual(-1);
+    });
+    it("should subtract numbers from a vector", () => {
+      const v = new Vector(3, 2);
+      v.subtract(1, 2);
+      expect(v.x).toEqual(2);
+      expect(v.y).toEqual(0);
     });
   });
 
@@ -76,6 +88,36 @@ describe("Vector", () => {
     it("should create", () => {
       const v = Vector.create();
       expect(v).toBeInstanceOf(Vector);
+    });
+  });
+
+  describe("Vector.add", () => {
+    it("should add two vectors", () => {
+      const v = Vector.add(Vector.create(1, 2), Vector.create(3, 4));
+      expect(v.x).toEqual(4);
+      expect(v.y).toEqual(6);
+    });
+  });
+
+  describe("Vector.subtract", () => {
+    it("should subtract two vectors", () => {
+      const v = Vector.subtract(Vector.create(3, 1), Vector.create(1, 2));
+      expect(v.x).toEqual(2);
+      expect(v.y).toEqual(-1);
+    });
+  });
+  describe("Vector.multiply", () => {
+    it("should multiply a vector", () => {
+      const v = Vector.multiply(Vector.create(2, 6), 2);
+      expect(v.x).toEqual(4);
+      expect(v.y).toEqual(12);
+    });
+  });
+  describe("Vector.divide", () => {
+    it("should divide a vector", () => {
+      const v = Vector.divide(Vector.create(4, 6), 2);
+      expect(v.x).toEqual(2);
+      expect(v.y).toEqual(3);
     });
   });
 });

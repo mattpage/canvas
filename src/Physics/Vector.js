@@ -6,6 +6,22 @@ class Vector {
     return Vector.create(v.x, v.y);
   }
 
+  static add(v1, v2) {
+    return Vector.create(v1.x + v2.x, v1.y + v2.y);
+  }
+
+  static subtract(v1, v2) {
+    return Vector.create(v1.x - v2.x, v1.y - v2.y);
+  }
+
+  static multiply(v, scalar) {
+    return Vector.copy(v).multiply(scalar);
+  }
+
+  static divide(v, scalar) {
+    return Vector.copy(v).divide(scalar);
+  }
+
   static create(...args) {
     return new Vector(...args);
   }
@@ -26,6 +42,7 @@ class Vector {
       this.x += args[0];
       this.y += args[1];
     }
+    return this;
   }
 
   clone() {
@@ -43,6 +60,7 @@ class Vector {
       this.x -= args[0];
       this.y -= args[1];
     }
+    return this;
   }
 
   // increase the length (magnitude) of a vector
@@ -51,6 +69,7 @@ class Vector {
   multiply(scalar) {
     this.x *= scalar;
     this.y *= scalar;
+    return this;
   }
 
   // decrease the length (magnitude) of a vector
@@ -61,6 +80,7 @@ class Vector {
       this.x /= scalar;
       this.y /= scalar;
     }
+    return this;
   }
 
   // the length of the vector AKA the hypotenuse of the triangle
@@ -72,6 +92,7 @@ class Vector {
   // reduce this vector's length to 1 (unit vector) without changing its direction
   normalize() {
     this.divide(this.magnitude);
+    return this;
   }
 
   // split a velocity vector into two vectors traveling apart by some number of degrees (deflection)
