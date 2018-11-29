@@ -13,9 +13,9 @@ class Entity {
     rotation = 0,
     torque = 0
   ) {
-    this._location = location || new Vector(0, 0);
-    this._velocity = velocity || new Vector(0, 0);
-    this._acceleration = new Vector(0.0, 0.0);
+    this._location = location || Vector.create(0, 0);
+    this._velocity = velocity || Vector.create(0, 0);
+    this._acceleration = Vector.create(0.0, 0.0);
     this._width = width;
     this._height = height;
     this._rotation = rotation;

@@ -110,13 +110,13 @@ const handlePlayerKeys = state => {
           ship.torque = keyInfo.isDown ? 0.005 : 0;
           break;
         case KEYS.ARROW_UP:
-          // accelerate the ship
-          ship.acceleration.x = keyInfo.isDown
-            ? Math.cos(ship.rotation) * 0.005
-            : 0;
-          ship.acceleration.y = keyInfo.isDown
-            ? Math.sin(ship.rotation) * 0.005
-            : 0;
+          // accelerate/decelerate the ship
+          ship.acceleration = keyInfo.isDown
+            ? Vector.create(
+                Math.cos(ship.rotation) * 0.005,
+                Math.sin(ship.rotation) * 0.005
+              )
+            : Vector.create(0, 0);
           break;
         case KEYS.SPACEBAR:
           // fire bullets
