@@ -4,6 +4,8 @@ import Particle from "../Particle";
 import { Vector } from "../../index";
 
 describe("Particles", () => {
+  const testPoints = [0, 0, 0, 5, 5, 5, 5, 0];
+
   it("should construct", () => {
     expect(new Particles()).toBeInstanceOf(Particles);
   });
@@ -39,7 +41,7 @@ describe("Particles", () => {
       const mockEmitter = {
         emit: jest.fn()
       };
-      mockEmitter.emit.mockImplementation(() => new Particle());
+      mockEmitter.emit.mockImplementation(() => new Particle(testPoints));
       const particles = new Particles(mockEmitter);
       particles.update(1, { left: 0, top: 0, right: 100, bottom: 100 });
       expect(mockEmitter.emit).toHaveBeenCalled();
@@ -62,6 +64,7 @@ describe("Particles", () => {
         p.id = index;
         cached.push(
           new Particle(
+            testPoints,
             new Vector(p.location.x, p.location.y),
             p.width,
             p.height,

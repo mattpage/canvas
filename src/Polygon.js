@@ -116,6 +116,12 @@ class Polygon {
       }
     }
     context.closePath();
+
+    if (this.options.fillStyle) {
+      context.fillStyle = this.options.fillStyle;
+      context.fill();
+    }
+
     context.stroke();
 
     if (this.options.showCircle) {

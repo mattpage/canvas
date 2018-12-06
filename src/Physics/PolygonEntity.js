@@ -6,8 +6,15 @@ class PolygonEntity extends Entity {
     return new PolygonEntity(...args);
   }
 
-  constructor(points, location, velocity, rotation = 0, torque = 0) {
-    const polygon = Polygon.create(points, {});
+  constructor(
+    points,
+    location,
+    velocity,
+    rotation = 0,
+    torque = 0,
+    polygonOptions = Polygon.defaultOptions
+  ) {
+    const polygon = Polygon.create(points, polygonOptions);
     const rc = polygon.rect;
     super(
       location,

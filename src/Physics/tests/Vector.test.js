@@ -84,6 +84,16 @@ describe("Vector", () => {
     });
   });
 
+  describe("clone", () => {
+    it("should return a copy of a vector", () => {
+      const v1 = Vector.create(42, 24);
+      const v2 = v1.clone();
+      expect(v2).toBeInstanceOf(Vector);
+      expect(v1.x).toEqual(v2.x);
+      expect(v1.y).toEqual(v2.y);
+    });
+  });
+
   describe("Vector.create", () => {
     it("should create", () => {
       const v = Vector.create();

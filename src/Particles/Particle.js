@@ -1,34 +1,30 @@
-import { Entity } from "../index";
+import { Polygon, PolygonEntity } from "../index";
 
-class Particle extends Entity {
+class Particle extends PolygonEntity {
   static create(...args) {
     return new Particle(...args);
   }
 
   constructor(
+    points,
     location,
-    width = 10,
-    height = 10,
     velocity,
     rotation,
     torque,
     style = {
-      color: "blue"
+      fillStyle: "blue"
     }
   ) {
-    super(location, width, height, velocity, rotation, torque);
+    super(points, location, velocity, rotation, torque, {
+      ...Polygon.defaultOptions,
+      ...style
+    });
     this.style = style;
   }
 
   render(context) {
     if (!this.expired) {
-      context.fillStyle = this.style.color;
-      context.fillRect(
-        this.location.x,
-        this.location.y,
-        this.width,
-        this.height
-      );
+      super.render(context);
     }
   }
 }
