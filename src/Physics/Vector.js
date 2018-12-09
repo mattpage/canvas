@@ -95,6 +95,12 @@ class Vector {
     return this;
   }
 
+  limit(max) {
+    this.x = Math.min(this.x, max);
+    this.y = Math.min(this.y, max);
+    return this;
+  }
+
   // split a velocity vector into two vectors traveling apart by some number of degrees (deflection)
   split(deflectionDegrees = 30) {
     // directional recoil

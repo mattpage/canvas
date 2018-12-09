@@ -43,6 +43,11 @@ const webpackConfig = {
         test: /\.css$/,
         include: path.resolve(__dirname, "src/demo/particles"),
         use: [MiniCssExtractPlugin.loader, "css-loader"]
+      },
+      {
+        test: /\.css$/,
+        include: path.resolve(__dirname, "src/demo/attract"),
+        use: [MiniCssExtractPlugin.loader, "css-loader"]
       }
     ]
   },
@@ -75,7 +80,7 @@ const getHtmlTemplate = demo => {
   return templateContent;
 };
 
-const demos = ["basic", "asteroids", "balls", "particles"];
+const demos = ["basic", "asteroids", "balls", "particles", "attract"];
 demos.forEach(demo => {
   webpackConfig.entry[demo] = `./src/demo/${demo}/index.js`;
   webpackConfig.plugins.push(

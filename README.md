@@ -6,11 +6,14 @@ My scratchbuilt game framework, some basic physics, and some interesting demos.
 * Multi-channel audio support
 * Mouse and Keyboard support
 * Physics - constraints, collision detection, vectors, etc
+* Particles - the beginning of a particle system
 
 ## Demos
 * Basic - Draws multiple color rectangles on the screen. Demonstrates mouse interaction. 
 * Balls - Balls bouncing about in a constraining box. Demonstrates mouse interaction, double buffering, and Physics (constraints + deflection). 
 * Asteroids - A playable version of the classic 1979 space shooter. Full featured demo of Physics (w/Spatial Partitioning), Keyboard, double buffering, and Audio.
+* Particles - A fountain of confetti-like particles.
+* Attract - Particles are attracted to and swarm the mouse cursor.
 
 ## scripts
 run the demo(s)
