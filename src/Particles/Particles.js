@@ -38,34 +38,25 @@ class Particles {
     }
 
     Physics.move(timeStep, this._particles, bounds, options);
-
-    /*
-    if (this._expiredParticles > this._particles.length / 2) {
-      console.log(
-        "filter expired particles from array",
-        this._particles.length,
-        this._expiredParticles
-      );
-      this._particles = this._particles.filter(p => p && !p.expired);
-      this._expiredParticles = 0;
-    }
-    */
   }
 
   render(context) {
     let particle;
-    const len = this._particles.length;
+    const particles = this._particles;
+    const len = particles.length;
+    let expired = this._expiredParticles;
     for (let i = 0; i < len; ++i) {
-      particle = this._particles[i];
+      particle = particles[i];
       if (particle) {
         if (particle.expired) {
-          this._particles[i] = null;
-          this._expiredParticles += 1;
+          particles[i] = null;
+          expired += 1;
         } else {
           particle.render(context);
         }
       }
     }
+    this._expiredParticles = expired;
   }
 }
 

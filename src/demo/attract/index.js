@@ -2,6 +2,7 @@ import {
   Canvas,
   Game,
   Particles,
+  ParticleType,
   Emitter,
   createAvgFpsCalculator,
   Vector
@@ -26,17 +27,10 @@ const initializer = (context, canvas, interfaces, state) => {
   const halfWidth = dim.width / 2;
   const location = Vector.create(halfWidth, halfHeight + halfHeight / 2);
 
-  // create a circle in cartesian coordinates
-  const r = 5;
-  const points = [];
-  let radians;
-  for (let th = 1; th <= 360; th++) {
-    radians = (Math.PI / 180) * th;
-    points.push(r * Math.cos(radians), r * Math.sin(radians));
-  }
-
   // our emitter is going to emit circles
-  state.particles = Particles.create(Emitter.create(location, 0, 90, points));
+  state.particles = Particles.create(
+    Emitter.create(location, ParticleType.Circle, { radius: 5 }, 0, 90)
+  );
 
   logger.log("game initialized");
 };
@@ -61,7 +55,7 @@ const updater = (delta, context, canvas, interfaces, state) => {
     }
   }
 
-  const rate = len < 50 ? 1 : 0;
+  const rate = len < 50 ? 5 : 0;
   state.particles.update(
     delta,
     {

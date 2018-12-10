@@ -1,4 +1,4 @@
-import Particle from "./Particle";
+import Particle, { ParticleType } from "./Particle";
 import { numberInRange, randomColor, Vector } from "../index";
 
 class Emitter {
@@ -8,14 +8,16 @@ class Emitter {
 
   constructor(
     location,
+    particleType = ParticleType.Rectangle,
+    particleTypeConfig = { width: 5, height: 10 },
     angle = 270,
-    spread = 30,
-    points = [0, 0, 5, 0, 5, 15, 0, 15]
+    spread = 30
   ) {
     this.location = location;
+    this.particleType = particleType;
+    this.particleTypeConfig = particleTypeConfig;
     this.angle = angle;
     this.spread = spread;
-    this.points = points;
   }
 
   emit() {
@@ -26,8 +28,10 @@ class Emitter {
     const vx = Math.cos(radAngle) * numberInRange(-0.75, 0.75);
     const vy = Math.sin(radAngle) * numberInRange(0.75, 1.5);
 
-    return Particle.create(
-      this.points,
+    // prettier-ignore
+    return Particle.createFromType(
+      this.particleType,
+      this.particleTypeConfig,
       Vector.copy(this.location),
       Vector.create(vx, vy), // velocity
       numberInRange(0, 360), // rotation
