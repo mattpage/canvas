@@ -84,6 +84,27 @@ describe("Vector", () => {
     });
   });
 
+  describe("limit", () => {
+    it("should limit the x,y of the vector", () => {
+      const v = new Vector(3, 4);
+      v.limit(1.5);
+      expect(v.x).toEqual(1.5);
+      expect(v.y).toEqual(1.5);
+    });
+    it("should not limit the x of the vector", () => {
+      const v = new Vector(3, 6);
+      v.limit(4);
+      expect(v.x).toEqual(3);
+      expect(v.y).toEqual(4);
+    });
+    it("should not limit the y of the vector", () => {
+      const v = new Vector(6, 3);
+      v.limit(4);
+      expect(v.x).toEqual(4);
+      expect(v.y).toEqual(3);
+    });
+  });
+
   describe("clone", () => {
     it("should return a copy of a vector", () => {
       const v1 = Vector.create(42, 24);

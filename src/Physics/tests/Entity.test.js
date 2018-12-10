@@ -21,9 +21,11 @@ describe("Entity", () => {
     expect(entity.acceleration.y).toEqual(0);
   });
 
-  it("should be possible to set position", () => {
+  it("should be possible to set location", () => {
     const entity = new Entity();
-    entity.location.add(42, 24);
+    expect(entity.location.x).toEqual(0);
+    expect(entity.location.y).toEqual(0);
+    entity.location = entity.location.clone().add(42, 24);
     expect(entity.location.x).toEqual(42);
     expect(entity.location.y).toEqual(24);
   });
@@ -58,7 +60,9 @@ describe("Entity", () => {
 
   it("should be possible to get/set acceleration", () => {
     const entity = new Entity();
-    entity.acceleration.add(2.4, 4.2);
+    expect(entity.acceleration.x).toEqual(0);
+    expect(entity.acceleration.y).toEqual(0);
+    entity.acceleration = entity.acceleration.clone().add(2.4, 4.2);
     expect(entity.acceleration.x).toEqual(2.4);
     expect(entity.acceleration.y).toEqual(4.2);
   });
