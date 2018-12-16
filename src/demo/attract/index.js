@@ -44,14 +44,15 @@ const updater = (delta, context, canvas, interfaces, state) => {
   // valid mouse position?
   if (!Number.isNaN(mouse.position.x) && !Number.isNaN(mouse.position.y)) {
     let particle;
-    let dir;
+    let accel;
     const mousePos = Vector.create(mouse.position.x, mouse.position.y);
     for (let i = 0; i < len; ++i) {
       particle = particles[i];
-      dir = Vector.subtract(mousePos, particle.location);
-      dir.normalize();
-      dir.multiply(0.1);
-      particle.velocity.add(dir).limit(1);
+      // accelerate towards the mouse
+      accel = Vector.subtract(mousePos, particle.location);
+      accel.normalize();
+      accel.multiply(0.1);
+      particle.acceleration = accel;
     }
   }
 
@@ -65,7 +66,7 @@ const updater = (delta, context, canvas, interfaces, state) => {
       right: dim.width
     },
     rate,
-    { constrain: true, deflect: true, gravity: 0, wrap: false }
+    { constrain: true, deflect: true, gravity: 0, wrap: false, vLimit: 1 }
   );
 };
 

@@ -26,14 +26,13 @@ class Particles {
   update(timeStep, bounds, rate = 4, options = {}) {
     let i;
     let j;
-    const len = this._emitters.length;
-    let particle;
+    const { emitters, particles } = this;
+    const len = emitters.length;
 
     // emit some particles at the specified rate
     for (i = 0; i < rate; ++i) {
       for (j = 0; j < len; ++j) {
-        particle = this._emitters[j].emit();
-        this._particles.push(particle);
+        particles.push(emitters[j].emit());
       }
     }
 

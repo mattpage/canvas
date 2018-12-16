@@ -147,6 +147,7 @@ class Physics {
     let entity;
     let r;
     const gravity = options.gravity || 0;
+    const vLimit = "vLimit" in options ? options.vLimit : null;
 
     // move and constrain
     for (i = 0; i < len; ++i) {
@@ -167,6 +168,9 @@ class Physics {
         // update velocity
         entity.velocity.add(entity.acceleration);
         entity.velocity.y += gravity;
+        if (vLimit) {
+          entity.velocity.limit(vLimit);
+        }
 
         // update position
         entity.location.add(
