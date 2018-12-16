@@ -11,7 +11,8 @@ class Entity {
     height = 0,
     velocity,
     rotation = 0,
-    torque = 0
+    torque = 0,
+    mass = 1
   ) {
     this._location = location || Vector.create(0, 0);
     this._velocity = velocity || Vector.create(0, 0);
@@ -24,6 +25,7 @@ class Entity {
     this._expires = null;
     this._collidesWith = {};
     this._onCollision = null;
+    this._mass = mass;
   }
 
   get collidesWith() {
@@ -112,6 +114,14 @@ class Entity {
     this._acceleration = vector;
   }
 
+  get mass() {
+    return this._mass;
+  }
+
+  set mass(scalar) {
+    this._mass = scalar;
+  }
+
   get width() {
     return this._width;
   }
@@ -128,6 +138,12 @@ class Entity {
       right: location.x + width,
       bottom: location.y + height
     };
+  }
+
+  applyForce(force) {
+    // divide force by mass and add to acceleration
+    const f = Vector.divide(force, this.mass);
+    this.acceleration.add(f);
   }
 
   collision(entities) {

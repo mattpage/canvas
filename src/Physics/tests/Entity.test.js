@@ -67,6 +67,13 @@ describe("Entity", () => {
     expect(entity.acceleration.y).toEqual(4.2);
   });
 
+  it("should be possible to get/set mass", () => {
+    const entity = new Entity();
+    expect(entity.mass).toEqual(1.0);
+    entity.mass = 10.0;
+    expect(entity.mass).toEqual(10.0);
+  });
+
   it("should be possible to get/set torque", () => {
     const entity = new Entity();
     expect(entity.torque).toEqual(0);

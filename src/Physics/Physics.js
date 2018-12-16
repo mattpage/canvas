@@ -1,3 +1,5 @@
+import Vector from "./Vector";
+
 class Physics {
   static constrainEntity(
     entity,
@@ -146,7 +148,8 @@ class Physics {
     let i;
     let entity;
     let r;
-    const gravity = options.gravity || 0;
+    const gravity =
+      "gravity" in options ? Vector.create(0, options.gravity) : null;
     const vLimit = "vLimit" in options ? options.vLimit : null;
 
     // move and constrain
@@ -165,9 +168,14 @@ class Physics {
           }
         }
 
+        // apply forces
+        if (gravity) {
+          entity.applyForce(gravity);
+        }
+
         // update velocity
         entity.velocity.add(entity.acceleration);
-        entity.velocity.y += gravity;
+
         if (vLimit) {
           entity.velocity.limit(vLimit);
         }
