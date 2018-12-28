@@ -45,11 +45,15 @@ class Spaceship extends PolygonEntity {
     onCollision = null
   ) {
     const ships = SPACESHIPS.filter(s => s.type === type);
-    const ship = new Spaceship(ships[0].points, location);
-    ship.type = type;
+    const ship = new Spaceship(ships[0].points, type, location);
     ship.collidesWith = collidesWith;
     ship.onCollision = onCollision;
     return ship;
+  }
+
+  constructor(points, type, location, velocity, rotation, torque) {
+    super(points, location, velocity, rotation, torque);
+    this.type = type;
   }
 
   shieldsUp(timeoutMs = 2000) {

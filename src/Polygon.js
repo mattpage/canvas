@@ -10,7 +10,7 @@ class Polygon {
 
   constructor(points = [], options = Polygon.defaultOptions) {
     this.points = points;
-    this.options = options;
+    this.options = { ...options };
   }
 
   // convert points [0,1,1,2,2,3] to [[0,1],[1,2],[2,3]]
