@@ -23,9 +23,47 @@ class Image {
     return this.image;
   }
 
+  get width() {
+    if (!this.image) {
+      return 0;
+    }
+    return this.image.naturalWidth;
+  }
+
+  get height() {
+    if (!this.image) {
+      return 0;
+    }
+    return this.image.naturalHeight;
+  }
+
   load(src, callback, ...rest) {
     this.image = Image.createElement(src, callback, ...rest);
     return this;
+  }
+
+  render(
+    context,
+    x = 0,
+    y = 0,
+    width = 0,
+    height = 0,
+    destX = 0,
+    destY = 0,
+    destWidth = null,
+    destHeight = null
+  ) {
+    context.drawImage(
+      this.image,
+      x,
+      y,
+      width || this.width,
+      height || this.height,
+      destX,
+      destY,
+      destWidth || this.width,
+      destHeight || this.height
+    );
   }
 }
 
