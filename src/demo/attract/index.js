@@ -66,7 +66,13 @@ const updater = (delta, context, canvas, interfaces, state) => {
       right: dim.width
     },
     rate,
-    { constrain: true, deflect: true, gravity: 0, wrap: false, vLimit: 1 }
+    {
+      constrain: true,
+      deflect: true,
+      gravity: 0,
+      wrap: false,
+      vLimit: { min: Vector.create(-1, -1), max: Vector.create(1, 1) }
+    }
   );
 };
 
