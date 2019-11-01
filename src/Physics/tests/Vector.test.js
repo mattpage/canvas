@@ -87,19 +87,19 @@ describe("Vector", () => {
   describe("limit", () => {
     it("should limit the x,y of the vector", () => {
       const v = new Vector(3, 4);
-      v.limit(1.5);
+      v.limit(Vector.create(0, 0), Vector.create(1.5, 1.5));
       expect(v.x).toEqual(1.5);
       expect(v.y).toEqual(1.5);
     });
     it("should not limit the x of the vector", () => {
       const v = new Vector(3, 6);
-      v.limit(4);
+      v.limit(Vector.create(3, 4), Vector.create(4, 4));
       expect(v.x).toEqual(3);
       expect(v.y).toEqual(4);
     });
     it("should not limit the y of the vector", () => {
       const v = new Vector(6, 3);
-      v.limit(4);
+      v.limit(Vector.create(1, 1), Vector.create(4, 4));
       expect(v.x).toEqual(4);
       expect(v.y).toEqual(3);
     });

@@ -95,9 +95,10 @@ class Vector {
     return this;
   }
 
-  limit(max) {
-    this.x = Math.min(this.x, max);
-    this.y = Math.min(this.y, max);
+  // constrains the vector to a min/max range
+  limit(vMin, vMax) {
+    this.x = Math.min(Math.max(this.x, vMin.x), vMax.x);
+    this.y = Math.min(Math.max(this.y, vMin.y), vMax.y);
     return this;
   }
 

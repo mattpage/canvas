@@ -96,7 +96,7 @@ class Physics {
     entity.location.y = y;
     entity.velocity.x = vx;
     entity.velocity.y = vy;
-    if (outOfBounds) {
+    if (outOfBounds && entity.expires) {
       entity.expired = true;
     }
   }
@@ -177,7 +177,7 @@ class Physics {
         entity.velocity.add(entity.acceleration);
 
         if (vLimit) {
-          entity.velocity.limit(vLimit);
+          entity.velocity.limit(vLimit.min, vLimit.max);
         }
 
         // update position
@@ -201,42 +201,52 @@ class Physics {
     timeStep,
     entities,
     bounds,
-    options = { constrain: true, deflect: false, gravity: 0, wrap: false }
+    options = {
+      constrain: true,
+      deflect: false,
+      gravity: 0,
+      wrap: false,
+      handleCollisions: true
+    }
   ) {
     // move and constrain
     Physics.move(timeStep, entities, bounds, options);
 
-    const collisionStrategy = Physics.createBruteForceCollisionStrategy(bounds);
+    if (options.handleCollisions) {
+      const collisionStrategy = Physics.createBruteForceCollisionStrategy(
+        bounds
+      );
 
-    // collision detection
-    const collisionMap = collisionStrategy(entities);
+      // collision detection
+      const collisionMap = collisionStrategy(entities);
 
-    // resolve collisions
-    collisionMap.forEach((collisions, entity) => {
-      // assume the entity does not survive the collision
-      let removeEntity = true;
+      // resolve collisions
+      collisionMap.forEach((collisions, entity) => {
+        // assume the entity does not survive the collision
+        let removeEntity = true;
 
-      if (!entity.expired) {
-        // entity.collision must return an empty array or an array of resulting entities
-        // if the entity survives the collision, then it should be included in the array
-        const collisionResults = entity.collision(collisions);
+        if (!entity.expired) {
+          // entity.collision must return an empty array or an array of resulting entities
+          // if the entity survives the collision, then it should be included in the array
+          const collisionResults = entity.collision(collisions);
 
-        // insert every collision result that is not the entity itself
-        collisionResults.forEach(result => {
-          if (result === entity) {
-            removeEntity = false;
-          } else {
-            entities.push(result);
-          }
-        });
-      }
+          // insert every collision result that is not the entity itself
+          collisionResults.forEach(result => {
+            if (result === entity) {
+              removeEntity = false;
+            } else {
+              entities.push(result);
+            }
+          });
+        }
 
-      // did the entity itself survive?
-      // if not, remove it
-      if (removeEntity) {
-        entities.splice(entities.indexOf(entity), 1);
-      }
-    });
+        // did the entity itself survive?
+        // if not, remove it
+        if (removeEntity) {
+          entities.splice(entities.indexOf(entity), 1);
+        }
+      });
+    }
   }
 }
 
