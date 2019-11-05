@@ -20,7 +20,7 @@ const loadBackgroundTiles = () =>
         }
       }
 
-      const backgroundTileMap = TileMap.create(backgroundMap, TILE_SIZE);
+      const backgroundTileMap = TileMap.create(backgroundMap);
 
       const backgroundTiles = [];
 

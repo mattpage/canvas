@@ -3,19 +3,17 @@ class TileMap {
     return new TileMap(...args);
   }
 
-  constructor(tiles, rows, columns, tileSize = 32) {
-    if (!tiles) {
-      throw new Error("Missing required argument `tiles`");
-    }
-
+  constructor(tiles = []) {
     this._tiles = tiles;
     this._rows = tiles.length;
     this._columns = tiles.length > 0 ? tiles[0].length : 0;
-    this._tileSize = tileSize;
   }
 
   get(col, row) {
-    return this._tiles[row][col];
+    if (col > -1 && col < this.columns && row > -1 && row < this.rows) {
+      return this._tiles[row][col];
+    }
+    return null;
   }
 
   get rows() {
@@ -24,10 +22,6 @@ class TileMap {
 
   get columns() {
     return this._columns;
-  }
-
-  get tileSize() {
-    return this._tileSize;
   }
 }
 

@@ -33,4 +33,11 @@ describe("Tile", () => {
     tile.render(context);
     expect(image.render).toHaveBeenCalled();
   });
+
+  describe("Tile.create", () => {
+    it("should create", () => {
+      const tile = Tile.create();
+      expect(tile).toBeInstanceOf(Tile);
+    });
+  });
 });

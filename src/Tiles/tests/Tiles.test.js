@@ -26,11 +26,11 @@ describe("Tiles", () => {
     const t1 = Tile.create();
     const t2 = Tile.create();
     const tiles = new Tiles([t1, t2]);
-    expect(tiles.tiles[0]).toEqual(t1);
-    expect(tiles.tiles[1]).toEqual(t2);
+    expect(tiles.get(0)).toEqual(t1);
+    expect(tiles.get(1)).toEqual(t2);
   });
 
-  it("should render tiles", () => {
+  it("should render all the tiles", () => {
     const mockContext = () => ({
       drawImage: jest.fn()
     });
@@ -46,5 +46,29 @@ describe("Tiles", () => {
     tiles.render(context);
     expect(image1.render).toHaveBeenCalled();
     expect(image2.render).toHaveBeenCalled();
+  });
+
+  it("should render the tile at the given index", () => {
+    const mockContext = () => ({
+      drawImage: jest.fn()
+    });
+    const mockImage = () => ({
+      render: jest.fn()
+    });
+    const image1 = mockImage();
+    const image2 = mockImage();
+    const tile1 = Tile.create(image1);
+    const tile2 = Tile.create(image2);
+    const context = mockContext();
+    const tiles = new Tiles([tile1, tile2]);
+    tiles.render(context, 1);
+    expect(image2.render).toHaveBeenCalled();
+  });
+
+  describe("Tiles.create", () => {
+    it("should create", () => {
+      const tiles = Tiles.create();
+      expect(tiles).toBeInstanceOf(Tiles);
+    });
   });
 });
