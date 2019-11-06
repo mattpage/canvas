@@ -9,7 +9,8 @@ class Game {
     contextAttributes: { alpha: false },
     audio: true,
     keyboard: true,
-    mouse: true
+    mouse: true,
+    maxFPS: 60
   };
 
   static create(...args) {
@@ -42,10 +43,8 @@ class Game {
   }
 
   start(renderer, updater, initializer, ...args) {
-    const context = this.canvas.context(
-      this.options.contextType,
-      this.options.contextAttributes
-    );
+    const { contextType, contextAttributes, maxFPS } = this.options;
+    const context = this.canvas.context(contextType, contextAttributes);
 
     const init = initializer || this.initialize;
     const update = updater || this.update;
@@ -60,7 +59,6 @@ class Game {
       init(context, this.canvas, this.interfaces, gameArgs);
     }
 
-    const maxFPS = 60;
     const timestep = 1000 / maxFPS;
     let delta = 0;
     let lastFrameTimeMs = 0;

@@ -147,7 +147,7 @@ const renderer = (context, canvas, interfaces, state) => {
   return true;
 };
 
-const game = Game.create("canvas");
+const game = Game.create("canvas", { ...Game.defaultOptions, maxFPS: 30 });
 game.start(renderer, updater, initializer, {
   layers: [],
   keys: [],
