@@ -31,6 +31,11 @@ class Vector {
     this.y = y;
   }
 
+  reset() {
+    this.x = 0;
+    this.y = 0;
+  }
+
   // add a vector to this vector
   add(...args) {
     const numArgs = args.length;

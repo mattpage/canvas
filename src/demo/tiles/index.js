@@ -1,12 +1,4 @@
-import {
-  Canvas,
-  Game,
-  createAvgFpsCalculator,
-  KEYS,
-  Physics,
-  Entity,
-  Vector
-} from "../../index";
+import { Canvas, Game, createAvgFpsCalculator, KEYS } from "../../index";
 
 import {
   loadBackgroundTiles,
@@ -16,92 +8,37 @@ import {
   TILE_SIZE
 } from "./tiles";
 
+import Sprite from "./sprite";
+
 import "./style.css";
 
 const logger = console;
 
-class Sprite extends Entity {
-  constructor(tiles, index) {
-    super(Vector.create(0, 0), TILE_SIZE, TILE_SIZE);
-    this._index = index;
-    this._tiles = tiles;
-  }
-
-  get index() {
-    return this._index;
-  }
-
-  set index(n) {
-    this._index = n;
-  }
-
-  render(context) {
-    this._tiles.render(context, this._index, this.location.x, this.location.y);
-  }
-}
-
 const handlePlayerKeys = state => {
-  const { keys, sprite } = state;
+  const { keys, sprite, worldDimensions } = state;
   let keyInfo;
 
   while (keys.length > 0) {
     keyInfo = keys.pop();
 
-    let spriteTileIndex = sprite.index;
-    const lastSpriteTileIndex = spriteTileIndex;
-
-    switch (keyInfo.keyCode) {
-      case KEYS.ARROW_LEFT:
-        switch (spriteTileIndex) {
-          case 9:
-            spriteTileIndex = 10;
-            break;
-          case 10:
-            spriteTileIndex = 11;
-            break;
-          case 11:
-            spriteTileIndex = 9;
-            break;
-          default:
-            spriteTileIndex = 9;
-            break;
-        }
-        console.log("LEFT", lastSpriteTileIndex, spriteTileIndex);
-        sprite.acceleration.subtract(Vector.create(0.01, 0));
-        break;
-      case KEYS.ARROW_RIGHT:
-        switch (spriteTileIndex) {
-          case 0:
-            spriteTileIndex = 1;
-            break;
-          case 1:
-            spriteTileIndex = 2;
-            break;
-          case 2:
-            spriteTileIndex = 0;
-            break;
-          default:
-            spriteTileIndex = 0;
-            break;
-        }
-        console.log("RIGHT", lastSpriteTileIndex, spriteTileIndex);
-        sprite.acceleration.add(Vector.create(0.01, 0));
-        break;
-      case KEYS.ARROW_UP:
-        // accelerate/decelerate the ship
-        // ship.acceleration = keyInfo.isDown
-        break;
-      case KEYS.ARROW_DOWN:
-        if (keyInfo.isDown) {
-        }
-        break;
-      default:
-        // ignore
-        break;
-    } // end switch
-
-    if (spriteTileIndex !== lastSpriteTileIndex) {
-      sprite.index = spriteTileIndex;
+    if (keyInfo.isDown) {
+      switch (keyInfo.keyCode) {
+        case KEYS.ARROW_LEFT:
+          sprite.left().move(worldDimensions);
+          break;
+        case KEYS.ARROW_RIGHT:
+          sprite.right().move(worldDimensions);
+          break;
+        case KEYS.ARROW_UP:
+          sprite.up().move(worldDimensions);
+          break;
+        case KEYS.ARROW_DOWN:
+          sprite.down().move(worldDimensions);
+          break;
+        default:
+          // ignore
+          break;
+      } // end switch
     }
   }
 };
@@ -116,6 +53,16 @@ const initializer = (context, canvas, { keyboard }, state) => {
     });
   });
 
+  state.worldDimensions = {
+    top: 0,
+    left: 0,
+    bottom: Math.min(
+      canvas.dimensions.height,
+      BACKGROUND_ATLAS_ROWS * TILE_SIZE
+    ),
+    right: Math.min(canvas.dimensions.width, BACKGROUND_ATLAS_COLS * TILE_SIZE)
+  };
+
   // offscreen canvas for double buffering
   state.offscreen = Canvas.create();
   state.offscreenContext = state.offscreen.context();
@@ -123,6 +70,9 @@ const initializer = (context, canvas, { keyboard }, state) => {
   state.calcAvgFps = createAvgFpsCalculator();
   state.fpsEl = window.document.querySelector("#fps");
   state.tilesEl = window.document.querySelector("#tiles");
+  state.spriteTilesEl = window.document.querySelector("#sprite-tiles");
+  state.spriteTileIndexEl = window.document.querySelector("#sprite-tile-index");
+  state.spriteLocation = window.document.querySelector("#sprite-location");
 
   // hookup the player keys
   keyboard.captureKeys(
@@ -140,26 +90,6 @@ const updater = (timeStep, context, canvas, ...rest) => {
 
   // handle the player keyboard input
   handlePlayerKeys(state);
-
-  const dim = canvas.dimensions;
-
-  const sprite = state.sprite;
-  if (sprite) {
-    Physics.update(
-      timeStep,
-      [sprite],
-      {
-        top: 0,
-        left: 0,
-        bottom: Math.min(dim.height, BACKGROUND_ATLAS_ROWS * TILE_SIZE),
-        right: Math.min(dim.width, BACKGROUND_ATLAS_COLS * TILE_SIZE)
-      },
-      {
-        handleCollisions: false,
-        vLimit: { min: Vector.create(-0.01, 0), max: Vector.create(0.01, 0) }
-      }
-    );
-  }
 };
 
 const renderer = (context, canvas, interfaces, state) => {
@@ -172,6 +102,10 @@ const renderer = (context, canvas, interfaces, state) => {
   state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   let tileCount = 0;
+  let spriteTileCount = 0;
+  let spriteTileIndex = -1;
+  let x = 0;
+  let y = 0;
 
   state.layers.forEach(layer => {
     // render the tiles
@@ -179,13 +113,27 @@ const renderer = (context, canvas, interfaces, state) => {
     tileCount += layer.count;
   });
 
-  const sprite = state.sprite;
-  if (sprite) {
-    sprite.render(state.offscreenContext);
+  if (state.sprite) {
+    state.sprite.render(state.offscreenContext);
+
+    // display sprite stats
+    spriteTileCount = state.sprite.tiles.length;
+    spriteTileIndex = state.sprite.index;
+    x = state.sprite.location.x;
+    y = state.sprite.location.y;
   }
 
   // display the total tiles
   state.tilesEl.textContent = `${tileCount}`;
+
+  // display the total sprite tiles
+  state.spriteTilesEl.textContent = `${spriteTileCount}`;
+
+  // display the current sprite tile index
+  state.spriteTileIndexEl.textContent = `${spriteTileIndex}`;
+
+  // display the current sprite acceleration
+  state.spriteLocation.textContent = `x: ${x}, y: ${y}`;
 
   // copy the offscreen canvas to the display canvas
   context.drawImage(state.offscreen.canvas, 0, 0);

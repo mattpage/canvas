@@ -40,7 +40,6 @@ const loadBackgroundTiles = () =>
         }
       }
 
-      console.log("Total backgroundTiles tiles", backgroundTiles.length);
       resolve(Tiles.create(backgroundTiles));
     });
   });
