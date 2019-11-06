@@ -13,6 +13,7 @@ class Sprite extends Entity {
     this._index = index;
     this._tiles = tiles;
     this._direction = SpriteDirection.Right;
+    this._isMoving = false;
   }
 
   get index() {
@@ -31,7 +32,16 @@ class Sprite extends Entity {
     return this._tiles.tiles;
   }
 
+  get isMoving() {
+    return this._isMoving;
+  }
+
+  set isMoving(moving) {
+    this._isMoving = moving;
+  }
+
   move(constraint) {
+    this.isMoving = true;
     switch (this.direction) {
       case SpriteDirection.Left:
         this.location.x = Math.max(this.location.x - 5, constraint.left);
@@ -46,7 +56,7 @@ class Sprite extends Entity {
         this.location.y = Math.min(this.location.y + 5, constraint.bottom);
         break;
       default:
-      // ignore
+        this.isMoving = false;
     }
   }
 
@@ -127,6 +137,7 @@ class Sprite extends Entity {
   }
 
   render(context) {
+    this.isMoving = false;
     this._tiles.render(context, this._index, this.location.x, this.location.y);
   }
 }
