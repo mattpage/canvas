@@ -97,6 +97,8 @@ const renderer = (context, canvas, interfaces, state) => {
   state.offscreenContext.imageSmoothingEnabled = false;
   context.imageSmoothingEnabled = false;
 
+  const { sprite } = state;
+
   // erase the offscreen canvas
   state.offscreenContext.fillStyle = "white";
   state.offscreenContext.fillRect(0, 0, dim.width, dim.height);
@@ -113,14 +115,14 @@ const renderer = (context, canvas, interfaces, state) => {
     tileCount += layer.count;
   });
 
-  if (state.sprite) {
-    state.sprite.render(state.offscreenContext);
+  if (sprite) {
+    sprite.render(state.offscreenContext);
 
     // display sprite stats
-    spriteTileCount = state.sprite.tiles.length;
-    spriteTileIndex = state.sprite.index;
-    x = state.sprite.location.x;
-    y = state.sprite.location.y;
+    spriteTileCount = sprite.tiles.length;
+    spriteTileIndex = sprite.index;
+    x = sprite.location.x;
+    y = sprite.location.y;
   }
 
   // display the total tiles
