@@ -115,10 +115,6 @@ const renderer = (context, canvas, interfaces, state) => {
   offscreenContext.fillRect(0, 0, dim.width, dim.height);
 
   let tileCount = 0;
-  let spriteTileCount = 0;
-  let spriteTileIndex = -1;
-  let x = 0;
-  let y = 0;
 
   layers.forEach(layer => {
     // render the tiles
@@ -126,28 +122,22 @@ const renderer = (context, canvas, interfaces, state) => {
     tileCount += layer.count;
   });
 
-  if (sprite) {
-    sprite.render(offscreenContext);
-
-    // display sprite stats
-    spriteTileCount = sprite.tiles.length;
-    spriteTileIndex = sprite.index;
-
-    x = sprite.location.x;
-    y = sprite.location.y;
-  }
-
   // display the total tiles
   tilesEl.textContent = `${tileCount}`;
 
-  // display the total sprite tiles
-  spriteTilesEl.textContent = `${spriteTileCount}`;
+  if (sprite) {
+    sprite.render(offscreenContext);
 
-  // display the current sprite tile index
-  spriteTileIndexEl.textContent = `${spriteTileIndex}`;
+    // display the total sprite tiles
+    spriteTilesEl.textContent = `${sprite.tiles.length}`;
 
-  // display the current sprite acceleration
-  spriteLocation.textContent = `x: ${x}, y: ${y}`;
+    // display the current sprite tile index
+    spriteTileIndexEl.textContent = `${sprite.index}`;
+
+    // display the current sprite acceleration
+    const { location } = sprite;
+    spriteLocation.textContent = `x:${location.x}, y:${location.y}`;
+  }
 
   // copy the offscreen canvas to the display canvas
   context.drawImage(offscreen.canvas, 0, 0);
