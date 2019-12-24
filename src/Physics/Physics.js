@@ -197,17 +197,19 @@ class Physics {
     }
   }
 
+  static defaultUpdateOptions = {
+    constrain: true,
+    deflect: false,
+    gravity: 0,
+    wrap: false,
+    handleCollisions: true
+  };
+
   static update(
     timeStep,
     entities,
     bounds,
-    options = {
-      constrain: true,
-      deflect: false,
-      gravity: 0,
-      wrap: false,
-      handleCollisions: true
-    }
+    options = Physics.defaultUpdateOptions
   ) {
     // move and constrain
     Physics.move(timeStep, entities, bounds, options);

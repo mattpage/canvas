@@ -220,7 +220,7 @@ const updater = (timeStep, context, canvas, ...rest) => {
       bottom: dim.height,
       right: dim.width
     },
-    { wrap: true }
+    { ...Physics.defaultUpdateOptions, wrap: true }
   );
 };
 
