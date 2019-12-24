@@ -79,9 +79,12 @@ const loadSpriteTiles = () =>
     });
   });
 
+const loadTiles = () => Promise.all([loadBackgroundTiles(), loadSpriteTiles()]);
+
 export {
   loadBackgroundTiles,
   loadSpriteTiles,
+  loadTiles,
   BACKGROUND_ATLAS_ROWS,
   BACKGROUND_ATLAS_COLS,
   BACKGROUND_MAP_COLS,

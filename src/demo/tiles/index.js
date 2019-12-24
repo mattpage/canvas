@@ -1,8 +1,7 @@
 import { Canvas, Game, createAvgFpsCalculator, KEYS } from "../../index";
 
 import {
-  loadBackgroundTiles,
-  loadSpriteTiles,
+  loadTiles,
   BACKGROUND_MAP_ROWS,
   BACKGROUND_MAP_COLS,
   TILE_SIZE
@@ -17,24 +16,23 @@ const logger = console;
 const initializer = (context, canvas, { keyboard }, state) => {
   logger.log("initializing game");
 
-  loadBackgroundTiles().then(bgTiles => {
-    state.layers.push(bgTiles);
-    loadSpriteTiles().then(spriteTiles => {
-      state.sprite = new Sprite(spriteTiles, 0);
-    });
-    state.worldDimensions = {
-      top: 0,
-      left: 0,
-      bottom: Math.min(
-        canvas.dimensions.height,
-        (BACKGROUND_MAP_ROWS - 1) * TILE_SIZE
-      ),
-      right: Math.min(
-        canvas.dimensions.width,
-        (BACKGROUND_MAP_COLS - 1) * TILE_SIZE
-      )
-    };
+  loadTiles().then(tiles => {
+    state.layers.push(tiles[0]);
+    state.sprite = new Sprite(tiles[1], 0);
   });
+
+  state.worldDimensions = {
+    top: 0,
+    left: 0,
+    bottom: Math.min(
+      canvas.dimensions.height,
+      (BACKGROUND_MAP_ROWS - 1) * TILE_SIZE
+    ),
+    right: Math.min(
+      canvas.dimensions.width,
+      (BACKGROUND_MAP_COLS - 1) * TILE_SIZE
+    )
+  };
 
   // offscreen canvas for double buffering
   state.offscreen = Canvas.create();
@@ -150,7 +148,7 @@ const renderer = (context, canvas, interfaces, state) => {
 };
 
 // kick everything off
-const game = Game.create("canvas", { ...Game.defaultOptions, maxFPS: 30 });
+const game = Game.create("canvas", { ...Game.defaultOptions, maxFPS: 60 });
 game.start(renderer, updater, initializer, {
   layers: [],
   keys: [],
